@@ -5,14 +5,12 @@
 %
 % Add important paths to source code and user-defined functions.
 disp(' ')
-addpath([pwd '/src/'])
-addpath([pwd '/user/'])
 %
 % ----------------------------------------------------------------------------- 
 %%% Parameters.
 
 % Define the names of both the parent model, and of child model to be built.
-child.name = 'test';
+child.name = 'gulfStreamComparison';
 parent.name = 'ASTE';
 
 % Number of months
@@ -20,6 +18,8 @@ parent.model.nMonths = 12;
 
 % ----------------------------------------------------------------------------- 
 %%% Automation.
+addpath([pwd '/src/'])
+addpath([pwd '/models/' child.name '/'])
 
 % Enter parameters of the parent model.
 [dirz, parent] = specifyParentModelAndDirectories(parent, child);
