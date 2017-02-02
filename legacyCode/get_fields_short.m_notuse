@@ -1,0 +1,51 @@
+clear all;
+
+nx=2160;nx1=450;nx2=360;ny=2*nx1+nx+nx2;nz=106;nxstr=num2str(nx);
+nfx=[nx 0 nx nx2 nx1];nfy=[nx1 0 nx nx nx];
+dirOut=['/nobackupp2/atnguye4/llc' nxstr '/aste_' nxstr 'x' num2str(nx1) 'x' num2str(nx2) '/run_template/'];
+
+for iloop=2:2;
+  nx0=2160;
+  if(iloop==1);
+    nx01=936;nx02=576;
+    flist={'WOA09v2_S_llc2160_JAN.bin','WOA09v2_T_llc2160_JAN.bin',...
+       'visc3DblendfromrunobcsC_08Mar2016_aste2160.bin','Diffkr_basin_v1m9EfB_Method2_llc2160.bin'};
+  else;
+    nx01=1800;nx02=1008;
+    flist={'SIareasmooth_run00xxB_19922011_0000026352.bin','SIheffsmooth_run00xxB_19922011_0000026352.bin'};
+  end;
+  ny0=nx01*2+nx0+nx02;nz0=106;
+  nfx0=[nx0 0 nx0 nx02 nx01];nfy0=[nx01 0 nx0 nx0 nx0];
+  dirIn=['/nobackupp2/atnguye4/llc2160/aste_2160x' num2str(nx01) 'x' num2str(nx02) '/run_template/'];
+
+for ifile=1:size(flist,2)
+  fprintf('%s\n',[dirIn flist{ifile}]);
+  fOut=[dirOut flist{ifile}];
+  clear temp nz0
+  temp=dir([dirIn flist{ifile}]);
+  nz0=temp.bytes/nx0/ny0/4;
+
+  for ifield=1:nz0
+    clear FF F Fn Fnew
+    FF=read_slice([dirIn flist{ifile}],nx0,ny0,ifield,'real*4');
+%put to faces
+    F{1}=FF(:,1:nfy0(1));F{3}=FF(:,nfy0(1)+1:nfy0(1)+nfy0(3));
+    F{4}=reshape(FF(:,nfy0(1)+nfy0(3)+1:nfy0(1)+nfy0(3)+nfx0(4)),nfx0(4),nx);
+    F{5}=reshape(FF(:,nfy0(1)+nfy0(3)+nfx0(4)+1:nfy0(1)+nfy0(3)+nfx0(4)+nfx0(5)),nfx0(5),nx);
+%shrinking:
+    Fn{1}=F{1}(:,nfy0(1)-nfy(1)+1:nfy0(1));
+    Fn{3}=F{3};
+    Fn{4}=F{4}(1:nfx(4),:);
+    Fn{5}=F{5}(1:nfx(5),:);
+
+%put back to compact format:
+    Fnew=cat(2,Fn{1},Fn{3},reshape(Fn{4},nx,nfx(4)),reshape(Fn{5},nx,nfx(5)));
+    iskip=ifield-1;
+    writebin(fOut,Fnew,1,'real*4',iskip); 
+    fprintf('%i ',ifield);
+
+  end;
+  fprintf('\n %s\n',fOut);
+
+end;
+end;%iloop
