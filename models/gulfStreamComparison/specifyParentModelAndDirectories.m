@@ -10,8 +10,7 @@ if ~isfield(child, 'name')
 end
 
 % Home directory
-dirz.home       = [pwd '/'];
-
+dirz.home       = '~/Numerics/nestedModelMaker/';
 
 % ----------------------------------------------------------------------------- 
 % Parent model.
@@ -37,11 +36,6 @@ parent.model.UVname = 'trsp_3d_set1';
 
 % Directory to global grids at parent resolution.
 dirz.globalGrids.parent = dirz.parent.grid;
-
-% The directory with U and T is 
-% [dirz.parentData parent.model.TDir
-%parent.model.UDir = 'diags/TRSP/';
-%parent.model.TDir = 'diags/STATE/';
 
 % Start time of the model.	  	  Current name:
 parent.model.year0   = 2002;		
@@ -75,6 +69,19 @@ parent.llc.ny = [ [1 1]*3*parent.res [1 1 1]*parent.res ];
 parent.offset.ii = [   0   0   0   0  0 ];
 parent.offset.jj = [ 360   0   0   0  0 ];
 
+% Boundaries of the parent model.
+parent.ii =	[    1		  135
+						     0		    0	
+						     0		    0	
+						     0		    0	
+						   158	    228		];
+
+parent.jj =	[  227      292
+						     0		    0	
+						     0		    0	
+						     0		    0	
+						   136      270	  ];
+				
 % Not sure exactly what these are and how they relate to the entries of (.nx, .ny)
 % CHANGE NAME.
 parent.nx0 = parent.res;
@@ -87,7 +94,7 @@ dirz.globalGrids.child  = ['/net/barents/raid16/weddell/raid3/gforget/grids/', .
 						'gridCompleted/llcRegLatLon/']; 
 
 % Directories to store the child grids and obcs.
-dirz.child.home  = [ pwd '/models/' child.name '/'];
+dirz.child.home  = [ dirz.home '/models/' child.name '/'];
 dirz.child.grid  = [ dirz.child.home 'grids/' ];
 dirz.child.obcs  = [ dirz.child.home 'obcs/' ];
 % ----------------------------------------------------------------------------- 

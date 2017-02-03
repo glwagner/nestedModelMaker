@@ -18,8 +18,13 @@ parent.model.nMonths = 12;
 
 % ----------------------------------------------------------------------------- 
 %%% Automation.
-addpath([pwd '/src/'])
-addpath([pwd '/models/' child.name '/'])
+
+% Initialize the script by copying code to active directory and moving there.
+eval( 'cp ./src/*.m ./active/')
+eval(['cp ./models/' modelName '/*.m ./active/'])
+
+% Enter active directory active directory to path
+cd('./active/')
 
 % Enter parameters of the parent model.
 [dirz, parent] = specifyParentModelAndDirectories(parent, child);

@@ -42,31 +42,21 @@ elseif obij.face == 3
 	title(ax(4), 'y-velocity on cube sphere (m/s)')
 end
 
-% No x-label for face 3 (yet)
+% Decision-tree for labeling the x-axis.
 if obij.face == 1 || obij.face == 2
 	if strcmp(obij.edge, 'south') || strcmp(obij.edge, 'north')
-		%xlabel(ax(1), 'longitude')
-		%xlabel(ax(2), 'longitude')
-		%xlabel(ax(3), 'longitude')
 		xlabel(ax(4), 'longitude')
 	else
-		%xlabel(ax(1), 'latitude')
-		%xlabel(ax(2), 'latitude')
-		%xlabel(ax(3), 'latitude')
 		xlabel(ax(4), 'latitude')
 	end
 elseif obij.face == 4 || obij.face == 5
 	if strcmp(obij.edge, 'west') || strcmp(obij.edge, 'east')
-		%xlabel(ax(1), 'longitude')
-		%xlabel(ax(2), 'longitude')
-		%xlabel(ax(3), 'longitude')
 		xlabel(ax(4), 'longitude')
 	else
-		%xlabel(ax(1), 'latitude')
-		%xlabel(ax(2), 'latitude')
-		%xlabel(ax(3), 'latitude')
 		xlabel(ax(4), 'latitude')
 	end
+else
+	xlabel(ax(4), 'x')
 end
 
 ax(1).XTickLabel = [];
