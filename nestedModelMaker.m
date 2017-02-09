@@ -38,7 +38,7 @@ checkDirectories(dirz)
 parentObij = specifyOpenBoundaries(parent); parent.nOb = length(obij);
 
 % Get grid info along boundary and then extract obcs from full 3d parent fields.
-parentObij = getOpenBoundaryGrid(gridDir, parent, parentObij);
+parentObij = getOpenBoundaryGrid(dirz.parent.grid, parent, parentObij);
 parentObuv = getOpenBoundaryConditions(dirz, parent, child, parentObij);
 
 % Check-point open boundary files.
@@ -48,7 +48,7 @@ save([dirz.child.obcs 'obuv_parent.mat'], 'obuv')
 % ----------------------------------------------------------------------------- 
 
 % Hack the 'initial' child open boundaries together.
-child.zoom = 16;
+child.zoom = 4;
 child.nOb = parent.nOb;
 
 % Get boundary indices for child grid.
