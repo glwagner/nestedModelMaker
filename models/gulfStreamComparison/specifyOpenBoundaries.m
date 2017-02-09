@@ -21,12 +21,12 @@ disp('Specifying open boundaries.')
 obij{1}.edge = 'south';
 obij{1}.face = 1;
 obij{1}.ii   = 1:135;
-obij{1}.jj   = 600*ones(1, length(obij{1}.ii));
+obij{1}.jj   = 635*ones(1, length(obij{1}.ii));
 
 obij{2}.edge = 'north';
 obij{2}.face = 1;
 obij{2}.ii   = 1:135;
-obij{2}.jj   = 750*ones(1, length(obij{2}.ii));
+obij{2}.jj   = 700*ones(1, length(obij{2}.ii));
 
 % The boundaries are symmetric around face 1/5 contact point.
 obij{3}.edge = 'east';		% "grid E" is south on face 5.
