@@ -1,0 +1,24 @@
+ &diagnostics_list
+   dumpatlast = .TRUE.,
+#  frequency(1) = 172800.,
+#   fields(1,1) = 'VISCA4D ',
+#   filename(1) = 'viscA4D',
+#  frequency(2) = 1296000.,
+#   fields(1,2) = 'VISCAHD ',
+#   filename(2) = 'viscAHD',
+  frequency(1) = 432000.,
+   fields(1,1) = 'UVELMASS',
+   filename(1) = 'UVELMASS',
+  frequency(2) = 432000.,
+   fields(1,2) = 'VVELMASS',
+   filename(2) = 'VVELMASS',
+  frequency(3) = 432000.,
+   fields(1,3) = 'THETA   ',
+   filename(3) = 'THETA',
+  frequency(4) = 432000.,
+   fields(1,4) = 'SALT    ',
+   filename(4) = 'SALT',
+ &
+ &DIAG_STATIS_PARMS
+ &
+

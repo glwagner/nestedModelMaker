@@ -56,9 +56,6 @@ for iOb = 1:child.nOb
 	childObij{iOb} = transcribeOpenBoundaryParentToChild(parentObij{iOb}, child.zoom);
 end
 
-
-
-
 % Plot.
 for iOb = 1:parent.nOb
 

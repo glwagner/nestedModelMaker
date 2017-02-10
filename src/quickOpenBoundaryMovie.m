@@ -2,7 +2,7 @@ function quickOpenBoundaryMovie(parent, obuv, obij)
 
 % Make a plot
 hfig = figure(1); clf
-hfig.Position = [218 4 1484 955];
+%hfig.Position = [218 4 1484 955];
 
 % Initialize subplots.
 ax(1) = subplot(4, 1, 1); hold on, shading flat
@@ -117,8 +117,6 @@ for iit = 1:parent.model.nMonths
 			pcolor(ax(2), 1:nn, obij.zC, obuv.S2(:, :, iit)')
 			pcolor(ax(3), 1:nn, obij.zC, obuv.U (:, :, iit)')
 			pcolor(ax(4), 1:nn, obij.zC, obuv.V (:, :, iit)')
-		end
-
 	end
 
 	% Set pcolor shading to flat.
@@ -128,4 +126,5 @@ for iit = 1:parent.model.nMonths
 	axes(ax(4)), shading flat, axis tight
 
 	pause(0.1)
+
 end
