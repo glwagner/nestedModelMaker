@@ -11,56 +11,52 @@ cobij.face = pobij.face;
 % Because indices specify grid interior by convention, the beginning and 
 % ending boundary indices depend on boundary orientation.
 
-if strcmp(cobij.edge, 'south')
+switch cobij.edge
+    case 'south'
+        % Recall: ii is tangent and jj is normal to north/south boundary.
 
-	% Recall: ii is tangent and jj is normal to north/south boundary.
+        % Set beginning and ending indices.
+        ii0 = (pobij.ii(1)-1)*zoom+1;
+        iif = pobij.ii(end)*zoom;
 
-	% Set beginning and ending indices.
-	ii0 = (pobij.ii(1)-1)*zoom+1;
-	iif = pobij.ii(end)*zoom;
+        cobij.ii = ii0:iif;
 
-	cobij.ii = ii0:iif;
+        % For north/south boundary, jj index is single-valued and denotes interior.
+        cobij.jj = ((pobij.jj(1)-1)*zoom+1)*ones(1, length(cobij.ii));
 
-	% For north/south boundary, jj index is single-valued and denotes interior.
-	cobij.jj = ((pobij.jj(1)-1)*zoom+1)*ones(1, length(cobij.ii));
+    case 'north'
+        % Recall: ii is tangent and jj is normal to north/south boundary.
 
-elseif strcmp(cobij.edge, 'north')
+        % Set beginning and ending indices.
+        ii0 = (pobij.ii(1)-1)*zoom+1;
+        iif = pobij.ii(end)*zoom;
 
-	% Recall: ii is tangent and jj is normal to north/south boundary.
+        cobij.ii = ii0:iif;
 
-	% Set beginning and ending indices.
-	ii0 = (pobij.ii(1)-1)*zoom+1;
-	iif = pobij.ii(end)*zoom;
+        % For north/south boundary, jj index is single-valued and denotes interior.
+        cobij.jj = pobij.jj(1)*zoom*ones(1, length(cobij.ii));
 
-	cobij.ii = ii0:iif;
+    case 'east'
+        % Recall: ii is normal and jj is tangent to east/west boundary.
 
-	% For north/south boundary, jj index is single-valued and denotes interior.
-	cobij.jj = pobij.jj(1)*zoom*ones(1, length(cobij.ii));
+        % Set beginning and ending indices.
+        jj0 = (pobij.jj(1)-1)*zoom+1;
+        jjf = pobij.jj(end)*zoom;
+        
+        cobij.jj = jj0:jjf;
 
-elseif strcmp(cobij.edge, 'east')
+        % For east/west boundary, ii index is single-valued and denotes interior.
+        cobij.ii = pobij.ii(1)*zoom*ones(1, length(cobij.jj));
 
-	% Recall: ii is normal and jj is tangent to east/west boundary.
+    case 'west'
+        % Recall: ii is normal and jj is tangent to east/west boundary.
 
-	% Set beginning and ending indices.
-	jj0 = (pobij.jj(1)-1)*zoom+1;
-	jjf = pobij.jj(end)*zoom;
-	
-	cobij.jj = jj0:jjf;
+        % Set beginning and ending indices.
+        jj0 = (pobij.jj(1)-1)*zoom+1;
+        jjf = pobij.jj(end)*zoom;
+        
+        cobij.jj = jj0:jjf;
 
-	% For east/west boundary, ii index is single-valued and denotes interior.
-	cobij.ii = pobij.ii(1)*zoom*ones(1, length(cobij.jj));
-
-elseif strcmp(cobij.edge, 'west')
-
-	% Recall: ii is normal and jj is tangent to east/west boundary.
-
-	% Set beginning and ending indices.
-	jj0 = (pobij.jj(1)-1)*zoom+1;
-	jjf = pobij.jj(end)*zoom;
-	
-	cobij.jj = jj0:jjf;
-
-	% For east/west boundary, ii index is single-valued and denotes interior.
-	cobij.ii = ((pobij.ii(1)-1)*zoom+1)*ones(1, length(cobij.jj));
-
+        % For east/west boundary, ii index is single-valued and denotes interior.
+        cobij.ii = ((pobij.ii(1)-1)*zoom+1)*ones(1, length(cobij.jj));
 end

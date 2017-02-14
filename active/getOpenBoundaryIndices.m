@@ -41,154 +41,151 @@ end
 % Indices for arrays T, U, V along open boundaries.
 % Indices for T are provided for first and second wet points.
 % Indices for S are identical to T.
-if strcmp(obij.edge, 'south')
+switch obij.edge
+    case 'south'
+        % On southern boundaries:
+        %	- V is normal velocity
+        %	- Velocity across boundary is defined at the second wet point.
+        %	- First wet point is outside the interior to the south (-y dir).
 
-	% On southern boundaries:
-	%	- V is normal velocity
-	%	- Velocity across boundary is defined at the second wet point.
-	%	- First wet point is outside the interior to the south (-y dir).
+        % First wet point.
+        jj.T1 = obij.jj(1) - 1;
 
-	% First wet point.
-	jj.T1 = obij.jj(1) - 1;
+        % Second wet point.
+        jj.T2 = obij.jj(1);
+        jj.U  = obij.jj(1);
+        jj.V  = obij.jj(1);
 
-	% Second wet point.
-	jj.T2 = obij.jj(1);
-	jj.U  = obij.jj(1);
-	jj.V  = obij.jj(1);
+        % ii's along southern or northern boundares are identical.
+        ii.T2 = obij.ii;
+        ii.T1 = obij.ii;
+        ii.U  = obij.ii;
+        ii.V  = obij.ii;
 
-	% ii's along southern or northern boundares are identical.
-	ii.T2 = obij.ii;
-	ii.T1 = obij.ii;
-	ii.U  = obij.ii;
-	ii.V  = obij.ii;
+        % Indices for xG have one extra point on the end.
+        ii.xG  = [ii.V, 1+ii.V(end)];
+        ii.yG  = [ii.V, 1+ii.V(end)];
 
-	% Indices for xG have one extra point on the end.
-	ii.xG  = [ii.V, 1+ii.V(end)];
-	ii.yG  = [ii.V, 1+ii.V(end)];
+        % For dxG on north/south boundaries, ii is same as ii for normal velocity.
+        ii.dxG = ii.V;
 
-	% For dxG on north/south boundaries, ii is same as ii for normal velocity.
-	ii.dxG = ii.V;
+        % For xG, yG, and dxG, jj is same as jj for normal velocity.
+        jj.xG  = jj.V;
+        jj.yG  = jj.V;
+        jj.dxG = jj.V;
 
-	% For xG, yG, and dxG, jj is same as jj for normal velocity.
-	jj.xG  = jj.V;
-	jj.yG  = jj.V;
-	jj.dxG = jj.V;
+        % For north/south boundaries, dyG indices are for second wet point.
+        ii.dyG = [ii.T2, 1+ii.T2(end)];
+        jj.dyG = jj.T2;
 
-	% For north/south boundaries, dyG indices are for second wet point.
-	ii.dyG = [ii.T2, 1+ii.T2(end)];
-	jj.dyG = jj.T2;
+    case 'north'
+        % On northern boundaries:
+        %	- V is normal velocity
+        %	- Velocity across boundary is defined at the first wet point.
+        %	- First wet point is outside the interior to the north (+y dir).
 
-elseif strcmp(obij.edge, 'north')
+        % First wet point.
+        jj.T1 = obij.jj(1)+1;
+        jj.V  = obij.jj(1)+1;
 
-	% On northern boundaries:
-	%	- V is normal velocity
-	%	- Velocity across boundary is defined at the first wet point.
-	%	- First wet point is outside the interior to the north (+y dir).
+        % Second wet point
+        jj.T2 = obij.jj(1);
+        jj.U  = obij.jj(1);
 
-	% First wet point.
-	jj.T1 = obij.jj(1)+1;
-	jj.V  = obij.jj(1)+1;
+        % ii's along southern or northern boundares are identical.
+        ii.T1 = obij.ii;
+        ii.T2 = obij.ii;
+        ii.U  = obij.ii;
+        ii.V  = obij.ii;
 
-	% Second wet point
-	jj.T2 = obij.jj(1);
-	jj.U  = obij.jj(1);
+        % Indices for grid information along boundary.
+        ii.xG  = [ii.V, 1+ii.V(end)];
+        ii.yG  = [ii.V, 1+ii.V(end)];
 
-	% ii's along southern or northern boundares are identical.
-	ii.T1 = obij.ii;
-	ii.T2 = obij.ii;
-	ii.U  = obij.ii;
-	ii.V  = obij.ii;
+        % For dxG on north/south boundaries, ii is same as ii for normal velocity.
+        ii.dxG = ii.V;
 
-	% Indices for grid information along boundary.
-	ii.xG  = [ii.V, 1+ii.V(end)];
-	ii.yG  = [ii.V, 1+ii.V(end)];
+        % For xG, yG, and dxG, ii is same as ii for the normal velocity.
+        jj.xG  = jj.V;
+        jj.yG  = jj.V;
+        jj.dxG = jj.V;
 
-	% For dxG on north/south boundaries, ii is same as ii for normal velocity.
-	ii.dxG = ii.V;
+        % For southern/northern boundaries, dyG indices are for second wet point.
+        ii.dyG = [ii.T2, 1+ii.T2(end)];
+        jj.dyG = jj.T2;
 
-	% For xG, yG, and dxG, ii is same as ii for the normal velocity.
-	jj.xG  = jj.V;
-	jj.yG  = jj.V;
-	jj.dxG = jj.V;
+    case 'west'
+        % On western boundaries:
+        %	- U is normal velocity
+        %	- Velocity across boundary is defined at the second wet point.
+        %	- First wet point is outside the interior to the west (-x dir).
 
-	% For southern/northern boundaries, dyG indices are for second wet point.
-	ii.dyG = [ii.T2, 1+ii.T2(end)];
-	jj.dyG = jj.T2;
+        % First wet point.
+        ii.T1 = obij.ii(1)-1;
 
-elseif strcmp(obij.edge, 'west')
+        % Second wet point.
+        ii.T2 = obij.ii(1);
+        ii.U  = obij.ii(1);
+        ii.V  = obij.ii(1);
 
-	% On western boundaries:
-	%	- U is normal velocity
-	%	- Velocity across boundary is defined at the second wet point.
-	%	- First wet point is outside the interior to the west (-x dir).
+        % jj's along western or eastern boundaries are identical.
+        jj.U  = obij.jj;
+        jj.V  = obij.jj;
+        jj.T1 = obij.jj;
+        jj.T2 = obij.jj;
 
-	% First wet point.
-	ii.T1 = obij.ii(1)-1;
+        % Indices for grid information along boundary.
+        jj.xG  = [jj.U, 1+jj.U(end)];
+        jj.yG  = [jj.U, 1+jj.U(end)];
 
-	% Second wet point.
-	ii.T2 = obij.ii(1);
-	ii.U  = obij.ii(1);
-	ii.V  = obij.ii(1);
+        % For dyG on east/west boundaries, jj is same as jj for normal velocity.
+        jj.dyG = jj.U;
 
-	% jj's along western or eastern boundaries are identical.
-	jj.U  = obij.jj;
-	jj.V  = obij.jj;
-	jj.T1 = obij.jj;
-	jj.T2 = obij.jj;
+        % For xG, yG, and dxG, ii is same as ii for the normal velocity.
+        ii.xG  = ii.U;
+        ii.yG  = ii.U;
+        ii.dyG = ii.U;
 
-	% Indices for grid information along boundary.
-	jj.xG  = [jj.U, 1+jj.U(end)];
-	jj.yG  = [jj.U, 1+jj.U(end)];
-
-	% For dyG on east/west boundaries, jj is same as jj for normal velocity.
-	jj.dyG = jj.U;
-
-	% For xG, yG, and dxG, ii is same as ii for the normal velocity.
-	ii.xG  = ii.U;
-	ii.yG  = ii.U;
-	ii.dyG = ii.U;
-
-	% For east/west boundaries, dxG indices are for second wet point.
-	ii.dxG = ii.T2;
-	jj.dxG = [jj.T2, 1+jj.T2(end)];
+        % For east/west boundaries, dxG indices are for second wet point.
+        ii.dxG = ii.T2;
+        jj.dxG = [jj.T2, 1+jj.T2(end)];
 
 
-elseif strcmp(obij.edge, 'east')
+    case 'east'
+        % On eastern boundaries:
+        %	- U is normal velocity
+        %	- Velocity across boundary is defined at the first wet point.
+        %	- First wet point is outside the interior to the east (+x dir).
 
-	% On eastern boundaries:
-	%	- U is normal velocity
-	%	- Velocity across boundary is defined at the first wet point.
-	%	- First wet point is outside the interior to the east (+x dir).
+        % First wet point.
+        ii.T1 = obij.ii(1)+1;
+        ii.U  = obij.ii(1)+1;
 
-	% First wet point.
-	ii.T1 = obij.ii(1)+1;
-	ii.U  = obij.ii(1)+1;
+        % Second wet point
+        ii.T2 = obij.ii(1);
+        ii.V  = obij.ii(1);
 
-	% Second wet point
-	ii.T2 = obij.ii(1);
-	ii.V  = obij.ii(1);
+        % jj's along western or eastern boundaries are identical.
+        jj.U  = obij.jj;
+        jj.V  = obij.jj;
+        jj.T1 = obij.jj;
+        jj.T2 = obij.jj;
 
-	% jj's along western or eastern boundaries are identical.
-	jj.U  = obij.jj;
-	jj.V  = obij.jj;
-	jj.T1 = obij.jj;
-	jj.T2 = obij.jj;
+        % Indices for grid information along boundary.
+        jj.xG  = [jj.U, 1+jj.U(end)];
+        jj.yG  = [jj.U, 1+jj.U(end)];
 
-	% Indices for grid information along boundary.
-	jj.xG  = [jj.U, 1+jj.U(end)];
-	jj.yG  = [jj.U, 1+jj.U(end)];
+        % For dyG on east/west boundaries, jj is same as jj for normal velocity.
+        jj.dyG = jj.U; 
 
-	% For dyG on east/west boundaries, jj is same as jj for normal velocity.
-	jj.dyG = jj.U; 
+        % For xG, yG, and dxG, ii is same as ii for the normal velocity.
+        ii.xG  = ii.U;
+        ii.yG  = ii.U;
+        ii.dyG = ii.U;
 
-	% For xG, yG, and dxG, ii is same as ii for the normal velocity.
-	ii.xG  = ii.U;
-	ii.yG  = ii.U;
-	ii.dyG = ii.U;
-
-	% For east/west boundaries, dxG indices are for second wet point.
-	ii.dxG = ii.T2;
-	jj.dxG = [jj.T2, 1+jj.T2(end)];
+        % For east/west boundaries, dxG indices are for second wet point.
+        ii.dxG = ii.T2;
+        jj.dxG = [jj.T2, 1+jj.T2(end)];
 
 end
 

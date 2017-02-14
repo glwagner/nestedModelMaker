@@ -34,8 +34,10 @@ checkDirectories(dirz)
 % checkParentModel(parent) 				% This function must be written.
 % checkOpenBoundaries(parent, obij) 	% This function must be written.
 
+
 % Specify boundaries (should be automated).
-parentObij = specifyOpenBoundaries(parent); parent.nOb = length(parentObij);
+parentObij = parseOpenBoundaries(parent);
+%parentObij = specifyOpenBoundaries(parent); %parent.nOb = length(parentObij);
 
 % Get grid info along boundary and then extract obcs from full 3d parent fields.
 parentObij = getOpenBoundaryGrid(dirz.parent.grid, parent, parentObij);
