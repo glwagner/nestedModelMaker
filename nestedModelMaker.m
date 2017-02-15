@@ -40,7 +40,8 @@ parentObij = parseOpenBoundaries(parent);
 %parentObij = specifyOpenBoundaries(parent); %parent.nOb = length(parentObij);
 
 % Get grid info along boundary and then extract obcs from full 3d parent fields.
-parentObij = getOpenBoundaryGrid(dirz.parent.grid, parent, parentObij);
+parentObij = getOpenBoundaryHorizontalGrid(dirz.globalGrids.parent, parent, parentObij);
+parentObij = getOpenBoundaryVerticalGrid_aste(dirz.globalGrids.parent, parent, parentObij);
 parentObuv = getOpenBoundaryConditions(dirz, parent, child, parentObij);
 
 % Check-point open boundary files.
@@ -55,8 +56,25 @@ child.nOb = parent.nOb;
 
 % Get boundary indices for child grid.
 for iOb = 1:child.nOb
-	childObij{iOb} = transcribeOpenBoundaryParentToChild(parentObij{iOb}, child.zoom);
+	childObij{iOb} = transcribeOpenBoundary(child.zoom, parentObij{iOb});
 end
+
+% Get grid info along boundary and then extract obcs from full 3d parent fields.
+childObij = getOpenBoundaryHorizontalGrid(dirz.globalGrids.child, parent, childObij);
+%childObij = getOpenBoundaryVerticalGrid(dirz.zgrid.child, parent, childObij);
+
+% Messy treatment of vertical grid for now.
+load([ dirz.child.grid 'zgrid.mat', 'zgrid')
+
+% Store grid properties for each open boundary condition.
+for iOb = 1:child.nOb
+	% Store properties of the vertical grid.
+	childObij{iOb}.zF  = zgrid.zf;
+	childObij{iOb}.zC  = 1/2*(zgrid.zf(2:end)+zgrid.zf(1:end-1));
+	childObij{iOb}.dzF = delz;
+	childObij{iOb}.dzC = childObij{iOb}.zC(2:end)-childObij{iOb}.zC(1:end-1);
+end
+
 
 % ----------------------------------------------------------------------------- 
 % Plot.

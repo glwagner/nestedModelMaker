@@ -73,7 +73,7 @@ parent.llc.ny = [ [3 3]*parent.res [1 1 1]*parent.res ];
 % This means that to move from global- to parent-grid coordinates, we computes
 %
 % 		parent.ii = global.ii + parent.iOff(face).
-%
+
 parent.offset.ii = [   0   0   0   0  0 ];
 parent.offset.jj = [ 360   0   0   0  0 ];
 	
@@ -135,13 +135,18 @@ dirz.child.home  = [ dirz.home '/models/' child.name '/'];
 dirz.child.grid  = [ dirz.child.home 'grids/' ];
 dirz.child.obcs  = [ dirz.child.home 'obcs/' ];
 
+% Directory to child-grid bathymetry
+dirz.child.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/', ...
+                        'bathy1080_g5_r4.bin'];
 % Finalities ------------------------------------------------------------------ 
 
 % Directory with matlab code
-dirz.code       = '/data5/glwagner/Numerics/regionalGridz/matlab';
+dirz.code  = '/data5/glwagner/Numerics/regionalGridz/matlab';
 
 % Directory to high-res bathymetry.
-bathyPath       = ['/net/nares/raid8/ecco-shared/llc8640/', ...
-		         					'run_template/Smith_Sandwell_v14p1/'];
-bathyName       = 'SandS14p1_ibcao_4320x56160.bin';
-dirz.bathy      = [bathyPath bathyName];
+bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
+dirz.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/' bathyName ];
+
+%bathyPath  = ['/net/nares/raid8/ecco-shared/llc8640/', ...
+%		         					'run_template/Smith_Sandwell_v14p1/'];
+%dirz.bathy = [bathyPath bathyName];

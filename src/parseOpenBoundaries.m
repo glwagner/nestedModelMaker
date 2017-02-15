@@ -26,12 +26,14 @@ for face = 1:5
             % Indices.
             obij{iOb}.jj = parent.jj(face, 1):parent.jj(face, 2);
             obij{iOb}.ii = parent.ii(face, side)*ones(size(obij{iOb}.jj));
+        
+            % Length of open boundary
+            obij{iOb}.nn = length(obij{iOb}.ii);
 
         end
     end
 end
             
-
 % jj-boundaries or "north-south" next.
 for face = 1:5
     for side = 1:2
@@ -55,6 +57,10 @@ for face = 1:5
             obij{iOb}.ii = parent.ii(face, 1):parent.ii(face, 2);
             obij{iOb}.jj = parent.jj(face, side)*ones(size(obij{iOb}.ii));
 
+            % Length of open boundary
+            obij{iOb}.nn = length(obij{iOb}.ii);
+
         end
     end
 end
+
