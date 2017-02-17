@@ -27,8 +27,8 @@ function cobij = transcribeOpenBoundary(zoom, pobij)
 % ----------------------------------------------------------------------------- 
 
 % Transcribe descriptive info
-cobij.edge = pobij.edge;
 cobij.face = pobij.face;
+cobij.edge = pobij.edge;
 
 % Number of boundary cells on child grid
 cobij.nn = pobij.nn;

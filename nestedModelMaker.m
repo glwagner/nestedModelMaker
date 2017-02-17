@@ -51,8 +51,13 @@ save([dirz.child.obcs 'obuv_parent.mat'], 'parentObuv')
 % ----------------------------------------------------------------------------- 
 
 % Hack the 'initial' child open boundaries together.
-child.zoom = 4;
-child.nOb = parent.nOb;
+child.res  = 1080;
+child.zoom = child.res / parent.res;
+child.nOb  = parent.nOb;
+
+% Global grid that the child lives on
+child.llc.nx = [ [1 1 1]*child.res [3 3]*child.res ];
+child.llc.ny = [ [3 3]*child.res [1 1 1]*child.res ];
 
 % Get boundary indices for child grid.
 for iOb = 1:child.nOb
@@ -60,21 +65,33 @@ for iOb = 1:child.nOb
 end
 
 % Get grid info along boundary and then extract obcs from full 3d parent fields.
-childObij = getOpenBoundaryHorizontalGrid(dirz.globalGrids.child, parent, childObij);
-%childObij = getOpenBoundaryVerticalGrid(dirz.zgrid.child, parent, childObij);
+childObij = getOpenBoundaryHorizontalGrid(dirz.globalGrids.child, child, childObij);
+%childObij = getOpenBoundaryVerticalGrid(dirz.zgrid.child, child, childObij);
 
 % Messy treatment of vertical grid for now.
-load([ dirz.child.grid 'zgrid.mat', 'zgrid')
+load([ dirz.child.grid 'zgrid.mat' ], 'zgrid')
 
 % Store grid properties for each open boundary condition.
 for iOb = 1:child.nOb
 	% Store properties of the vertical grid.
-	childObij{iOb}.zF  = zgrid.zf;
-	childObij{iOb}.zC  = 1/2*(zgrid.zf(2:end)+zgrid.zf(1:end-1));
-	childObij{iOb}.dzF = delz;
-	childObij{iOb}.dzC = childObij{iOb}.zC(2:end)-childObij{iOb}.zC(1:end-1);
+	childObij{iOb}.zF  = zgrid.zf';
+	childObij{iOb}.zC  = 1/2*(zgrid.zf(2:end)+zgrid.zf(1:end-1))';
+	childObij{iOb}.dzF = zgrid.delz';
+	childObij{iOb}.dzC = childObij{iOb}.zC(2:end)'-childObij{iOb}.zC(1:end-1)';
+
+    % Ensure grid convention is positive upwards.
+    childObij{iOb}.zF  = -abs(childObij.{iOb}.zF);
+    childObij{iOb}.zC  = -abs(childObij.{iOb}.zC);
+
+    % Load bathymetry.
+
 end
 
+% Loop over the horizontal index of the open boundary
+for iOb = 1:child.nOb
+    switch childObij{iOb}.edge
+        case 'south'
+            for ii = childObij{iOb}
 
 % ----------------------------------------------------------------------------- 
 % Plot.

@@ -35,11 +35,12 @@ dzC = squeeze(rdmds([gridDir 'DRC']));
 % Store grid properties for each open boundary condition.
 for iOb = 1:model.nOb
 
-	% Store properties of the vertical grid.
-	obij{iOb}.zF  = zF;
-	obij{iOb}.zC  = zC;
-	obij{iOb}.dzF = dzF;
-	obij{iOb}.dzC = dzC;
+	% Store properties of the vertical grid. (And ensure that grid convention
+    % is positive upwards.)
+	obij{iOb}.zF  = -abs(zF);
+	obij{iOb}.zC  = -abs(zC);
+	obij{iOb}.dzF = -abs(dzF);
+	obij{iOb}.dzC = -abs(dzC);
 
 end
 

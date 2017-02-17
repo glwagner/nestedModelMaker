@@ -128,7 +128,7 @@ end, end
 %															'gridCompleted/llcRegLatLon/']; 
 
 dirz.globalGrids.child  = ['/net/barents/raid16/weddell/raid3/gforget/grids/', ...
-									'gridCompleted/llcRegLatLon/llc_1080']; 
+									'gridCompleted/llcRegLatLon/llc_1080/']; 
 
 % Directories to store the child grids and obcs.
 dirz.child.home  = [ dirz.home '/models/' child.name '/'];
@@ -138,10 +138,11 @@ dirz.child.obcs  = [ dirz.child.home 'obcs/' ];
 % Directory to child-grid bathymetry
 dirz.child.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/', ...
                         'bathy1080_g5_r4.bin'];
+
 % Finalities ------------------------------------------------------------------ 
 
 % Directory with matlab code
-dirz.code  = '/data5/glwagner/Numerics/regionalGridz/matlab';
+dirz.code  = '/data5/glwagner/Numerics/regionalGridz/matlab/';
 
 % Directory to high-res bathymetry.
 bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
