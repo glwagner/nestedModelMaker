@@ -123,21 +123,22 @@ for face = 1:5, for side = 1:2,
 end, end
                     
 % Child grid specifications --------------------------------------------------- 
-% Directory to global grids at child resolution.
-%dirz.globalGrids.child  = ['/net/barents/raid16/weddell/raid3/gforget/grids/', ...
-%															'gridCompleted/llcRegLatLon/']; 
-
-dirz.globalGrids.child  = ['/net/barents/raid16/weddell/raid3/gforget/grids/', ...
-									'gridCompleted/llcRegLatLon/llc_1080/']; 
 
 % Directories to store the child grids and obcs.
 dirz.child.home  = [ dirz.home '/models/' child.name '/'];
 dirz.child.grid  = [ dirz.child.home 'grids/' ];
 dirz.child.obcs  = [ dirz.child.home 'obcs/' ];
 
-% Directory to child-grid bathymetry
-dirz.child.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/', ...
-                        'bathy1080_g5_r4.bin'];
+% Directory to child-grid bathymetry and grids
+%dirz.child.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/', ...
+%                        'bathy1080_g5_r4.bin'];
+%dirz.globalGrids.child  = ['/net/barents/raid16/weddell/raid3/gforget/grids/', ...
+%								'gridCompleted/llcRegLatLon/llc_1080/']; 
+
+dirz.globalGrids.child  = ['/net/barents/raid16/weddell/raid3/gforget/grids/', ...
+								'gridCompleted/llcRegLatLon/']; 
+bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
+dirz.child.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/' bathyName ];
 
 % Finalities ------------------------------------------------------------------ 
 

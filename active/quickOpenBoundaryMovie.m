@@ -1,7 +1,8 @@
-function quickOpenBoundaryMovie(parent, obuv, obij)
+function quickOpenBoundaryMovie(obuv, obij, nt)
 
 % Make a plot
 hfig = figure(1); clf
+set(gcf, 'DefaultTextInterpreter', 'latex')
 %hfig.Position = [218 4 1484 955];
 
 % Initialize subplots.
@@ -74,7 +75,7 @@ ylabel(ax(3), 'z')
 ylabel(ax(4), 'z')
 
 % Loop through all time points.
-for iit = 1:parent.model.nMonths
+for iit = 1:nt
 
 	% Adjust date.
 	year  = obuv.time(iit, 1);
@@ -82,7 +83,7 @@ for iit = 1:parent.model.nMonths
 	day   = obuv.time(iit, 3) + 1;  % I am not sure we should add 1, but it seems right.
 
 	% Make title...
-	title(ax(1), ['temperature in {}^{\circ}C on ' datestr([year month day 0 0 0])])
+	title(ax(1), ['temperature in {\,}^{\circ}C on ' datestr([year month day 0 0 0])])
 
 	% Pcolorz in (l, z), where 'l' is a horizontal coordinate
 	% along the boundary.
@@ -124,6 +125,11 @@ for iit = 1:parent.model.nMonths
 	axes(ax(2)), shading flat, axis tight
 	axes(ax(3)), shading flat, axis tight
 	axes(ax(4)), shading flat, axis tight
+
+    ax(1).TickLabelInterpreter = 'latex';
+    ax(2).TickLabelInterpreter = 'latex';
+    ax(3).TickLabelInterpreter = 'latex';
+    ax(4).TickLabelInterpreter = 'latex';
 
 	pause(0.1)
 

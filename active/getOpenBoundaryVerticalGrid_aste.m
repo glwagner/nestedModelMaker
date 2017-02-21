@@ -78,6 +78,9 @@ for iOb = 1:model.nOb
 	obij{iOb}.zC  = zC;
 	obij{iOb}.dzF = dzF;
 	obij{iOb}.dzC = dzC;
+
+	% Number of vertical grid points.
+    obij{iOb}.nz = length(obij{iOb}.zC);
 	
 end
 

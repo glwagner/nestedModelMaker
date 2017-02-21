@@ -31,7 +31,7 @@ cobij.face = pobij.face;
 cobij.edge = pobij.edge;
 
 % Number of boundary cells on child grid
-cobij.nn = pobij.nn;
+cobij.nn = zoom*pobij.nn;
 
 % Transcribe ii and jj. Because indices specify grid interior by convention, 
 % the beginning and ending boundary indices depend on boundary orientation.

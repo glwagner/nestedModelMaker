@@ -123,7 +123,7 @@ precision.UV = get_precision([dirz.parent.data.UV, ...
 
 
 % Loop through all time-points.
-disp('    Loading and cutting fields...')
+disp('    Loading and cutting 3D fields...')
 for iit = 1:parent.model.nMonths
 
 	% Set timer.

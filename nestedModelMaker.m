@@ -51,7 +51,7 @@ save([dirz.child.obcs 'obuv_parent.mat'], 'parentObuv')
 % ----------------------------------------------------------------------------- 
 
 % Hack the 'initial' child open boundaries together.
-child.res  = 1080;
+child.res  = 4320;
 child.zoom = child.res / parent.res;
 child.nOb  = parent.nOb;
 
@@ -70,28 +70,16 @@ childObij = getOpenBoundaryHorizontalGrid(dirz.globalGrids.child, child, childOb
 
 % Messy treatment of vertical grid for now.
 load([ dirz.child.grid 'zgrid.mat' ], 'zgrid')
+childObij = getOpenBoundaryVerticalGrid_child(dirz.child.bathy, child, ...
+                childObij, zgrid);
 
-% Store grid properties for each open boundary condition.
+
+% ----------------------------------------------------------------------------- 
+% Interpolate open boundary condition to child grid.
 for iOb = 1:child.nOb
-	% Store properties of the vertical grid.
-	childObij{iOb}.zF  = zgrid.zf';
-	childObij{iOb}.zC  = 1/2*(zgrid.zf(2:end)+zgrid.zf(1:end-1))';
-	childObij{iOb}.dzF = zgrid.delz';
-	childObij{iOb}.dzC = childObij{iOb}.zC(2:end)'-childObij{iOb}.zC(1:end-1)';
-
-    % Ensure grid convention is positive upwards.
-    childObij{iOb}.zF  = -abs(childObij.{iOb}.zF);
-    childObij{iOb}.zC  = -abs(childObij.{iOb}.zC);
-
-    % Load bathymetry.
-
+    childObuv{iOb} = interpolateOpenBoundaryCondition(childObij{iOb}, ...
+                        parentObij{iOb}, parentObuv{iOb});
 end
-
-% Loop over the horizontal index of the open boundary
-for iOb = 1:child.nOb
-    switch childObij{iOb}.edge
-        case 'south'
-            for ii = childObij{iOb}
 
 % ----------------------------------------------------------------------------- 
 % Plot.
@@ -103,7 +91,12 @@ for iOb = 1:parent.nOb
 	visualizeOpenBoundary(dirz, parentObij{iOb})
 
 	% Make a quick movie
-	quickOpenBoundaryMovie(parent, parentObuv{iOb}, parentObij{iOb})
+	quickOpenBoundaryMovie(parentObuv{iOb}, parentObij{iOb}, parent.model.nMonths)
+
+    input('Now the child boundary conditions.')
+
+	% Make a quick movie
+	quickOpenBoundaryMovie(childObuv{iOb}, childObij{iOb}, parent.model.nMonths)
 
 end
 
