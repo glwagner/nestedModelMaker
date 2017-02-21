@@ -5,10 +5,10 @@
 ### inflow file names, tidal specification file names, and tidal periods.
  &OBCS_PARM01
 ## How does one specify the open boundary through these parameters?
- OB_Jnorth =   540*265,270*0,
- OB_Jsouth =   540*4,  270*0,
- OB_Ieast  =   135*0,  4*383, 131*0, 540*267,
- OB_Iwest  =   270*0,  540*6,
+ OB_Jnorth =   540*265, 270*0,
+ OB_Jsouth =   540*4,   270*0,
+ OB_Ieast  =   135*0,   4*383,  131*0,  540*267,
+ OB_Iwest  =   270*0,   540*6,
 #
 ## Should one or the other of these booleans be true, or can one be true and 
 ## the other false, or what?
