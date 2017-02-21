@@ -8,8 +8,8 @@
 # Potentially exclude all .mat files.
 # **/*.mat
 
+active/
+bathymetry/
+
 # Exclude vim-generated swap files
 **/*.swp
-
-# Exclude the bathymetry folder.
-bathymetry/
