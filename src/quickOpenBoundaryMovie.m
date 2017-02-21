@@ -13,10 +13,10 @@ ax(4) = subplot(4, 1, 4); hold on, shading flat
 
 % Colors.
 warning off
-colormap(ax(1), flipud(cbrewer('seq', 'YlGnBu', 64)))
-colormap(ax(2), flipud(cbrewer('seq', 'YlGnBu', 64)))
-colormap(ax(3), flipud(cbrewer('div', 'RdBu', 64)))
-colormap(ax(4), flipud(cbrewer('div', 'RdBu', 64)))
+colormap(ax(1), parula)
+colormap(ax(2), parula)
+colormap(ax(3), polarmap(jet))
+colormap(ax(4), polarmap(jet))
 
 % These are arbitrary.
 ax(1).CLim = [0 25];
