@@ -17,7 +17,7 @@ if ~isfield(child, 'name')
 end
 
 % Home directory
-dirz.home       = '~/Numerics/nestedModelMaker/';
+dirz.home       = './';
 
 % Parent model directories ---------------------------------------------------- 
 
@@ -125,7 +125,7 @@ end, end
 % Child grid specifications --------------------------------------------------- 
 
 % Directories to store the child grids and obcs.
-dirz.child.home  = [ dirz.home '/models/' child.name '/'];
+dirz.child.home  = [ dirz.home 'models/' child.name '/'];
 dirz.child.grid  = [ dirz.child.home 'grids/' ];
 dirz.child.obcs  = [ dirz.child.home 'obcs/' ];
 

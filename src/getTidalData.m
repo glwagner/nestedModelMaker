@@ -1,8 +1,7 @@
-function getTidalData(obij, startdate)
+function obij = getTidalData(obij, startdate)
 
 % input:
 %   obij      - boundary structure
-% *** obij{i} need to have lon_u, lat_u, lon_v, lat_v fields! ***
 %   startdate - model start date to match tidal phase (e.g. datenum(2012, 1, 1))
 % output
 %   Appends to obij the following fields:
@@ -15,7 +14,7 @@ function getTidalData(obij, startdate)
 
 % add path to Tidal Model Driver v2.03 (http://polaris.esr.org/ptm_index.html)
 % ***need to make TMD available to put relative path here***
-addpath(genpath('/net/barents/raid16/vocana/llc4320/NA2160x1080/run_template/joernc/tides/tmd_mar_203/TMD2.03'));
+addpath('/net/barents/raid16/vocana/llc4320/NA2160x1080/run_template/joernc/tides/tmd_mar_203/TMD2.03');
 
 % loop over boundaries
 for i = 1:length(obij)
@@ -32,11 +31,35 @@ for i = 1:length(obij)
       error('Face number %d is not implemented.', obij{i}.face);
   end
 
+  % get coordinates of boundary velocity points
+  switch obij{i}.edge
+    case 'north'
+      x_u = obij{i}.xC1;
+      y_u = obij{i}.yC1;
+      x_v = obij{i}.xG;
+      y_v = obij{i}.yG;
+    case 'south'
+      x_u = obij{i}.xC2;
+      y_u = obij{i}.yC2;
+      x_v = obij{i}.xG;
+      y_v = obij{i}.yG;
+    case 'east'
+      x_u = obij{i}.xG;
+      y_u = obij{i}.yG;
+      x_v = obij{i}.xC2;
+      y_v = obij{i}.yC2;
+    case 'west'
+      x_u = obij{i}.xG;
+      y_u = obij{i}.yG;
+      x_v = obij{i}.xC1;
+      y_v = obij{i}.yC1;
+  end
+
   % extract amplitude, phase, h, constituent list
   [obij{i}.am_u, obij{i}.ph_u, h_u, obij{i}.cl_u] = tmd_extract_HC( ...
-      'DATA/Model_tpxo7.2', obij{i}.lat_u, obij{i}.lon_u, grd_u(2));
+      'DATA/Model_tpxo7.2', y_u, x_u, grd_u(2));
   [obij{i}.am_v, obij{i}.ph_v, h_v, obij{i}.cl_v] = tmd_extract_HC( ...
-      'DATA/Model_tpxo7.2', obij{i}.lat_v, obij{i}.lon_v, grd_v(2));
+      'DATA/Model_tpxo7.2', y_v, x_v, grd_v(2));
 
   % convert to phase referenced to model start date, apply nodal corrections
   [obij{i}.am_u, obij{i}.ph_u] = tidalConversionCorrection(startdate, ...

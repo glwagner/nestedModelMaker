@@ -17,8 +17,6 @@ cobuv.V  = zeros(cobij.nn, cobij.nz, nt);
 
 cobuv.time = pobuv.time;
 
-size(cobuv.T1)
-
 % Extract the grid centers and edges in the coordinate that varies over the boundary.
 switch cobij.face
     case {1, 2}

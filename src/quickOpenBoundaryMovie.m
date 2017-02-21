@@ -83,7 +83,7 @@ for iit = 1:nt
 	day   = obuv.time(iit, 3) + 1;  % I am not sure we should add 1, but it seems right.
 
 	% Make title...
-	title(ax(1), ['temperature in {\,}^{\circ}C on ' datestr([year month day 0 0 0])])
+	title(ax(1), ['temperature in deg C on ' datestr([year month day 0 0 0])])
 
 	% Pcolorz in (l, z), where 'l' is a horizontal coordinate
 	% along the boundary.
