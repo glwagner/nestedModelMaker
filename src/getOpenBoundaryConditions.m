@@ -30,7 +30,6 @@ disp('Extracting boundary conditions...'), t1 = tic;
 
 % Check inputs?
 checkDirectories(dirz)
-%checkOpenBoundaries(parent, obij);
 %checkParentModel(parent);
 
 %----------------------------------------------------------------------------- 
@@ -102,15 +101,15 @@ for iOb = 1:parent.nOb
 	ni = length(obij{iOb}.ii);
 	
 	% Initialize boundary fields
-	obuv{iOb}.T1 = zeros(ni, parent.nz, parent.model.nMonths);
-	obuv{iOb}.T2 = zeros(ni, parent.nz, parent.model.nMonths);
-	obuv{iOb}.S1 = zeros(ni, parent.nz, parent.model.nMonths);
-	obuv{iOb}.S2 = zeros(ni, parent.nz, parent.model.nMonths);
-	obuv{iOb}.U  = zeros(ni, parent.nz, parent.model.nMonths);
-	obuv{iOb}.V  = zeros(ni, parent.nz, parent.model.nMonths);
+	obuv{iOb}.T1 = zeros(ni, parent.nz, parent.nObcMonths);
+	obuv{iOb}.T2 = zeros(ni, parent.nz, parent.nObcMonths);
+	obuv{iOb}.S1 = zeros(ni, parent.nz, parent.nObcMonths);
+	obuv{iOb}.S2 = zeros(ni, parent.nz, parent.nObcMonths);
+	obuv{iOb}.U  = zeros(ni, parent.nz, parent.nObcMonths);
+	obuv{iOb}.V  = zeros(ni, parent.nz, parent.nObcMonths);
 
 	% Initialize time matrix.
-	obuv{iOb}.time = zeros(parent.model.nMonths, 4);
+	obuv{iOb}.time = zeros(parent.nObcMonths, 4);
 
 end
 disp(['    ... done. (time = ' num2str(toc(t2), '%6.3f') ' s)'])
@@ -124,13 +123,15 @@ precision.UV = get_precision([dirz.parent.data.UV, ...
 
 % Loop through all time-points.
 disp('    Loading and cutting 3D fields...')
-for iit = 1:parent.model.nMonths
+for iit = 1:parent.nObcMonths
 
 	% Set timer.
 	clear t2, t2 = tic;
 
 	% Set the file index.
-	iFile = iFile0 + iit - 1;
+	iFile = iit + iFile0 - 2 ...
+                + 12*(parent.tspan.years(1)-parent.model.year0) ...
+                + parent.tspan.months(1)-parent.model.mnth0;
 
 	% File names.
   	loadFile.TS = [dirz.parent.data.TS tracerFiles(iFile).name]; 
