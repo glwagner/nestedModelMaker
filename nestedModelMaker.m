@@ -85,7 +85,8 @@ end
 % ----------------------------------------------------------------------------- 
 % Extract tidal amplitudes and phases at open boundaries (using parent model
 % date information -- make sure the child model is started at that time!).
-childObTides = getTidalData(childObij, datenum(parent.model.year0, parent.model.mnth0, 1))
+childObTides = getTidalData(childObij, datenum(parent.tspan.years(1), ...
+    parent.tspan.months(1), 1))
 
 % ----------------------------------------------------------------------------- 
 % Generate the full child domain, pad the open boundaries, etc.
