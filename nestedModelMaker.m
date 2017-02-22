@@ -1,7 +1,7 @@
 % User-defined functions:
 %
-%	- specifyParentModelAndDirectories.m
-%	- specifyOpenBoundaries.m
+%    - specifyParentModelAndDirectories.m
+%    - specifyOpenBoundaries.m
 %
 % Add important paths to source code and user-defined functions.
 disp(' ')
@@ -14,7 +14,7 @@ child.name = 'gulfStreamComparison';
 parent.name = 'ASTE';
 
 % Number of months
-parent.model.nMonths = 12;			
+parent.model.nMonths = 12;            
 
 % ----------------------------------------------------------------------------- 
 %%% Automation.
@@ -31,8 +31,8 @@ addpath('./active/')
 
 % Check to make sure all's ok.
 checkDirectories(dirz)
-% checkParentModel(parent) 				% This function must be written.
-% checkOpenBoundaries(parent, obij) 	% This function must be written.
+% checkParentModel(parent)                 % This function must be written.
+% checkOpenBoundaries(parent, obij)     % This function must be written.
 
 
 % Specify boundaries (should be automated).
@@ -61,7 +61,7 @@ child.llc.ny = [ [3 3]*child.res [1 1 1]*child.res ];
 
 % Get boundary indices for child grid.
 for iOb = 1:child.nOb
-	childObij{iOb} = transcribeOpenBoundary(child.zoom, parentObij{iOb});
+    childObij{iOb} = transcribeOpenBoundary(child.zoom, parentObij{iOb});
 end
 
 % Get grid info along boundary and then extract obcs from full 3d parent fields.
@@ -82,21 +82,26 @@ for iOb = 1:child.nOb
 end
 
 % ----------------------------------------------------------------------------- 
+% Extract tidal amplitudes and phases at open boundaries (using parent model
+% date information -- make sure the child model is started at that time!).
+childObTides = getTidalData(childObij, datenum(parent.model.year0, parent.model.mnth0, 1))
+
+% ----------------------------------------------------------------------------- 
 % Plot.
 for iOb = 1:parent.nOb
 
-	[ii, jj] = getOpenBoundaryIndices(parentObij{iOb}, 'local', parent.offset);
+    [ii, jj] = getOpenBoundaryIndices(parentObij{iOb}, 'local', parent.offset);
 
-	% Plot bathymetry on the LLC grid with open boundary marked.
-	visualizeOpenBoundary(dirz, parentObij{iOb})
+    % Plot bathymetry on the LLC grid with open boundary marked.
+    visualizeOpenBoundary(dirz, parentObij{iOb})
 
-	% Make a quick movie
-	quickOpenBoundaryMovie(parentObuv{iOb}, parentObij{iOb}, parent.model.nMonths)
+    % Make a quick movie
+    quickOpenBoundaryMovie(parentObuv{iOb}, parentObij{iOb}, parent.model.nMonths)
 
     input('Now the child boundary conditions.')
 
-	% Make a quick movie
-	quickOpenBoundaryMovie(childObuv{iOb}, childObij{iOb}, parent.model.nMonths)
+    % Make a quick movie
+    quickOpenBoundaryMovie(childObuv{iOb}, childObij{iOb}, parent.model.nMonths)
 
 end
 
