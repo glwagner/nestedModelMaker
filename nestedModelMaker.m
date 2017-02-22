@@ -13,9 +13,6 @@ disp(' ')
 child.name = 'gulfStreamComparison';
 parent.name = 'ASTE';
 
-% Number of months
-parent.model.nMonths = 12;            
-
 % ----------------------------------------------------------------------------- 
 %%% Automation.
 
@@ -32,9 +29,7 @@ addpath('./active/')
 
 % Check to make sure all's ok.
 checkDirectories(dirz)
-
 % checkParentModel(parent)                 % This function must be written.
-% checkOpenBoundaries(parent, obij)     % This function must be written.
 
 % Parse parent data structure for open boundary information.
 parentObij = parseOpenBoundaries(parent);
