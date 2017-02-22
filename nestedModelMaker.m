@@ -20,6 +20,7 @@ parent.model.nMonths = 12;
 %%% Automation.
 
 % Initialize the script by copying code to active directory and moving there.
+if ~isdir('./active'), mkdir('./active'), end
 eval( '!cp ./src/*.m ./active/')
 eval(['!cp ./models/' child.name '/*.m ./active/'])
 

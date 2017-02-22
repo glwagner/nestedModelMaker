@@ -177,9 +177,10 @@ for iit = 1:parent.nObcMonths
 	% Write a message.
 	year  = fileTimez(iFile, 1);
 	month = fileTimez(iFile, 2);
-	day   = fileTimez(iFile, 3) + 1;  % I am not sure we should add 1, but it seems right.
+	day   = fileTimez(iFile, 3);  
 
-	disp(['        Loaded 3D parent model fields from ' datestr([year month day 0 0 0]), ...
+	disp(['        Loaded 3D parent fields for averaging period ending ', ...
+             datestr([year month day 0 0 0]), ...
 			' (time = ' num2str(toc(t2), '%6.3f'), ' s)']), 
   
 	% For each time point, cut out all open boundary conditions.
