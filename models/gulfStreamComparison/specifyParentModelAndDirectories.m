@@ -51,7 +51,6 @@ parent.model.mnth0   = 1;
 parent.model.dt      = 1200;		
 parent.model.years   = 2002:2015; 
 
-
 % Resolution of the parent model
 parent.res = 270;
 
@@ -64,16 +63,16 @@ parent.nx(5)     = 450;
 parent.ny(1)     = 450;
 parent.ny(2)     = 0;
 parent.ny(3:5)   = parent.res;
-parent.nz		 		 = 50;
+parent.nz        = 50;
 
 % Global grid that the parent lives on
-parent.llc.nx = [ [1 1 1]*parent.res [3 3]*parent.res ];
-parent.llc.ny = [ [3 3]*parent.res [1 1 1]*parent.res ];
+parent.llc.nx = [ parent.res([1 1 1]) 3*parent.res([1 1]) ];
+parent.llc.ny = [ 3*parent.res([1 1]) parent.res([1 1 1]) ];
 
 % Offset of parent grid within global grid, for each face.
-% This means that to move from global- to parent-grid coordinates, we computes
+% This means that to move from global- to parent-grid coordinates, we compute
 %
-% 		parent.ii = global.ii + parent.iOff(face).
+% 		ii (parent coordinates) = ii (global coordinates) + parent.offset.ii.
 
 parent.offset.ii = [   0   0   0   0  0 ];
 parent.offset.jj = [ 360   0   0   0  0 ];
