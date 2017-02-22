@@ -174,12 +174,24 @@ for iOb = 1:model.nOb
     obij{iOb}.dyG = dyG(ii.dyG, jj.dyG);
 
     % Cell center x-positions of first and second wet point.
-    obij{iOb}.xC1 = xC (ii.T1, jj.T1); 
-    obij{iOb}.xC2 = xC (ii.T2, jj.T2); 
+    obij{iOb}.xC1 = xC (ii.T1, jj.T1);
+    obij{iOb}.xC2 = xC (ii.T2, jj.T2);
 
     % Cell center y-positions of first and second wet point.
-    obij{iOb}.yC1 = yC (ii.T1, jj.T1); 
-    obij{iOb}.yC2 = yC (ii.T2, jj.T2); 
+    obij{iOb}.yC1 = yC (ii.T1, jj.T1);
+    obij{iOb}.yC2 = yC (ii.T2, jj.T2);
+
+    % Reshape so all matrices have dimension (1 x nn) or (1 x nn+1)
+    obij{iOb}.xG  = reshape(obij{iOb}.xG , 1, length(obij{iOb}.xG ));
+    obij{iOb}.yG  = reshape(obij{iOb}.yG , 1, length(obij{iOb}.yG ));
+    obij{iOb}.dxG = reshape(obij{iOb}.dxG, 1, length(obij{iOb}.dxG));
+    obij{iOb}.dyG = reshape(obij{iOb}.dyG, 1, length(obij{iOb}.dyG));
+
+    obij{iOb}.xC1 = reshape(obij{iOb}.xC1, 1, length(obij{iOb}.xC1));
+    obij{iOb}.xC2 = reshape(obij{iOb}.xC2, 1, length(obij{iOb}.xC2));
+
+    obij{iOb}.yC1 = reshape(obij{iOb}.yC1, 1, length(obij{iOb}.yC1));
+    obij{iOb}.yC2 = reshape(obij{iOb}.yC2, 1, length(obij{iOb}.yC2));
     
 end
 

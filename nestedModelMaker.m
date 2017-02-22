@@ -37,6 +37,31 @@ parentObij = parseOpenBoundaries(parent);
 % Get grid info along boundary and then extract obcs from full 3D parent fields.
 parentObij = getOpenBoundaryHorizontalGrid(dirz.globalGrids.parent, parent, parentObij);
 parentObij = getOpenBoundaryVerticalGrid_aste(dirz.globalGrids.parent, parent, parentObij);
+
+%{
+figure(1), clf, hold on
+
+iOb = 2; obij = parentObij{iOb}
+
+nC1a = length(obij.yC1);
+nGa  = length(obij.yG );
+nC2a = length(obij.yC2);
+
+plot(1:nC1a, obij.yC1, 'k-')
+plot(1:nGa , obij.yG , 'b-')
+plot(1:nC2a, obij.yC2, 'r-')
+
+iOb = 3; obij = parentObij{iOb}
+
+nC1b = length(obij.yC1);
+nGb  = length(obij.yG );
+nC2b = length(obij.yC2);
+
+plot(nC1a + [1:nC1b], obij.yC1, 'k--')
+plot(nGa  + [1:nGb ], obij.yG , 'b--')
+plot(nC2a + [1:nC2b], obij.yC2, 'r--')
+%}
+
 parentObuv = getOpenBoundaryConditions(dirz, parent, child, parentObij);
 
 % Check-point open boundary files.
