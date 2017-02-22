@@ -40,6 +40,14 @@ switch cobij.face
     case 3
         error('Open boundary interpolation on face 3 is not yet supported.')
 end
+
+% Set NaN's to zero.
+pobuv.T1(isnan(pobuv.T1)) = 0;
+pobuv.T2(isnan(pobuv.T2)) = 0;
+pobuv.S1(isnan(pobuv.S1)) = 0;
+pobuv.S2(isnan(pobuv.S2)) = 0;
+pobuv.U (isnan(pobuv.U )) = 0;
+pobuv.V (isnan(pobuv.V )) = 0;
         
 % Loop over the horizontal index of the open boundary.
 for kk = 1:cobij.nn

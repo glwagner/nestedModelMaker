@@ -31,15 +31,14 @@ addpath('./active/')
 
 % Check to make sure all's ok.
 checkDirectories(dirz)
+
 % checkParentModel(parent)                 % This function must be written.
 % checkOpenBoundaries(parent, obij)     % This function must be written.
 
-
-% Specify boundaries (should be automated).
+% Parse parent data structure for open boundary information.
 parentObij = parseOpenBoundaries(parent);
-%parentObij = specifyOpenBoundaries(parent); %parent.nOb = length(parentObij);
 
-% Get grid info along boundary and then extract obcs from full 3d parent fields.
+% Get grid info along boundary and then extract obcs from full 3D parent fields.
 parentObij = getOpenBoundaryHorizontalGrid(dirz.globalGrids.parent, parent, parentObij);
 parentObij = getOpenBoundaryVerticalGrid_aste(dirz.globalGrids.parent, parent, parentObij);
 parentObuv = getOpenBoundaryConditions(dirz, parent, child, parentObij);
@@ -49,6 +48,7 @@ save([dirz.child.obcs 'obij_parent.mat'], 'parentObij')
 save([dirz.child.obcs 'obuv_parent.mat'], 'parentObuv')
 
 % ----------------------------------------------------------------------------- 
+%%% Child grid stuff
 
 % Hack the 'initial' child open boundaries together.
 child.res  = 4320;
@@ -59,6 +59,7 @@ child.nOb  = parent.nOb;
 child.llc.nx = [ [1 1 1]*child.res [3 3]*child.res ];
 child.llc.ny = [ [3 3]*child.res [1 1 1]*child.res ];
 
+% ----------------------------------------------------------------------------- 
 % Get boundary indices for child grid.
 for iOb = 1:child.nOb
     childObij{iOb} = transcribeOpenBoundary(child.zoom, parentObij{iOb});
@@ -74,7 +75,6 @@ childObij = getOpenBoundaryVerticalGrid_child(dirz.child.bathy, child, ...
                 childObij, zgrid);
 
 
-% ----------------------------------------------------------------------------- 
 % Interpolate open boundary condition to child grid.
 for iOb = 1:child.nOb
     childObuv{iOb} = interpolateOpenBoundaryCondition(childObij{iOb}, ...
@@ -85,6 +85,9 @@ end
 % Extract tidal amplitudes and phases at open boundaries (using parent model
 % date information -- make sure the child model is started at that time!).
 childObTides = getTidalData(childObij, datenum(parent.model.year0, parent.model.mnth0, 1))
+
+% ----------------------------------------------------------------------------- 
+% Generate the full child domain, pad the open boundaries, etc.
 
 % ----------------------------------------------------------------------------- 
 % Plot.
