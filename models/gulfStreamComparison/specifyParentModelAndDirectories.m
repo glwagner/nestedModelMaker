@@ -51,6 +51,7 @@ parent.model.mnth0   = 1;
 parent.model.dt      = 1200;		
 parent.model.years   = 2002:2015; 
 
+
 % Resolution of the parent model
 parent.res = 270;
 
@@ -83,7 +84,19 @@ parent.ny0 = 1350;
 
 % ----------------------------------------------------------------------------- 
 % Parameters of the child grid in global coordinates, at parent resolution ---- 
-% ----------------------------------------------------------------------------- 
+
+% Time span of the forward simulation.  The forward simulation will 
+% extend from the month parent.tspan.months(1) in year parent.tspan.years(1) to
+% month parent.tspan.months(2) in year parent.tspan.years(2).
+parent.tspan.years =  [ 2002 2003 ]; 
+parent.tspan.months = [    2    2 ]; 
+
+% Length of the open boundary condition to be extracted.  Due to the MITgcm's
+% linear interpolation of open boundary conditions, The number of months of 
+% boundary condition to be extracted is 2 + the number of months in the forward 
+% simulation.
+parent.nObcMonths = 2 + 12*(parent.tspan.years(2)-parent.tspan.years(1)) ...
+                     + (parent.tspan.months(2)-parent.tspan.months(1));			
 
 % Boundaries of the child model in global llc coordinates, at parent-grid
 % resolution.
