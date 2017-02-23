@@ -1,0 +1,4 @@
+stdout
+stderr
+run.slurm
+fig/*
