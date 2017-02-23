@@ -18,9 +18,9 @@ for face = 1:5
 
             % Determine whether boundary is north or south.
             if side == 1
-                obij{iOb}.edge = 'east';
-            elseif side == 2
                 obij{iOb}.edge = 'west';
+            elseif side == 2
+                obij{iOb}.edge = 'east';
             end
 
             % Indices.
