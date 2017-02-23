@@ -1,3 +1,6 @@
+# Plots the sum of the atmospheric surface pressure from JRA-55 and the pressure
+# representing the tidal potential.
+
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime as dt
