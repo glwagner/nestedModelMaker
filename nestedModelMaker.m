@@ -121,12 +121,12 @@ for iOb = 1:parent.nOb
     visualizeOpenBoundary(dirz, parentObij{iOb})
 
     % Make a quick movie
-    quickOpenBoundaryMovie(parentObuv{iOb}, parentObij{iOb}, parent.model.nMonths)
+    quickOpenBoundaryMovie(parentObuv{iOb}, parentObij{iOb}, parent.nObcMonths)
 
     input('Now the child boundary conditions.')
 
     % Make a quick movie
-    quickOpenBoundaryMovie(childObuv{iOb}, childObij{iOb}, parent.model.nMonths)
+    quickOpenBoundaryMovie(childObuv{iOb}, childObij{iOb}, parent.nObcMonths)
 
 end
 
