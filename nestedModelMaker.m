@@ -38,30 +38,6 @@ parentObij = parseOpenBoundaries(parent);
 parentObij = getOpenBoundaryHorizontalGrid(dirz.globalGrids.parent, parent, parentObij);
 parentObij = getOpenBoundaryVerticalGrid_aste(dirz.globalGrids.parent, parent, parentObij);
 
-%{
-figure(1), clf, hold on
-
-iOb = 2; obij = parentObij{iOb}
-
-nC1a = length(obij.yC1);
-nGa  = length(obij.yG );
-nC2a = length(obij.yC2);
-
-plot(1:nC1a, obij.yC1, 'k-')
-plot(1:nGa , obij.yG , 'b-')
-plot(1:nC2a, obij.yC2, 'r-')
-
-iOb = 3; obij = parentObij{iOb}
-
-nC1b = length(obij.yC1);
-nGb  = length(obij.yG );
-nC2b = length(obij.yC2);
-
-plot(nC1a + [1:nC1b], obij.yC1, 'k--')
-plot(nGa  + [1:nGb ], obij.yG , 'b--')
-plot(nC2a + [1:nC2b], obij.yC2, 'r--')
-%}
-
 parentObuv = getOpenBoundaryConditions(dirz, parent, child, parentObij);
 
 % Check-point open boundary files.
@@ -72,7 +48,7 @@ save([dirz.child.obcs 'obuv_parent.mat'], 'parentObuv')
 %%% Child grid stuff
 
 % Hack the 'initial' child open boundaries together.
-child.res  = 4320;
+child.res  = 1080;
 child.zoom = child.res / parent.res;
 child.nOb  = parent.nOb;
 
@@ -80,7 +56,6 @@ child.nOb  = parent.nOb;
 child.llc.nx = [ [1 1 1]*child.res [3 3]*child.res ];
 child.llc.ny = [ [3 3]*child.res [1 1 1]*child.res ];
 
-% ----------------------------------------------------------------------------- 
 % Get boundary indices for child grid.
 for iOb = 1:child.nOb
     childObij{iOb} = transcribeOpenBoundary(child.zoom, parentObij{iOb});
@@ -88,13 +63,11 @@ end
 
 % Get grid info along boundary and then extract obcs from full 3d parent fields.
 childObij = getOpenBoundaryHorizontalGrid(dirz.globalGrids.child, child, childObij);
-%childObij = getOpenBoundaryVerticalGrid(dirz.zgrid.child, child, childObij);
 
 % Messy treatment of vertical grid for now.
 load([ dirz.child.grid 'zgrid.mat' ], 'zgrid')
 childObij = getOpenBoundaryVerticalGrid_child(dirz.child.bathy, child, ...
                 childObij, zgrid);
-
 
 % Interpolate open boundary condition to child grid.
 for iOb = 1:child.nOb
@@ -106,7 +79,7 @@ end
 % Extract tidal amplitudes and phases at open boundaries (using parent model
 % date information -- make sure the child model is started at that time!).
 childObTides = getTidalData(childObij, datenum(parent.tspan.years(1), ...
-    parent.tspan.months(1), 1))
+    parent.tspan.months(1), 1));
 
 % ----------------------------------------------------------------------------- 
 % Generate the full child domain, pad the open boundaries, etc.
@@ -121,12 +94,12 @@ for iOb = 1:parent.nOb
     visualizeOpenBoundary(dirz, parentObij{iOb})
 
     % Make a quick movie
-    quickOpenBoundaryMovie(parentObuv{iOb}, parentObij{iOb}, parent.model.nMonths)
+    quickOpenBoundaryMovie(parentObuv{iOb}, parentObij{iOb}, parent.nObcMonths)
 
     input('Now the child boundary conditions.')
 
     % Make a quick movie
-    quickOpenBoundaryMovie(childObuv{iOb}, childObij{iOb}, parent.model.nMonths)
+    quickOpenBoundaryMovie(childObuv{iOb}, childObij{iOb}, parent.nObcMonths)
 
 end
 

@@ -182,7 +182,7 @@ for iit = 1:parent.nObcMonths
 	disp(['        Loaded 3D parent fields for averaging period ending ', ...
              datestr([year month day 0 0 0]), ...
 			' (time = ' num2str(toc(t2), '%6.3f'), ' s)']), 
-  
+
 	% For each time point, cut out all open boundary conditions.
 	for iOb = 1:parent.nOb
 
@@ -204,6 +204,42 @@ for iit = 1:parent.nObcMonths
 
 		% Store the time at which the time-step was taken.
 		obuv{iOb}.time(iit, :) = fileTimez(iFile, :);
+
+        % Load bathymetry.
+        parentBathy = rdmds([dirz.globalGrids.parent, 'Depth']); 
+        parentBathy = reshape(parentBathy, parent.nx0, parent.ny0);
+        parentBathy_aste = get_aste_faces(parentBathy, parent.nx, parent.ny);
+
+        %{
+        figure(10), clf
+
+        subplot(121)
+        imagesc(parentBathy_aste{obij{iOb}.face})
+
+        subplot(122), hold on
+        imagesc(THETA{obij{iOb}.face}(:, :, 1))
+        axis tight
+
+        if length(ii.T1) == 1
+            plot(jj.T1, ii.T1*ones(size(jj.T1)), 'r-', 'LineWidth', 2)
+        else
+            plot(jj.T1*ones(size(ii.T1)), ii.T1, 'r-', 'LineWidth', 2)
+        end
+
+        figure(11)
+
+        ax(1)=subplot(211);
+        imagesc(obuv{iOb}.T1(:, :, iit)')
+        axis ij
+
+        ax(2)=subplot(212);
+        plot(obij{iOb}.depth1)
+
+        linkaxes(ax, 'x')
+
+        input('Press enter to continue.')
+        %}
+
 	end
 end
 

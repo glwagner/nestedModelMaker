@@ -66,8 +66,8 @@ for iOb = 1:model.nOb
 	obij{iOb}.hFac.T2 = squeeze(hFacC_aste{face}(ii.T2, jj.T2, :));
 
 	% Depth at first and second wet point (which is the depth of the cell used to make volume flux measurement?)
-	obij{iOb}.depth1 = squeeze(depth_aste{face}(ii.T1, jj.T1));
-	obij{iOb}.depth2 = squeeze(depth_aste{face}(ii.T2, jj.T2));
+	obij{iOb}.depth1 = -squeeze(depth_aste{face}(ii.T1, jj.T1));
+	obij{iOb}.depth2 = -squeeze(depth_aste{face}(ii.T2, jj.T2));
 
 	% hFac corresponding to each velocity.
 	obij{iOb}.hFac.U = squeeze(hFacW_aste{face}(ii.U, jj.U, :));

@@ -88,7 +88,7 @@ parent.ny0 = 1350;
 % extend from the month parent.tspan.months(1) in year parent.tspan.years(1) to
 % month parent.tspan.months(2) in year parent.tspan.years(2).
 parent.tspan.years =  [ 2003 2003 ]; 
-parent.tspan.months = [    1   12 ]; 
+parent.tspan.months = [    1    2 ]; 
 
 % Length of the open boundary condition to be extracted.  Due to the MITgcm's
 % linear interpolation of open boundary conditions, The number of months of 
@@ -142,15 +142,15 @@ dirz.child.grid  = [ dirz.child.home 'grids/' ];
 dirz.child.obcs  = [ dirz.child.home 'obcs/' ];
 
 % Directory to child-grid bathymetry and grids
-%dirz.child.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/', ...
-%                        'bathy1080_g5_r4.bin'];
-%dirz.globalGrids.child  = ['/net/barents/raid16/weddell/raid3/gforget/grids/', ...
-%                                'gridCompleted/llcRegLatLon/llc_1080/']; 
-
+dirz.child.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/', ...
+                        'bathy1080_g5_r4.bin'];
 dirz.globalGrids.child  = ['/net/barents/raid16/weddell/raid3/gforget/grids/', ...
-                                'gridCompleted/llcRegLatLon/']; 
-bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
-dirz.child.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/' bathyName ];
+                                'gridCompleted/llcRegLatLon/llc_1080/']; 
+
+%dirz.globalGrids.child  = ['/net/barents/raid16/weddell/raid3/gforget/grids/', ...
+%                                'gridCompleted/llcRegLatLon/']; 
+%bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
+%dirz.child.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/' bathyName ];
 
 % Finalities ------------------------------------------------------------------ 
 
