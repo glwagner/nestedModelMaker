@@ -1,14 +1,15 @@
-function visualizeOpenBoundary(bathyDir, boundary)
+function visualizeChildDomain(dirz, child)
+
+% Set a few params.
+faceSize = child.res;
+bathyDir = dirz.childBathy;
 
 % Pretty options.
-colors = flipud(bone);
-climz = [-2e3 5e3];
-
-% Hard-coded for now
-faceSize = 4320;
+colors = bone;
+climz = [-5e3 2e3];
 
 % Subsample hi-res bathymetry.
-sub = 16;
+sub = 1;
 subSize = faceSize/sub;
 
 % Index vectors.
@@ -24,40 +25,48 @@ jjz{3} = 1:subSize;
 jjz{4} = 1:subSize;
 jjz{5} = 1:subSize;
 
+% This hook is needed because we only have the 1080 bathy in real*4.
+if child.res == 1080
+    precision = 'real*4';
+else
+    precision = 'real*8';
+end
+
 % Load and subsample (not as good as averaging, but what we do now).
-disp(' '), disp('Loading bathymetry...'), t1=tic;
+fprintf('Loading bathymetry... '), t1=tic;
+
 hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
-					1, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
+					1, 1, 1:faceSize, 1:3*faceSize, precision); 
 bathy{1} = hiResBathymetry(1:sub:end, 1:sub:end);
 
 hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
-					2, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
+					2, 1, 1:faceSize, 1:3*faceSize, precision); 
 bathy{2} = hiResBathymetry(1:sub:end, 1:sub:end);
 
 hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
-					3, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
+					3, 1, 1:faceSize, 1:faceSize, precision); 
 bathy{3} = hiResBathymetry(1:sub:end, 1:sub:end);
 
 hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
-					4, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
+					4, 1, 1:faceSize, 1:3*faceSize, precision); 
 bathy{4} = hiResBathymetry(1:sub:end, 1:sub:end);
 
 hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
-					5, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
+					5, 1, 1:faceSize, 1:3*faceSize, precision); 
 bathy{5} = hiResBathymetry(1:sub:end, 1:sub:end);
-disp(['   ... time = ' num2str(toc(t1), '%6.3f') ' s']), clear t1
 
-% Adjust 3, 4, and 5.
-bathy{3} = bathy{3}(1:subSize, 1:subSize);
+fprintf(' done. (time = %6.3f s)\n', toc(t1))
 
+% Ensure z-up convention
+for face = 1:5
+    bathy{face} = -abs(bathy{face});
+end
+
+% Adjust 4 and 5.
 bathy{4} = rot90(bathy{4}, 1);
 bathy{5} = rot90(bathy{5}, 1);
 
-%bathy{4} = fliplr(rot90(bathy{4}, 1));
-%bathy{5} = fliplr(rot90(bathy{5}, 1));
-
-% Plot ------------------------------------------------------------------------ 
-hfig = figure(10); clf
+hfig = figure(3); clf
 hfig.Position = [-1808 20 1274 952];
 
 % Face 2
@@ -68,14 +77,18 @@ ax(4) = subplot(5, 5, 8:10); hold on
 ax(5) = subplot(5, 5, 3:5); hold on
 
 for face = 1:5
-	imagesc(bathy{face}', 'Parent', ax(face))
-	contour(iiz{face}, jjz{face}, bathy{face}', [1 1]*20, ...
+	imagesc(iiz{face}, jjz{face}, bathy{face}', 'Parent', ax(face))
+	contour(iiz{face}, jjz{face}, bathy{face}', -[1 1]*20, ...
 				'Parent', ax(face), 'Color', [1 1 1]*0.1 )
-end
 
-% Plot open boundary as a bright cyan line.
-plot(boundary.ii, boundary.jj, 'c-', 'LineWidth', 2, ...
-		'Parent', ax(boundary.face))
+    % Outline boundary.
+    plot(child.ii(face, [1 1 2 2 1]), child.jj(face, [1 2 2 1 1]), ...
+        'c-', 'LineWidth', 1, 'Parent', ax(face))
+
+    plot(child.unsnapped.ii(face, [1 1 2 2 1]), child.unsnapped.jj(face, [1 2 2 1 1]), ...
+        'r-', 'LineWidth', 1, 'Parent', ax(face))
+
+end
 
 % Prettify -------------------------------------------------------------------- 
 ax(1).XLim = [1 subSize];
@@ -145,6 +158,8 @@ ax(2).Position(2) = ax(2).Position(2) - downShift;
 ax(3).Position(2) = ax(3).Position(2) - downShift;
 ax(4).Position(2) = ax(4).Position(2) - downShift;
 ax(5).Position(2) = ax(5).Position(2) - downShift;
+
+
 
 
 

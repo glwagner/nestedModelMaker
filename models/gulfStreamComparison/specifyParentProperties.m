@@ -1,23 +1,6 @@
-function [dirz, parent] = specifyParentModelAndDirectories(parent, child)
+function [dirz, parent] = specifyParentProperties(dirz)
 
-% ----------------------------------------------------------------------------- 
-% Too much must be specified in this function:
-%   - Names, directories, and grid parameters for the parent model
-%   - The interior of the child model on the global llc grid, 
-%       at parent-grid resolution
-%   - Directories for the child grid.
-% ----------------------------------------------------------------------------- 
-
-% Basics ---------------------------------------------------------------------- 
-
-% Check child.name and parent.model.name
-if ~isfield(child, 'name')
-    error(['child.name does not exist, which means that ', ...
-             'the name of the child model has not been specified'])
-end
-
-% Home directory
-dirz.home       = './';
+parent.name = 'ASTE';
 
 % Parent model directories ---------------------------------------------------- 
 
@@ -27,21 +10,21 @@ parent.model.nickname = 'jra55i03';
 
 % Direcories to parent model output and grid.
 gridPrefix = '/net/nares/raid8/ecco-shared/llc270/aste_270x450x180/';
-dirz.parent.grid   = [gridPrefix 'GRID_real8_fill9iU42Ef_noStLA/'];
+dirz.parentGrid   = [gridPrefix 'GRID_real8_fill9iU42Ef_noStLA/'];
 
 % Directories with T, S and U, V data.  
 dataPrefix = ['/net/barents/raid16/atnguyen/llc270/aste_270x450x180/', ...
                         'output_ad/run_c65q_jra55_it0003_pk0000000002/'];
-dirz.parent.data.TS = [dataPrefix 'diags/STATE/'];
-dirz.parent.data.UV = [dataPrefix 'diags/TRSP/'];
+dirz.parentTSdata = [dataPrefix 'diags/STATE/'];
+dirz.parentUVdata = [dataPrefix 'diags/TRSP/'];
 
-% Tracer files are in [dirz.parent.data.TS parent.model.TSname '.*.data']
+% Tracer files are in [dirz.parentTSdata parent.model.TSname '.*']
 parent.model.TSname = 'state_3d_set1';
-% Velocity files are in [dirz.parent.data.UV parent.model.UVname '.*.data']
+% Velocity files are in [dirz.parentUVdata parent.model.UVname '.*']
 parent.model.UVname = 'trsp_3d_set1';
 
 % Directory to global grids at parent resolution.
-dirz.globalGrids.parent = dirz.parent.grid;
+dirz.parentGlobalGrids = dirz.parentGrid;
 
 % Parameters specific to ASTE ------------------------------------------------- 
 
@@ -81,6 +64,7 @@ parent.offset.jj = [ 360   0   0   0  0 ];
 parent.nx0 = parent.res;
 parent.ny0 = 1350;
 
+%{
 % ----------------------------------------------------------------------------- 
 % Parameters of the child grid in global coordinates, at parent resolution ---- 
 
@@ -133,34 +117,4 @@ for face = 1:5, for side = 1:2,
         parent.nOb = parent.nOb+1; 
     end
 end, end
-                    
-% Child grid specifications --------------------------------------------------- 
-
-% Directories to store the child grids and obcs.
-dirz.child.home  = [ dirz.home 'models/' child.name '/'];
-dirz.child.grid  = [ dirz.child.home 'grids/' ];
-dirz.child.obcs  = [ dirz.child.home 'obcs/' ];
-
-% Directory to child-grid bathymetry and grids
-dirz.child.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/', ...
-                        'bathy1080_g5_r4.bin'];
-dirz.globalGrids.child  = ['/net/barents/raid16/weddell/raid3/gforget/grids/', ...
-                                'gridCompleted/llcRegLatLon/llc_1080/']; 
-
-%dirz.globalGrids.child  = ['/net/barents/raid16/weddell/raid3/gforget/grids/', ...
-%                                'gridCompleted/llcRegLatLon/']; 
-%bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
-%dirz.child.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/' bathyName ];
-
-% Finalities ------------------------------------------------------------------ 
-
-% Directory with matlab code
-dirz.code  = '/data5/glwagner/Numerics/regionalGridz/matlab/';
-
-% Directory to high-res bathymetry.
-bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
-dirz.bathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/' bathyName ];
-
-%bathyPath  = ['/net/nares/raid8/ecco-shared/llc8640/', ...
-%                                     'run_template/Smith_Sandwell_v14p1/'];
-%dirz.bathy = [bathyPath bathyName];
+%}

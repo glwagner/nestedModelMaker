@@ -27,11 +27,10 @@ for iOb = 1:model.nOb
     end
 
     % Load bathymetry.
-    disp('Loading model grid bathymetry...'), t1=tic;
+    fprintf('Loading model grid bathymetry... '), t1=tic;
     bathy = read_llc_fkij(bathyDir, model.res, obij{iOb}.face, ...
                         1, 1:model.res, 1:3*model.res, precision); 
-    disp(['   ... done loading model grid bathymetry (time = ', ...
-             num2str(toc(t1), '%6.3f') ' s)'])
+    fprintf('done. (time = %6.3f s)\n', toc(t1))
 
     % Unmangle the bathymetry.
     bathy = unmangleLLCBathymetry(bathy, obij{iOb}.face);

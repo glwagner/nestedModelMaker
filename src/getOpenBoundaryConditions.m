@@ -28,14 +28,9 @@ function obuv = getOpenBoundaryConditions(dirz, parent, child, obij)
 disp('Extracting boundary conditions...'), t1 = tic;
 %----------------------------------------------------------------------------- 
 
-% Check inputs?
-checkDirectories(dirz)
-%checkParentModel(parent);
-
-%----------------------------------------------------------------------------- 
 % Initialize the files to be loaded for the open boundaries.
-tracerFiles = dir([dirz.parent.data.TS parent.model.TSname '.*.data']);
-velFiles    = dir([dirz.parent.data.UV parent.model.UVname '.*.data']);
+tracerFiles = dir([dirz.parentTSdata parent.model.TSname '.*.data']);
+velFiles    = dir([dirz.parentUVdata parent.model.UVname '.*.data']);
 
 % This is the length of the list; it also specifies how many files to load.
 nTracerFiles = length(tracerFiles);
@@ -70,9 +65,9 @@ iFile0 = iFilez(1);
 % that ASTE outputs.
 
 % Load hFac's.
-hFacC = rdmds([dirz.parent.grid 'hFacC']); 
-hFacW = rdmds([dirz.parent.grid 'hFacW']); 
-hFacS = rdmds([dirz.parent.grid 'hFacS']); 
+hFacC = rdmds([dirz.parentGrid 'hFacC']); 
+hFacW = rdmds([dirz.parentGrid 'hFacW']); 
+hFacS = rdmds([dirz.parentGrid 'hFacS']); 
 
 % Reshape.
 hFacC = reshape(hFacC, parent.nx0, parent.ny0, parent.nz);
@@ -94,48 +89,48 @@ iBot.T = find(hFacC(:)==0);
 % Initialize stuff before the main loop.
 
 % Predefine matrices to reserve memory
-disp('    Initializing fields...'), t2 = tic;
-for iOb = 1:parent.nOb
+fprintf('    Initializing fields... '), t2 = tic;
+for iOb = 1:length(obij)
 
 	% Number of boundary points
 	ni = length(obij{iOb}.ii);
 	
 	% Initialize boundary fields
-	obuv{iOb}.T1 = zeros(ni, parent.nz, parent.nObcMonths);
-	obuv{iOb}.T2 = zeros(ni, parent.nz, parent.nObcMonths);
-	obuv{iOb}.S1 = zeros(ni, parent.nz, parent.nObcMonths);
-	obuv{iOb}.S2 = zeros(ni, parent.nz, parent.nObcMonths);
-	obuv{iOb}.U  = zeros(ni, parent.nz, parent.nObcMonths);
-	obuv{iOb}.V  = zeros(ni, parent.nz, parent.nObcMonths);
+	obuv{iOb}.T1 = zeros(ni, parent.nz, child.nObcMonths);
+	obuv{iOb}.T2 = zeros(ni, parent.nz, child.nObcMonths);
+	obuv{iOb}.S1 = zeros(ni, parent.nz, child.nObcMonths);
+	obuv{iOb}.S2 = zeros(ni, parent.nz, child.nObcMonths);
+	obuv{iOb}.U  = zeros(ni, parent.nz, child.nObcMonths);
+	obuv{iOb}.V  = zeros(ni, parent.nz, child.nObcMonths);
 
 	% Initialize time matrix.
-	obuv{iOb}.time = zeros(parent.nObcMonths, 4);
+	obuv{iOb}.time = zeros(child.nObcMonths, 4);
 
 end
-disp(['    ... done. (time = ' num2str(toc(t2), '%6.3f') ' s)'])
+fprintf('done. (time = %6.3f s)\n', toc(t2))
 
 % Get the precision for T, S, U, V from their associated .meta files.
-precision.TS = get_precision([dirz.parent.data.TS, ...
+precision.TS = get_precision([dirz.parentTSdata, ...
 						 		tracerFiles(1).name(1:end-4) 'meta']);
-precision.UV = get_precision([dirz.parent.data.UV, ...
+precision.UV = get_precision([dirz.parentUVdata, ...
 						 		velFiles(1).name(1:end-4) 'meta']);
 
 
 % Loop through all time-points.
-disp('    Loading and cutting 3D fields...')
-for iit = 1:parent.nObcMonths
+fprintf('    Loading and cutting 3D fields...\n')
+for iit = 1:child.nObcMonths
 
 	% Set timer.
 	clear t2, t2 = tic;
 
 	% Set the file index.
 	iFile = iit + iFile0 - 2 ...
-                + 12*(parent.tspan.years(1)-parent.model.year0) ...
-                + parent.tspan.months(1)-parent.model.mnth0;
+                + 12*(child.tspan.years(1)-parent.model.year0) ...
+                + child.tspan.months(1)-parent.model.mnth0;
 
 	% File names.
-  	loadFile.TS = [dirz.parent.data.TS tracerFiles(iFile).name]; 
-  	loadFile.UV = [dirz.parent.data.UV velFiles(iFile).name]; 
+  	loadFile.TS = [dirz.parentTSdata tracerFiles(iFile).name]; 
+  	loadFile.UV = [dirz.parentUVdata velFiles(iFile).name]; 
 
 	% -------------------------------------------------------------------------  
 	% Load entire parent fields.  The function "get_aste_faces" outputs
@@ -184,7 +179,7 @@ for iit = 1:parent.nObcMonths
 			' (time = ' num2str(toc(t2), '%6.3f'), ' s)']), 
 
 	% For each time point, cut out all open boundary conditions.
-	for iOb = 1:parent.nOb
+	for iOb = 1:length(obij)
 
 		% ii and jj are *local* indices on the *parent* grid.  
 		[ii, jj] = getOpenBoundaryIndices(obij{iOb}, 'local', parent.offset);
@@ -204,41 +199,6 @@ for iit = 1:parent.nObcMonths
 
 		% Store the time at which the time-step was taken.
 		obuv{iOb}.time(iit, :) = fileTimez(iFile, :);
-
-        % Load bathymetry.
-        parentBathy = rdmds([dirz.globalGrids.parent, 'Depth']); 
-        parentBathy = reshape(parentBathy, parent.nx0, parent.ny0);
-        parentBathy_aste = get_aste_faces(parentBathy, parent.nx, parent.ny);
-
-        %{
-        figure(10), clf
-
-        subplot(121)
-        imagesc(parentBathy_aste{obij{iOb}.face})
-
-        subplot(122), hold on
-        imagesc(THETA{obij{iOb}.face}(:, :, 1))
-        axis tight
-
-        if length(ii.T1) == 1
-            plot(jj.T1, ii.T1*ones(size(jj.T1)), 'r-', 'LineWidth', 2)
-        else
-            plot(jj.T1*ones(size(ii.T1)), ii.T1, 'r-', 'LineWidth', 2)
-        end
-
-        figure(11)
-
-        ax(1)=subplot(211);
-        imagesc(obuv{iOb}.T1(:, :, iit)')
-        axis ij
-
-        ax(2)=subplot(212);
-        plot(obij{iOb}.depth1)
-
-        linkaxes(ax, 'x')
-
-        input('Press enter to continue.')
-        %}
 
 	end
 end

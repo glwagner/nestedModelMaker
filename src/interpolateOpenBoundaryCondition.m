@@ -1,7 +1,7 @@
 function cobuv = interpolateOpenBoundaryCondition(cobij, pobij, pobuv)
 
 % Display a message
-disp(sprintf('Interpolating an obc on the %s edge of face %d...', cobij.edge, cobij.face))
+fprintf('Interpolating an obc on the %s edge of face %d...', cobij.edge, cobij.face)
 t1 = tic;
 
 % Number of time-steps.
@@ -55,16 +55,6 @@ pobuv.V (isnan(pobuv.V )) = 0;
 
 % Plot of bathymetry along the boundary.
 zoom = cobij.nn / pobij.nn;
-
-figure(99), clf, hold on
-plot(1/2    + [0:pobij.nn-1],             pobij.depth1, 'k-')
-plot(1/zoom + [0:1/zoom:pobij.nn-1/zoom], cobij.depth1, 'r-')
-xlabel('kkp'), ylabel('depth'), legend('parent grid', 'child grid')
-title(sprintf('Open boundary on the %s edge of face %d', cobij.edge, cobij.face))
-
-%plot(pC, pobij.depth1, 'k-')
-%plot(cC, cobij.depth1, 'r-')
-%xlabel('Tangent coordinate to ob'), ylabel('depth'), legend('parent grid', 'child grid')
 
 % Loop over the horizontal index of the open boundary.
 for kk = 1:cobij.nn
@@ -275,4 +265,4 @@ for kk = 1:cobij.nn
     end
 end
 
-disp(sprintf('  ... interpolation is finished. (time = %6.3f s)', toc(t1))) 
+fprintf(' done. (time = %6.3f s)\n', toc(t1))

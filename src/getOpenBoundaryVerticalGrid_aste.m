@@ -23,7 +23,7 @@ function obij = getOpenBoundaryVerticalGrid_aste(gridDir, model, obij)
 %
 % ----------------------------------------------------------------------------- 
 % Message.
-disp('Getting vertical grid information at open boundaries...'), t1 = tic;
+fprintf('Getting vertical grid information at open boundaries... '), t1 = tic;
 
 % Load 1D vertical grid information.
 zF  = squeeze(rdmds([gridDir 'RF' ]));
@@ -53,7 +53,7 @@ hFacS_aste = get_aste_faces(hFacC, model.nx, model.ny);
 depth_aste = get_aste_faces(depth, model.nx, model.ny);
 
 % Store grid properties for each open boundary condition.
-for iOb = 1:model.nOb
+for iOb = 1:length(obij)
 
 	% Get the local indices of ii and jj on the model grid.
 	[ii, jj] = getOpenBoundaryIndices(obij{iOb}, 'local', model.offset);
@@ -84,9 +84,4 @@ for iOb = 1:model.nOb
 	
 end
 
-%----------------------------------------------------------------------------- 
-disp(['   ... done extracting vertical grid on open boundary. ', ...
-        '(time = ' num2str(toc(t1), '%6.3f') ' s)'])
-
-
-
+fprintf('done. (time = %6.3f s)\n', toc(t1))

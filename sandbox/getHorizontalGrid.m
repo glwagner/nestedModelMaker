@@ -1,4 +1,4 @@
-function obij = getOpenBoundaryHorizontalGrid(gridDir, model, obij)
+function hgrid = getOpenBoundaryHorizontalGrid(gridDir, model)
 
 % ----------------------------------------------------------------------------- 
 % Input structures or cell-array-of structures:
@@ -130,13 +130,10 @@ function obij = getOpenBoundaryHorizontalGrid(gridDir, model, obij)
 %   |"PWY": Periodic wrap around in Y.
 % -----------------------------------------------------------------------------  
 % Message.
-fprintf('Getting horizontal grid information at open boundaries... '), t1 = tic;
+disp('Getting horizontal grid...'), t1 = tic;
 
 % Store grid properties for each open boundary condition.
-for iOb = 1:length(obij)
-
-    % Get the face of the open boundary.
-    face = obij{iOb}.face;
+for face = [1 5]
 
     % Load and cut the global llc grid at model-grid resolution.
     gridFileName = [gridDir 'llc_00' int2str(face) '_', ...
@@ -160,43 +157,25 @@ for iOb = 1:length(obij)
     % Trim xC, yC, dxG, and dyG to eliminate any possible ambiguity.
     xC = xC(1:end-1, 1:end-1);
     yC = yC(1:end-1, 1:end-1);
-    
+
     dxG = dxG(1:end-1, :);
     dyG = dyG(:, 1:end-1);
 
-    % Get the boundary indices on the llc grid.
-    [ii, jj] = getOpenBoundaryIndices(obij{iOb}, 'llc');
+    hgridFaces{face}.xx  = xC;
+    hgridFaces{face}.yy  = yC;
 
-    % Store grid corner and grid length information.
-    obij{iOb}.xG  = xG (ii.xG,  jj.xG );
-    obij{iOb}.yG  = yG (ii.yG,  jj.yG );
-    obij{iOb}.dxG = dxG(ii.dxG, jj.dxG);
-    obij{iOb}.dyG = dyG(ii.dyG, jj.dyG);
-
-    % Cell center x-positions of first and second wet point.
-    obij{iOb}.xC1 = xC (ii.T1, jj.T1);
-    obij{iOb}.xC2 = xC (ii.T2, jj.T2);
-
-    % Cell center y-positions of first and second wet point.
-    obij{iOb}.yC1 = yC (ii.T1, jj.T1);
-    obij{iOb}.yC2 = yC (ii.T2, jj.T2);
-
-    % Reshape so all matrices have dimension (1 x nn) or (1 x nn+1)
-    obij{iOb}.xG  = reshape(obij{iOb}.xG , 1, length(obij{iOb}.xG ));
-    obij{iOb}.yG  = reshape(obij{iOb}.yG , 1, length(obij{iOb}.yG ));
-    obij{iOb}.dxG = reshape(obij{iOb}.dxG, 1, length(obij{iOb}.dxG));
-    obij{iOb}.dyG = reshape(obij{iOb}.dyG, 1, length(obij{iOb}.dyG));
-
-    obij{iOb}.xC1 = reshape(obij{iOb}.xC1, 1, length(obij{iOb}.xC1));
-    obij{iOb}.xC2 = reshape(obij{iOb}.xC2, 1, length(obij{iOb}.xC2));
-
-    obij{iOb}.yC1 = reshape(obij{iOb}.yC1, 1, length(obij{iOb}.yC1));
-    obij{iOb}.yC2 = reshape(obij{iOb}.yC2, 1, length(obij{iOb}.yC2));
-    
 end
 
+% Store the horizontal grid in 'Atlantic ASTE movie' format
+hgrid.xx = [ flipud(hgridFaces{5}.xx), hgridFaces{1}.xx' ];
+hgrid.yy = [ flipud(hgridFaces{5}.yy), hgridFaces{1}.yy' ];
+
+hgrid.xx = hgrid.xx(361:end, :);
+hgrid.yy = hgrid.yy(361:end, :);
+
 %----------------------------------------------------------------------------- 
-fprintf('done. (time = %6.3f s)\n', toc(t1))
+disp(['   ... done extracting horizontal grid. ', ...
+    '(time = ' num2str(toc(t1), '%6.3f') ' s)'])
 
 
 
