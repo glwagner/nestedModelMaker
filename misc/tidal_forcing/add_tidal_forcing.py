@@ -1,115 +1,146 @@
-# Computes surface pressure loading equivalent to tidal potential and adds it to
-# the JRA-55 atmospheric surface pressure field. The code computes a
-# superposition of harmonic coefficients to obtain the complete lunisolar tidal
-# potential of second degree. See Wunsch, Modern Observational Physical
-# Oceanography (2015), Chpt 6.1 for an introduction.
-#    
-# The function tidal_potential below is an adaption of code by Malte Mueller
-# (maltem@met.no), with modifications by Victor Ocana (vocana@ices.utexas.edu).
-#
-# Required files:
-#   LSpot1990-2020.new.mat - has time series of tidal coefficients
-#   jra55_grid.npz         - JRA-55 grid information
-
-
+import spiceypy as spice
 import numpy as np
-import scipy.io as sio
+import scipy.special as scs
 import datetime as dt
 import calendar
-
-
-# year for which tidal forcing is to be added
-year = 2012
+import matplotlib.pyplot as plt
 
 # path to JRA-55 files (also used as output folder!)
 path = "/nobackup1/joernc/patches/jra55/"
 
+# year of the JRA-55 file tidal forcing should be added to
+year = 2014
 
-def tidal_potential(lat, lon, t):
+# print toolkit version numbers
+print spice.tkvrsn('TOOLKIT')
 
-    # Computes surface pressure representing tidal potential at a given lat/lon
-    # grid and at a given time (datetime object).
-    # Input:
-    #   lat   - latitude array
-    #   lon   - longitude array
-    #   t     - time at which tidal potential is computed
-    # Output:
-    #   lspot - map of surface pressure loading
-    #              (potential converted to pressure???)
-    
-    # Account for solid earth tide: see Cartwright (1977), Sctn 6.1. This is
-    # the combined effect of the solid earth deformation and the increase in
-    # potential due to it. The result is a factor (1 + k2 - h2) = 0.69, where k2
-    # and h2 are Love numbers.
-    solid = 0.69
-    
-    # seawater density
-    rho = 1029
-    
-    # Account for self-attraction and loading in the simple scalar
-    # approximation (see, e.g. Ray, Ocean self‐attraction and loading in
-    # numerical tidal models, Marine Geodesy 1998) ???
-    # Not sure this is right, even if one were to accept the scalar
-    # approximation, because the SAL term in the LTE depends on the ocean tide,
-    # not the equilibrium tide!
-    SAL = 0.121
+# load kernels
+spice.furnsh("meta_kernel.txt")
 
-    # locate prediction time (366 offset to match MATLAB convention)
-    jd = t.toordinal() + t.hour/24. + 366
-    if t.minute == 0: # full hour
-        idx = np.argwhere(timepred == jd)[0]
-        tr = np.reshape([idx], (1,1,1))
-    elif t.minute == 30: # half hour (avg. over adjacent full hours)
-        idx = np.argwhere(timepred == jd - .5)[0]
-        tr = np.reshape([idx,idx+1], (2,1,1))
+def lon_lat_r(body, time, earth_radius=6371e3):
 
-    # reshape to allow multiplication by time-dependent array
-    lat = np.reshape(lat, (1,np.size(lat),1))
-    lon = np.reshape(lon, (1,1,np.size(lon)))
+    """
+    Use SPICE software to get longitude and latitude of the point on Earth at
+    which <body> is in zenith, and the distance between the barycenters of Earth
+    and <body> at a specified <time> (in UTC). We're pretending the earth is a
+    sphere here, as is commonly done in tidal studies (and presumably is done in
+    the ocean model this is fed into).
 
-    # Compute spatial dependence on specified lat/lon grid (see Wunsch, eqn 6.9)
-    # for the semidiurnal, diurnal, and long-period components.
-    spot = s1pot[tr]*np.cos(np.deg2rad(lat))**2*np.cos(np.deg2rad(-2*lon)) \
-            + s2pot[tr]*np.cos(np.deg2rad(lat))**2*np.sin(np.deg2rad(-2*lon))   
-    dpot = d1pot[tr]*np.sin(np.deg2rad(2*lat))*np.cos(np.deg2rad(-lon)) \
-            + d2pot[tr]*np.sin(np.deg2rad(2*lat))*np.sin(np.deg2rad(-lon))
-    lpot = l1pot[tr]*(3*np.sin(np.deg2rad(lat)**2-1))
+    Input:
+      body         - SPICE name of the body (e.g. "SUN" or "MOON")
+      time         - date and time in datetime format (UTC)
+      earth_radius - radius of the earth (default 6371e3 m)
+    Output:
+      lon, lat     - longitude and latitude at which <body> is in zenith
+      r            - range of the body (distance between barycenters)
+    """
 
-    # Add up components (and avg. over adjacent hours if necessary).
-    lspot = np.mean(spot + dpot + lpot, axis=0)
+    # convert UTC time to ephemeris time
+    time = spice.str2et(str(time) + " UTC")
 
-    # multiplication by density to convert to pressure ???
-    # what are SAL, solid? is this converted to pressure?
-    lspot = (1+SAL)*rho*solid*lspot
+    # get position in rectangular coordinate system (body frame of Earth)
+    pos_rec, _ = spice.spkpos(body, time, "ITRF93", "NONE", "EARTH")
 
-    return lspot
+    # transform to geodetic coordinates assuming zero flatness (to get lat/lon)
+    pos_geo = spice.recgeo(pos_rec, earth_radius/1e3, 0)
 
+    # transform to range, right ascension, declination (to get range)
+    pos_rad = spice.recrad(pos_rec)
 
-def get_pres(t):
+    # isolate coordinates we'll need (and convert from km to m)
+    lon = pos_geo[0]
+    lat = pos_geo[1]
+    r = pos_rad[0]*1e3
 
-    # This reads in the atmospheric surface pressure field from JRA-55 located
-    # in the folder specified by the global variable "path" and interpolates to
-    # the time t, which is assumed to be given at times 00:30:00, 01:30:00, etc.
-    # The method depends on the JRA-55 pressure field being given at times
-    # 01:30:00, 04:30:00, etc.
+    return lon, lat, r
+
+def GM(body):
+    """
+    Use SPICE software to get the product of the gravitational constant and thei
+    mass of <body>. Input is SPICE name, e.g. "SUN" or "MOON".
+    """
+    _, GM = spice.bodvrd(body, "GM", 1)
+    return GM[0]*1e9 # convert km to m
+
+def mu(lon1, lat1, lon2, lat2):
+    """
+    Calculate the cosine of the zenith angle alpha (using the spherical law of
+    cosines.
+    """
+    return np.sin(lat1)*np.sin(lat2)+np.cos(lat1)*np.cos(lat2)*np.cos(lon2-lon1)
+
+def pres_tide(lon, lat, time, earth_radius=6371e3, rho=1029., h2=0.61, k2=0.30):
+    """
+    Calculate the surface pressure representing the body force due to the tidal
+    potential. The tidal potential is calculated from the orbital position of
+    the sun and moon (using the second-order Legendre polynomial only, see e.g.
+    Munk and Cartwright, 1966, Philos. T. Roy. Soc. A), corrected for the solid
+    earth tide using the Love numbers h2 and k2 (e.g. Cartwright, 1977, Rep.
+    Prog. Phys.), and converted into a pressure by multiplication by rho (the
+    reference density in the ocean simulation that is to be forced with this).
+
+    Input:
+      lon, lat     - longitude and latitude at which to compute pressure (in
+                     radians)
+      time         - date and time in datetime format (in UTC)
+    Optional input:
+      earth_radius - Earth's radius (default 6371e3 m)
+      rho          - reference density of ocean simulation (default 1029 kg/m^3)
+      h2, k2       - Love numbers (default h2 = 0.61, k2 = 0.30)
+    Output:
+      p_tide       - surface pressure field representing tidal forcing
+    """
+
+    # get position in rectangular coordinate system
+    sun_lon, sun_lat, sun_r = lon_lat_r("SUN", time)
+    moon_lon, moon_lat, moon_r = lon_lat_r("MOON", time)
+
+    # cosine of zenith angle alpha
+    sun_mu = mu(lon, lat, sun_lon, sun_lat)
+    moon_mu = mu(lon, lat, moon_lon, moon_lat)
+
+    # parallaxes
+    sun_xi = earth_radius/sun_r
+    moon_xi = earth_radius/moon_r
+
+    # GM
+    sun_GM = GM("SUN")
+    moon_GM = GM("MOON")
+
+    # potentials
+    sun_V = sun_GM/sun_r*sun_xi**2*scs.legendre(2)(sun_mu)
+    moon_V = moon_GM/moon_r*moon_xi**2*scs.legendre(2)(moon_mu)
+
+    # convert to pressure and make solid earth tide correction
+    sun_p = (1+k2-h2)*rho*sun_V
+    moon_p = (1+k2-h2)*rho*moon_V
+
+    return sun_p + moon_p
+
+def pres_jra(time, path):
+    """
+    Load JRA-55 surface pressure field located in <path> and interpolate to the
+    time given by <time>. This is assuming <time> is given as a datetime object
+    and is of the form hh:30:00.
+    """
 
     # decide whether and how to interpolate
-    if t.hour % 3 == 0: # one hour before JRA time step
+    if time.hour % 3 == 0: # one hour before JRA time step
         # times and weights of JRA to be interpolated between
-        t0 = t - dt.timedelta(hours=2)
-        t1 = t + dt.timedelta(hours=1)
+        t0 = time - dt.timedelta(hours=2)
+        t1 = time + dt.timedelta(hours=1)
         w0 = 1./3
         w1 = 2./3
-    elif t.hour % 3 == 1: # matches JRA time stamp
+    elif time.hour % 3 == 1: # matches JRA time stamp
         # times and weights of JRA (no interpolation needed here)
-        t0 = t
-        t1 = t
+        t0 = time
+        t1 = time
         w0 = 1
         w1 = 0
-    elif t.hour % 3 == 2: # one hour after JRA time step
+    elif time.hour % 3 == 2: # one hour after JRA time step
         # times and weights of JRA to be interpolated between
-        t0 = t - dt.timedelta(hours=1)
-        t1 = t + dt.timedelta(hours=2)
+        t0 = time - dt.timedelta(hours=1)
+        t1 = time + dt.timedelta(hours=2)
         w0 = 2./3
         w1 = 1./3
 
@@ -130,45 +161,34 @@ def get_pres(t):
 
     return pres
 
-
-# Load tidal potential data. The coefficients represent the astronomical
-# forcing, describing the locations of the sub-solar and sub-lunar points and
-# folding in some additional factors.
-# Where do these come from? What is the difference with LSpot1990-2020.mat?
-# These are defined at full hours -- could we get these for half hours to match
-# JRA? (interpolating in time for now)
-f = sio.loadmat("LSpot1990-2020.new.mat")
-timepred = f["timepred"][0,:]
-s1pot = f["s1pot"][0,:]
-s2pot = f["s2pot"][0,:]
-d1pot = f["d1pot"][0,:]
-d2pot = f["d2pot"][0,:]
-l1pot = f["l1pot"][0,:]
-
 # load JRA-55 grid
 f = np.load("jra55_grid.npz")
-lat = f["lat"]
-lon = f["lon"]
+lat = np.deg2rad(f["lat"])
+lon = np.deg2rad(f["lon"])
 
-# number of days in the year
+# number of days in the specified year
 days = 366 if calendar.isleap(year) else 365
 
-# map to output file (overwrites existing file, must write entire year at once)
-pres_tide = np.memmap("{:s}jra55_pres_tide_{:4d}".format(path, year),
+# map to output file (overwrites existing file, change to "r+"?)
+p_out = np.memmap("{:s}jra55_pres_tide_{:4d}".format(path, year),
         dtype=np.dtype(">f"), mode="w+", shape=(days*24,320,640))
 
-# loop over hours and add tidal potential
+# loop over hours
 for i in range(days*24):
 
     # time
-    t = dt.datetime(year,1,1,0,30,0) + dt.timedelta(hours=i)
-    print t
+    time = dt.datetime(year,1,1,0,30,0) + dt.timedelta(hours=i)
+    print time
 
-    # get pressure field
-    pres = get_pres_field(t)
+    # get tidal forcing
+    p_tide = pres_tide(lon, lat, time)
 
-    # get tidal potential
-    lspot = tidal_potential(lat, lon, t)
+    # get JRA pressure
+    p_atms = pres_jra(time, path)
 
     # save to file (using memmap)
-    pres_tide[i,:,:] = pres + lspot
+    p_out[i,:,:] = p_atms + p_tide
+
+    # save figure (origin bug!)
+    plt.imsave("fig/pot_{:4d}_{:05d}.png".format(year, i),
+            (p_atms+p_tide)[::-1,:], vmin=900e2, vmax=1080e2, dpi=300)

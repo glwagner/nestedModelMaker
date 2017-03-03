@@ -2,3 +2,4 @@ stdout
 stderr
 run.slurm
 fig/*
+kernels/*
