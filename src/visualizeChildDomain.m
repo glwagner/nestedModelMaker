@@ -1,4 +1,4 @@
-function visualizeChildDomain(dirz, child)
+function visualizeChildDomain(dirz, child, fig)
 
 % Set a few params.
 faceSize = child.res;
@@ -66,7 +66,7 @@ end
 bathy{4} = rot90(bathy{4}, 1);
 bathy{5} = rot90(bathy{5}, 1);
 
-hfig = figure(3); clf
+hfig = figure(fig); clf
 hfig.Position = [-1808 20 1274 952];
 
 % Face 2

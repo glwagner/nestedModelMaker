@@ -46,7 +46,6 @@ parentObij = parseOpenBoundaries(child);
 % Get grid info along boundary and then extract obcs from full 3D parent fields.
 parentObij = getOpenBoundaryHorizontalGrid(dirz.parentGlobalGrids, parent, parentObij);
 parentObij = getOpenBoundaryVerticalGrid_aste(dirz.parentGlobalGrids, parent, parentObij);
-
 parentObuv = getOpenBoundaryConditions(dirz, parent, child, parentObij);
 
 % Check-point open boundary files.
@@ -81,44 +80,34 @@ childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
     child.tspan.months(1), 1));
 
 % Generate the child domain - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-nSuperGrid = 30;
-
 child = initializeChildGrid(child);
-child = snapToSuperGrid(child, nSuperGrid);
+child = snapToSuperGrid(child, child.nSuperGrid);
 child = getChildBathymetry(dirz.childBathy, child);
 
 % Write this function:
-% snapOpenBoundariesToSuperGrid()
+%for iOb = 1:child.nOb
+%   [childObij{iOb}, childObuv{iOb}] = snapOpenBoundariesToSuperGrid( ...
+%        childObij{iOb}, childObuv{iOb}, child);
+%end
 
-visualizeChildDomain(dirz, child)
+fig = 1; visualizeChildDomain(dirz, child, fig)
 input('Press enter to continue.')
+
+% Next... - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+% 1. Generate initial conditions.
+% 2. Figure out how to write data, data.obcs, data.exch2, etc.
 
 % Plot  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 for iOb = 1:child.nOb
 
-    % Compare bathymetry along parent and child open boundaries.
-    figure(3), clf, hold on
-    plot(1/2 + [0:parentObij{iOb}.nn-1], parentObij{iOb}.depth1, 'k-')
-    plot(1/child.zoom + [0:1/child.zoom:parentObij{iOb}.nn-1/child.zoom], childObij{iOb}.depth1, 'r-')
-
-    xlabel('kkp'), ylabel('depth'), legend('parent grid', 'child grid')
-    title(sprintf('Open boundary on the %s edge of face %d', childObij{iOb}.edge, childObij{iOb}.face))
-
-    pause(0.1)
-
     [ii, jj] = getOpenBoundaryIndices(parentObij{iOb}, 'local', parent.offset);
 
     % Plot bathymetry on the LLC grid with open boundary marked.
-    visualizeOpenBoundary(dirz.plotBathy, parentObij{iOb})
+    fig = 3; visualizeOpenBoundary(dirz.plotBathy, parentObij{iOb}, fig)
 
     % Make a quick movie
-    quickOpenBoundaryMovie(parentObuv{iOb}, parentObij{iOb}, child.nObcMonths)
-
-    input('Now the child boundary conditions.')
-
-    % Make a quick movie
-    quickOpenBoundaryMovie(childObuv{iOb}, childObij{iOb}, child.nObcMonths)
+    %fig = 4; quickOpenBoundaryMovie(parentObuv{iOb}, parentObij{iOb}, child.nObcMonths, fig)
+    fig = 4; quickOpenBoundaryMovie(childObuv{iOb}, childObij{iOb}, child.nObcMonths, fig)
 
 end
 

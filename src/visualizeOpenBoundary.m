@@ -1,4 +1,4 @@
-function visualizeOpenBoundary(bathyDir, boundary)
+function visualizeOpenBoundary(bathyDir, boundary, fig)
 
 % Pretty options.
 colors = flipud(bone);
@@ -57,7 +57,7 @@ bathy{5} = rot90(bathy{5}, 1);
 %bathy{5} = fliplr(rot90(bathy{5}, 1));
 
 % Plot ------------------------------------------------------------------------ 
-hfig = figure(10); clf
+hfig = figure(fig); clf
 hfig.Position = [-1808 20 1274 952];
 
 % Face 2
@@ -146,6 +146,12 @@ ax(3).Position(2) = ax(3).Position(2) - downShift;
 ax(4).Position(2) = ax(4).Position(2) - downShift;
 ax(5).Position(2) = ax(5).Position(2) - downShift;
 
+% Compare bathymetry along parent and child open boundaries.
+figure(2), clf, hold on
+plot(1/2 + [0:parentObij{iOb}.nn-1], parentObij{iOb}.depth1, 'k-')
+plot(1/child.zoom + [0:1/child.zoom:parentObij{iOb}.nn-1/child.zoom], childObij{iOb}.depth1, 'r-')
+xlabel('kkp'), ylabel('depth'), legend('parent grid', 'child grid')
+title(sprintf('Open boundary on the %s edge of face %d', childObij{iOb}.edge, childObij{iOb}.face))
 
-
+pause(0.1)
 

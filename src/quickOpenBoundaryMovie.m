@@ -1,7 +1,7 @@
-function quickOpenBoundaryMovie(obuv, obij, nt)
+function quickOpenBoundaryMovie(obuv, obij, nt, fig)
 
 % Make a plot
-hfig = figure(1); clf
+hfig = figure(fig); clf
 set(gcf, 'DefaultTextInterpreter', 'latex')
 %hfig.Position = [218 4 1484 955];
 
