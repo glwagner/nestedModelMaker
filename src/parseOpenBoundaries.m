@@ -1,4 +1,4 @@
-function obij = parseOpenBoundaries(parent)
+function obij = parseOpenBoundaries(child)
 
 % Initialize.
 obij = [];
@@ -8,7 +8,7 @@ iOb = 0;
 for face = 1:5
     for side = 1:2
         % If boundary is open, generate an open boundary condition.
-        if strcmp(parent.bcs.ii{face}{side}, 'open')
+        if strcmp(child.bcs.ii{face}{side}, 'open')
         
             % We have a new open boundary.
             iOb = iOb+1;
@@ -24,8 +24,8 @@ for face = 1:5
             end
 
             % Indices.
-            obij{iOb}.jj = parent.jj(face, 1):parent.jj(face, 2);
-            obij{iOb}.ii = parent.ii(face, side)*ones(size(obij{iOb}.jj));
+            obij{iOb}.jj = child.parent.jj(face, 1):child.parent.jj(face, 2);
+            obij{iOb}.ii = child.parent.ii(face, side)*ones(size(obij{iOb}.jj));
         
             % Length of open boundary
             obij{iOb}.nn = length(obij{iOb}.ii);
@@ -38,7 +38,7 @@ end
 for face = 1:5
     for side = 1:2
         % If boundary is open, generate an open boundary condition.
-        if strcmp(parent.bcs.jj{face}{side}, 'open')
+        if strcmp(child.bcs.jj{face}{side}, 'open')
         
             % We have a new open boundary.
             iOb = iOb+1;
@@ -54,8 +54,8 @@ for face = 1:5
             end
 
             % Indices.
-            obij{iOb}.ii = parent.ii(face, 1):parent.ii(face, 2);
-            obij{iOb}.jj = parent.jj(face, side)*ones(size(obij{iOb}.ii));
+            obij{iOb}.ii = child.parent.ii(face, 1):child.parent.ii(face, 2);
+            obij{iOb}.jj = child.parent.jj(face, side)*ones(size(obij{iOb}.ii));
 
             % Length of open boundary
             obij{iOb}.nn = length(obij{iOb}.ii);

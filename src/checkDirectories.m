@@ -1,18 +1,18 @@
 function checkDirectories(dirz)
 
-if exist(dirz.child.home) == 0
-	mkdir(dirz.child.home);
-	fprintf('Making directory %s\n', dirz.child.home);
+if exist(dirz.home) == 0
+	mkdir(dirz.home);
+	fprintf('Making directory %s\n', dirz.home);
 end
 
-if exist(dirz.child.grid) == 0
-	mkdir(dirz.child.grid);
-	fprintf('Making directory %s\n', dirz.child.grid);
+if exist(dirz.childGrid) == 0
+	mkdir(dirz.childGrid);
+	fprintf('Making directory %s\n', dirz.childGrid);
 end
 
-if exist(dirz.child.obcs) == 0
-	mkdir(dirz.child.obcs);
-	fprintf('Making directory %s\n', dirz.child.obcs);
+if exist(dirz.childObcs) == 0
+	mkdir(dirz.childObcs);
+	fprintf('Making directory %s\n', dirz.childObcs);
 end
 
 % Open boundary conditions output

@@ -1,4 +1,4 @@
-function visualizeOpenBoundary(dirz, boundary)
+function visualizeOpenBoundary(bathyDir, boundary)
 
 % Pretty options.
 colors = flipud(bone);
@@ -26,23 +26,23 @@ jjz{5} = 1:subSize;
 
 % Load and subsample (not as good as averaging, but what we do now).
 disp(' '), disp('Loading bathymetry...'), t1=tic;
-hiResBathymetry = read_llc_fkij(dirz.bathy, faceSize, ...
+hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
 					1, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
 bathy{1} = hiResBathymetry(1:sub:end, 1:sub:end);
 
-hiResBathymetry = read_llc_fkij(dirz.bathy, faceSize, ...
+hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
 					2, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
 bathy{2} = hiResBathymetry(1:sub:end, 1:sub:end);
 
-hiResBathymetry = read_llc_fkij(dirz.bathy, faceSize, ...
+hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
 					3, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
 bathy{3} = hiResBathymetry(1:sub:end, 1:sub:end);
 
-hiResBathymetry = read_llc_fkij(dirz.bathy, faceSize, ...
+hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
 					4, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
 bathy{4} = hiResBathymetry(1:sub:end, 1:sub:end);
 
-hiResBathymetry = read_llc_fkij(dirz.bathy, faceSize, ...
+hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
 					5, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
 bathy{5} = hiResBathymetry(1:sub:end, 1:sub:end);
 disp(['   ... time = ' num2str(toc(t1), '%6.3f') ' s']), clear t1

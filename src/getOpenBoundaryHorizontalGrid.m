@@ -130,10 +130,10 @@ function obij = getOpenBoundaryHorizontalGrid(gridDir, model, obij)
 %   |"PWY": Periodic wrap around in Y.
 % -----------------------------------------------------------------------------  
 % Message.
-disp('Getting horizontal grid information at open boundaries...'), t1 = tic;
+fprintf('Getting horizontal grid information at open boundaries... '), t1 = tic;
 
 % Store grid properties for each open boundary condition.
-for iOb = 1:model.nOb
+for iOb = 1:length(obij)
 
     % Get the face of the open boundary.
     face = obij{iOb}.face;
@@ -196,8 +196,7 @@ for iOb = 1:model.nOb
 end
 
 %----------------------------------------------------------------------------- 
-disp(['   ... done extracting horizontal grid on open boundary. ', ...
-        '(time = ' num2str(toc(t1), '%6.3f') ' s)'])
+fprintf('done. (time = %6.3f s)\n', toc(t1))
 
 
 

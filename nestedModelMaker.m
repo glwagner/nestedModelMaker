@@ -1,100 +1,72 @@
+clear all
+
 % User-defined functions:
 %
-%    - specifyParentModelAndDirectories.m
-%    - specifyOpenBoundaries.m
+%    - specifyParentProperties.m
+%    - specifyChildProperties.m
 %
-% Add important paths to source code and user-defined functions.
-disp(' ')
-%
-% ----------------------------------------------------------------------------- 
-%%% Parameters.
+% Parameters  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 % Define the names of both the parent model, and of child model to be built.
 child.name = 'gulfStreamComparison';
-parent.name = 'ASTE';
 
-% ----------------------------------------------------------------------------- 
-%%% Automation.
-
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 % Initialize the script by copying code to active directory and moving there.
 if ~isdir('./active'), mkdir('./active'), end
+
 eval( '!cp ./src/*.m ./active/')
 eval(['!cp ./models/' child.name '/*.m ./active/'])
 
-% Add active directory to pathEnter active directory active directory to path
+% Add active directory to path.
 addpath('./active/')
 
-% Enter parameters of the parent model.
-[dirz, parent] = specifyParentModelAndDirectories(parent, child);
+% Initialize dirz structure.
+dirz = [];
 
-% Check to make sure all's ok.
+% Call user-defined functions - - - - - - - - - - - - - - - - - - - - - - - - - 
+% Specify properties of the parent model.
+[dirz, parent] = specifyParentProperties(dirz);
+
+% Specify properties of the child model. 
+[dirz, child] = specifyChildProperties(dirz, child);
+
+% Zoom-factor between child- and parent-grid resolution.
+child.zoom = child.res / parent.res;
+
+% Extra: directory to high-res bathymetry.
+bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
+dirz.plotBathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/' bathyName ];
+
 checkDirectories(dirz)
-% checkParentModel(parent)                 % This function must be written.
 
+% Get open boundary conditions and grid info  - - - - - - - - - - - - - - - - - 
 % Parse parent data structure for open boundary information.
-parentObij = parseOpenBoundaries(parent);
+parentObij = parseOpenBoundaries(child);
 
 % Get grid info along boundary and then extract obcs from full 3D parent fields.
-parentObij = getOpenBoundaryHorizontalGrid(dirz.globalGrids.parent, parent, parentObij);
-parentObij = getOpenBoundaryVerticalGrid_aste(dirz.globalGrids.parent, parent, parentObij);
-
-%{
-figure(1), clf, hold on
-
-iOb = 2; obij = parentObij{iOb}
-
-nC1a = length(obij.yC1);
-nGa  = length(obij.yG );
-nC2a = length(obij.yC2);
-
-plot(1:nC1a, obij.yC1, 'k-')
-plot(1:nGa , obij.yG , 'b-')
-plot(1:nC2a, obij.yC2, 'r-')
-
-iOb = 3; obij = parentObij{iOb}
-
-nC1b = length(obij.yC1);
-nGb  = length(obij.yG );
-nC2b = length(obij.yC2);
-
-plot(nC1a + [1:nC1b], obij.yC1, 'k--')
-plot(nGa  + [1:nGb ], obij.yG , 'b--')
-plot(nC2a + [1:nC2b], obij.yC2, 'r--')
-%}
+parentObij = getOpenBoundaryHorizontalGrid(dirz.parentGlobalGrids, parent, parentObij);
+parentObij = getOpenBoundaryVerticalGrid_aste(dirz.parentGlobalGrids, parent, parentObij);
 
 parentObuv = getOpenBoundaryConditions(dirz, parent, child, parentObij);
 
 % Check-point open boundary files.
-save([dirz.child.obcs 'obij_parent.mat'], 'parentObij')
-save([dirz.child.obcs 'obuv_parent.mat'], 'parentObuv')
+save([dirz.childObcs 'obij_parent.mat'], 'parentObij')
+save([dirz.childObcs 'obuv_parent.mat'], 'parentObuv')
 
-% ----------------------------------------------------------------------------- 
-%%% Child grid stuff
+% Construct child model obcs and grid - - - - - - - - - - - - - - - - - - - - - 
 
-% Hack the 'initial' child open boundaries together.
-child.res  = 4320;
-child.zoom = child.res / parent.res;
-child.nOb  = parent.nOb;
-
-% Global grid that the child lives on
-child.llc.nx = [ [1 1 1]*child.res [3 3]*child.res ];
-child.llc.ny = [ [3 3]*child.res [1 1 1]*child.res ];
-
-% ----------------------------------------------------------------------------- 
 % Get boundary indices for child grid.
 for iOb = 1:child.nOb
     childObij{iOb} = transcribeOpenBoundary(child.zoom, parentObij{iOb});
 end
 
 % Get grid info along boundary and then extract obcs from full 3d parent fields.
-childObij = getOpenBoundaryHorizontalGrid(dirz.globalGrids.child, child, childObij);
-%childObij = getOpenBoundaryVerticalGrid(dirz.zgrid.child, child, childObij);
+childObij = getOpenBoundaryHorizontalGrid(dirz.childGlobalGrids, child, childObij);
 
 % Messy treatment of vertical grid for now.
-load([ dirz.child.grid 'zgrid.mat' ], 'zgrid')
-childObij = getOpenBoundaryVerticalGrid_child(dirz.child.bathy, child, ...
+load([ dirz.childGrid 'zgrid.mat' ], 'zgrid')
+childObij = getOpenBoundaryVerticalGrid_child(dirz.childBathy, child, ...
                 childObij, zgrid);
-
 
 % Interpolate open boundary condition to child grid.
 for iOb = 1:child.nOb
@@ -102,31 +74,51 @@ for iOb = 1:child.nOb
                         parentObij{iOb}, parentObuv{iOb});
 end
 
-% ----------------------------------------------------------------------------- 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 % Extract tidal amplitudes and phases at open boundaries (using parent model
 % date information -- make sure the child model is started at that time!).
-childObTides = getTidalData(childObij, datenum(parent.tspan.years(1), ...
-    parent.tspan.months(1), 1))
+childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
+    child.tspan.months(1), 1));
 
-% ----------------------------------------------------------------------------- 
-% Generate the full child domain, pad the open boundaries, etc.
+% Generate the child domain - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-% ----------------------------------------------------------------------------- 
-% Plot.
-for iOb = 1:parent.nOb
+nSuperGrid = 30;
+
+child = initializeChildGrid(child);
+child = snapToSuperGrid(child, nSuperGrid);
+child = getChildBathymetry(dirz.childBathy, child);
+
+% Write this function:
+% snapOpenBoundariesToSuperGrid()
+
+visualizeChildDomain(dirz, child)
+input('Press enter to continue.')
+
+% Plot  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+for iOb = 1:child.nOb
+
+    % Compare bathymetry along parent and child open boundaries.
+    figure(3), clf, hold on
+    plot(1/2 + [0:parentObij{iOb}.nn-1], parentObij{iOb}.depth1, 'k-')
+    plot(1/child.zoom + [0:1/child.zoom:parentObij{iOb}.nn-1/child.zoom], childObij{iOb}.depth1, 'r-')
+
+    xlabel('kkp'), ylabel('depth'), legend('parent grid', 'child grid')
+    title(sprintf('Open boundary on the %s edge of face %d', childObij{iOb}.edge, childObij{iOb}.face))
+
+    pause(0.1)
 
     [ii, jj] = getOpenBoundaryIndices(parentObij{iOb}, 'local', parent.offset);
 
     % Plot bathymetry on the LLC grid with open boundary marked.
-    visualizeOpenBoundary(dirz, parentObij{iOb})
+    visualizeOpenBoundary(dirz.plotBathy, parentObij{iOb})
 
     % Make a quick movie
-    quickOpenBoundaryMovie(parentObuv{iOb}, parentObij{iOb}, parent.nObcMonths)
+    quickOpenBoundaryMovie(parentObuv{iOb}, parentObij{iOb}, child.nObcMonths)
 
     input('Now the child boundary conditions.')
 
     % Make a quick movie
-    quickOpenBoundaryMovie(childObuv{iOb}, childObij{iOb}, parent.nObcMonths)
+    quickOpenBoundaryMovie(childObuv{iOb}, childObij{iOb}, child.nObcMonths)
 
 end
 
