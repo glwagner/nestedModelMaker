@@ -12,6 +12,21 @@ function childObTides = getTidalData(childObij, startdate)
 %     .cl_u - constituent list for grid-zonal velocities
 %     .cl_v - constituent list for grid-meridional velocities
 
+% Test whether this is doing the right thing:
+%   % what is done in this function
+%   [vam,vph,h,cl] = tmd_extract_HC('DATA/Model_tpxo7.2',35,-60,'z');
+%   [vam,vph] = conv_corr(datenum(2012,1,1),vam,vph,cl);
+%   % predict M2 tide at 35N/60W at 6am on 2012-01-01 using TMD
+%   tmd_tide_pred('DATA/Model_tpxo7.2',datenum(2012,1,1)+6/24,35,-60,'z',[1])
+%   % predict tide as in MITgcm
+%   [ispec,am,ph,omega,alpha,constitNum] = constit(cl(1,:));
+%   vam(1)*cos(omega*(6*3600-vph(1)))*100
+%   % predict K1 tide at 35N/60W at 6am on 2012-01-01 using TMD
+%   tmd_tide_pred('DATA/Model_tpxo7.2',datenum(2012,1,1)+6/24,35,-60,'z',[5])
+%   % predict tide as in MITgcm
+%   [ispec,am,ph,omega,alpha,constitNum] = constit(cl(5,:));
+%   vam(5)*cos(omega*(6*3600-vph(5)))*100
+
 % add path to Tidal Model Driver v2.03 (http://polaris.esr.org/ptm_index.html)
 % ***need to make TMD available to put relative path here***
 addpath(genpath('/net/barents/raid16/vocana/llc4320/NA2160x1080/run_template/joernc/tides/tmd_mar_203/TMD2.03'));

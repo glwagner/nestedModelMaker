@@ -37,13 +37,21 @@ def tidal_potential(lat, lon, t):
     #   lspot - map of surface pressure loading
     #              (potential converted to pressure???)
     
-    # ???
+    # Account for solid earth tide: see Cartwright (1977), Sctn 6.1. This is
+    # the combined effect of the solid earth deformation and the increase in
+    # potential due to it. The result is a factor (1 + k2 - h2) = 0.69, where k2
+    # and h2 are Love numbers.
     solid = 0.69
     
-    # seawater density ???
+    # seawater density
     rho = 1029
     
-    # self-attraction and loading ???
+    # Account for self-attraction and loading in the simple scalar
+    # approximation (see, e.g. Ray, Ocean self‐attraction and loading in
+    # numerical tidal models, Marine Geodesy 1998) ???
+    # Not sure this is right, even if one were to accept the scalar
+    # approximation, because the SAL term in the LTE depends on the ocean tide,
+    # not the equilibrium tide!
     SAL = 0.121
 
     # locate prediction time (366 offset to match MATLAB convention)
