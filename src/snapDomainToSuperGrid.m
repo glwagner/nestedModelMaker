@@ -1,4 +1,4 @@
-function child = snapToSuperGrid(child, nGrid)
+function child = snapDomainToSuperGrid(child, nGrid)
 
 % Save child prior to snapping.
 child.unsnapped.ii = child.ii;
@@ -12,7 +12,6 @@ upper = 2;
 
 % Snap to grid.
 for face = 1:5
-
     if child.ii(face, 1) ~= 0
 
         % Snap left.
@@ -36,12 +35,17 @@ end
 
 % Record the expansion made during grid-snapping.
 for face = 1:5
-    child.niiPad(face, :) = child.unsnapped.ii(face, :) - child.ii(face, :);
-    child.njjPad(face, :) = child.unsnapped.jj(face, :) - child.jj(face, :);
+    child.niiPad(face, :) = abs(child.unsnapped.ii(face, :) - child.ii(face, :));
+    child.njjPad(face, :) = abs(child.unsnapped.jj(face, :) - child.jj(face, :));
 end
 
 % Measure size of the grid.
 for face = 1:5
-    child.nii(face) = child.ii(face, right) - child.ii(face, left) + 1;
-    child.njj(face) = child.jj(face, upper) - child.jj(face, lower) + 1;
+    if child.ii(face, 1) == 0 
+        child.nii(face) = 0;
+        child.njj(face) = 0;
+    else
+        child.nii(face) = child.ii(face, right) - child.ii(face, left) + 1;
+        child.njj(face) = child.jj(face, upper) - child.jj(face, lower) + 1;
+    end
 end

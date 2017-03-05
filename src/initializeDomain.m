@@ -1,4 +1,4 @@
-function child = initializeChildGrid(child)
+function child = initializeDomain(child)
 
 % Construct domain for child grid.
 child.ii = zeros(5, 2);

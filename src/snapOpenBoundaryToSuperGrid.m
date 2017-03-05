@@ -1,81 +1,108 @@
-function [obij, obuv] = snapOpenBoundariesToSuperGrid(obij, obuv, child)
+function [childObij, childObuv] = snapOpenBoundaryToSuperGrid(childObij, childObuv, child)
 
-% Extract parameters from obij and obuv structures for convenience.
-face = obij.face;
-[nn, nz, nt] = size(obuv.T1);
+% Loop over open boundaries
+for iOb = 1:length(childObij)
 
-%% Convention for indices in child.ii and child.jj.
-left  = 1;
-right = 2;
-lower = 1;
-upper = 2;
+    % Rename structure for convenience
+    obij = childObij{iOb};
+    obuv = childObuv{iOb};
 
-switch obij.edge
-    case {'south', 'north'}
+    % Extract parameters from obij and obuv structures for convenience.
+    face = obij.face;
+    [nn, nz, nt] = size(obuv.T1);
 
-        % Pad right and left. Left first
-        if child.niiPad(face, left) ~= 0
+    % Convention for indices in child.ii and child.jj.
+    left  = 1; right = 2;
+    lower = 1; upper = 2;
 
-            % Pad with zeros.
-            pad = zeros(child.niiPad(face, left), nz, nt);
+    switch obij.edge
+        case {'south', 'north'}
 
-            % The order of pad and obuv.** is the crucial bit here.
-            obuv.T1 = cat(1, pad, obuv.T1);
-            obuv.T2 = cat(1, pad, obuv.T2);
-            obuv.S1 = cat(1, pad, obuv.S1);
-            obuv.S2 = cat(1, pad, obuv.S2);
-            obuv.U  = cat(1, pad, obuv.U );
-            obuv.V  = cat(1, pad, obuv.V );
+            % Pad right and left. Left first
+            if child.niiPad(face, left) ~= 0
 
-        end
+                % Pad with zeros.
+                pad = zeros(child.niiPad(face, left), nz, nt);
 
-        % Right next.
-        if child.niiPad(face, right) ~= 0
+                % The order of pad and obuv.** is the crucial bit here.
+                obuv.T1 = cat(1, pad, obuv.T1);
+                obuv.T2 = cat(1, pad, obuv.T2);
+                obuv.S1 = cat(1, pad, obuv.S1);
+                obuv.S2 = cat(1, pad, obuv.S2);
+                obuv.U  = cat(1, pad, obuv.U );
+                obuv.V  = cat(1, pad, obuv.V );
 
-            % Pad with zeros.
-            pad = zeros(-child.niiPad(face, right), nz, nt);
+                % Remake index vectors.
+                obij.ii = obij.ii(1)-child.niiPad(face, left):obij.ii(end);
+                obij.jj = obij.jj(ones(1, length(obij.ii)));
 
-            % The order of pad and obuv.** is the crucial bit here.
-            obuv.T1 = cat(1, obuv.T1, pad);
-            obuv.T2 = cat(1, obuv.T2, pad);
-            obuv.S1 = cat(1, obuv.S1, pad);
-            obuv.S2 = cat(1, obuv.S2, pad);
-            obuv.U  = cat(1, obuv.U , pad);
-            obuv.V  = cat(1, obuv.V , pad);
+            end
 
-        end
+            % Right next.
+            if child.niiPad(face, right) ~= 0
 
-    case {'east', 'west'}
+                % Pad with zeros.
+                pad = zeros(child.niiPad(face, right), nz, nt);
 
-        % Pad top and bottom. Bottom first.
-        if child.njjPad(face, lower) ~= 0
+                % The order of pad and obuv.** is the crucial bit here.
+                obuv.T1 = cat(1, obuv.T1, pad);
+                obuv.T2 = cat(1, obuv.T2, pad);
+                obuv.S1 = cat(1, obuv.S1, pad);
+                obuv.S2 = cat(1, obuv.S2, pad);
+                obuv.U  = cat(1, obuv.U , pad);
+                obuv.V  = cat(1, obuv.V , pad);
 
-            % Pad with zeros.
-            pad = zeros(child.njjPad(face, lower), nz, nt);
+                % Remake index vectors.
+                obij.ii = obij.ii(1):obij.ii(end)+child.niiPad(face, right);
+                obij.jj = obij.jj(ones(1, length(obij.ii)));
 
-            % The order of pad and obuv.** is the crucial bit here.
-            obuv.T1 = cat(1, pad, obuv.T1);
-            obuv.T2 = cat(1, pad, obuv.T2);
-            obuv.S1 = cat(1, pad, obuv.S1);
-            obuv.S2 = cat(1, pad, obuv.S2);
-            obuv.U  = cat(1, pad, obuv.U );
-            obuv.V  = cat(1, pad, obuv.V );
+            end
 
-        end
+        case {'east', 'west'}
 
-        % Top next.
-        if child.njjPad(face, upper) ~= 0
+            % Pad top and bottom. Bottom first.
+            if child.njjPad(face, lower) ~= 0
 
-            % Pad with zeros.
-            pad = zeros(-child.njjPad(face, upper), nz, nt);
+                % Pad with zeros.
+                pad = zeros(child.njjPad(face, lower), nz, nt);
 
-            % The order of pad and obuv.** is the crucial bit here.
-            obuv.T1 = cat(1, obuv.T1, pad);
-            obuv.T2 = cat(1, obuv.T2, pad);
-            obuv.S1 = cat(1, obuv.S1, pad);
-            obuv.S2 = cat(1, obuv.S2, pad);
-            obuv.U  = cat(1, obuv.U , pad);
-            obuv.V  = cat(1, obuv.V , pad);
+                % The order of pad and obuv.** is the crucial bit here.
+                obuv.T1 = cat(1, pad, obuv.T1);
+                obuv.T2 = cat(1, pad, obuv.T2);
+                obuv.S1 = cat(1, pad, obuv.S1);
+                obuv.S2 = cat(1, pad, obuv.S2);
+                obuv.U  = cat(1, pad, obuv.U );
+                obuv.V  = cat(1, pad, obuv.V );
 
-        end
+                % Remake index vectors.
+                obij.jj = obij.jj(1)-child.njjPad(face, lower):obij.jj(end);
+                obij.ii = obij.ii(ones(1, length(obij.jj)));
+
+            end
+
+            % Top next.
+            if child.njjPad(face, upper) ~= 0
+
+                % Pad with zeros.
+                pad = zeros(child.njjPad(face, upper), nz, nt);
+
+                % The order of pad and obuv.** is the crucial bit here.
+                obuv.T1 = cat(1, obuv.T1, pad);
+                obuv.T2 = cat(1, obuv.T2, pad);
+                obuv.S1 = cat(1, obuv.S1, pad);
+                obuv.S2 = cat(1, obuv.S2, pad);
+                obuv.U  = cat(1, obuv.U , pad);
+                obuv.V  = cat(1, obuv.V , pad);
+
+                % Remake index vectors.
+                obij.jj = obij.jj(1):obij.jj(end)+child.njjPad(face, upper);
+                obij.ii = obij.ii(ones(1, length(obij.jj)));
+
+            end
+    end
+
+    % Reassign structures.
+    childObij{iOb} = obij;
+    childObuv{iOb} = obuv;
+
 end

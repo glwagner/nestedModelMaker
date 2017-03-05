@@ -1,8 +1,4 @@
-function cobuv = interpolateOpenBoundaryCondition(cobij, pobij, pobuv)
-
-% Display a message
-fprintf('Interpolating an obc on the %s edge of face %d...', cobij.edge, cobij.face)
-t1 = tic;
+function cobuv = interpOpenBoundary_interior(pobuv, cobij, pobij);
 
 % Number of time-steps.
 nt = length(pobuv.T1(1, 1, :));
@@ -15,7 +11,19 @@ cobuv.S2 = zeros(cobij.nn, cobij.nz, nt);
 cobuv.U  = zeros(cobij.nn, cobij.nz, nt);
 cobuv.V  = zeros(cobij.nn, cobij.nz, nt);
 
+% Initialize time vector.
 cobuv.time = pobuv.time;
+
+% Plot of bathymetry along the boundary.
+zoom = cobij.nn / pobij.nn;
+
+% Set NaN's to zero.
+pobuv.T1(isnan(pobuv.T1)) = 0;
+pobuv.T2(isnan(pobuv.T2)) = 0;
+pobuv.S1(isnan(pobuv.S1)) = 0;
+pobuv.S2(isnan(pobuv.S2)) = 0;
+pobuv.U (isnan(pobuv.U )) = 0;
+pobuv.V (isnan(pobuv.V )) = 0;
 
 % Extract the grid centers and edges in the coordinate that varies over the boundary.
 switch cobij.face
@@ -45,29 +53,11 @@ switch cobij.face
         error('Open boundary interpolation on face 3 is not yet supported.')
 end
 
-% Set NaN's to zero.
-pobuv.T1(isnan(pobuv.T1)) = 0;
-pobuv.T2(isnan(pobuv.T2)) = 0;
-pobuv.S1(isnan(pobuv.S1)) = 0;
-pobuv.S2(isnan(pobuv.S2)) = 0;
-pobuv.U (isnan(pobuv.U )) = 0;
-pobuv.V (isnan(pobuv.V )) = 0;
-
-% Plot of bathymetry along the boundary.
-zoom = cobij.nn / pobij.nn;
-
 % Loop over the horizontal index of the open boundary.
 for kk = 1:cobij.nn
-
-    %disp(sprintf('depth: %.10f', cobij.depth1(kk)))
-
     % Continue only if the 'first wet point' is ocean (with depth < 0).
     if cobij.depth1(kk) < 0
-
         for mm = 1:cobij.nz
-            
-            %disp(sprintf('zF: %.3f', cobij.zF(mm)))
-
             % Only assign values if the top of the cell is above 
             % the bottom of the ocean.
             if cobij.zF(mm) > cobij.depth1(kk)
@@ -190,18 +180,7 @@ for kk = 1:cobij.nn
 
                     % Set index of target parent cell to index of selected adjacent column.
                     kkp = kkAdj;
-                        
-                    %{
-                    % With the new index in hand, modify the parent boundary conditions.
-                    pobij.hFac.depth1(kkp) = pobij.hFac.depth1(kkAdj);
-                    pobuv.T1(kkp, :) = pobuv.T1(kkAdj, :);
-                    pobuv.T2(kkp, :) = pobuv.T2(kkAdj, :);
-                    pobuv.S1(kkp, :) = pobuv.S1(kkAdj, :);
-                    pobuv.S2(kkp, :) = pobuv.S2(kkAdj, :);
-                    pobuv.U (kkp, :) = pobuv.U (kkAdj, :);
-                    pobuv.V (kkp, :) = pobuv.V (kkAdj, :);
-                    %}
-
+                   
                 end
                         
                 % Scenario #2: selected parent cell lies beneath the bottom 
@@ -259,10 +238,11 @@ for kk = 1:cobij.nn
                 else
                     cobuv.V(kk, mm, :) = pobuv.V(kkp, mmp, :);
                 end
-
+            % End if statement
             end
+        % End loop over zC
         end
+    % End if statement
     end
+% End loop over nn
 end
-
-fprintf(' done. (time = %6.3f s)\n', toc(t1))

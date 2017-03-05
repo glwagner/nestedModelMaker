@@ -1,4 +1,4 @@
-function child = getChildBathymetry(bathyDir, child)
+function child = getDomainBathymetry(bathyDir, child)
 
 % This hook is needed because we only have the 1080 bathy in real*4.
 if child.res == 1080
@@ -55,16 +55,17 @@ for face = 1:5
 
         % Left boundary.
         child.bathy{face}(1:child.niiPad(face, left), :) = 0;                  
+
         % Lower boundary.
         child.bathy{face}(:, 1:child.njjPad(face, lower)) = 0;                  
 
-        % Right boundary (niiPad is <=0)
+        % Right boundary.
         child.bathy{face}( ...
-            1+child.nii(face)+child.niiPad(face, right):child.nii(face), :) = 0;                  
+            1+child.nii(face)-child.niiPad(face, right):child.nii(face), :) = 0;                  
 
-        % Upper boundary (njjPad is <=0)
+        % Upper boundary.
         child.bathy{face}(:, ...
-            1+child.njj(face)+child.njjPad(face, upper):child.njj(face), :) = 0;                  
+            1+child.njj(face)-child.njjPad(face, upper):child.njj(face), :) = 0;                  
 
     else
         child.bathy{face} = [];

@@ -1,4 +1,4 @@
-function obuv = getOpenBoundaryConditions(dirz, parent, child, obij)
+function obuv = getParentOpenBoundaryConditions(dirz, parent, child, obij)
 
 % For the cell array of open boundaries specified in input 'obij', 
 % extract scalar fields T, S at first and second wet points, as well as
@@ -26,7 +26,7 @@ function obuv = getOpenBoundaryConditions(dirz, parent, child, obij)
 %
 % Message.
 disp('Extracting boundary conditions...'), t1 = tic;
-%----------------------------------------------------------------------------- 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 % Initialize the files to be loaded for the open boundaries.
 tracerFiles = dir([dirz.parentTSdata parent.model.TSname '.*.data']);
@@ -59,7 +59,7 @@ end
 iFilez = find(fileTimez(:,1)==parent.model.years(1));
 iFile0 = iFilez(1);
 
-% ----------------------------------------------------------------------------- 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 % Load bottom / bathymetry information for the parent model; this allows us
 % to store the area-averaged velocity, rather than the area-integrated velocity 
 % that ASTE outputs.
@@ -85,7 +85,7 @@ iBot.U = find(hFacW(:)==0);
 iBot.V = find(hFacS(:)==0);
 iBot.T = find(hFacC(:)==0);
 
-% ----------------------------------------------------------------------------- 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 % Initialize stuff before the main loop.
 
 % Predefine matrices to reserve memory

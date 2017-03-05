@@ -1,4 +1,4 @@
-function cobij = transcribeOpenBoundary(zoom, pobij)
+function childObij = transcribeOpenBoundary(zoom, parentObij)
 
 % ----------------------------------------------------------------------------- 
 % "transcribeOpenBoundary.m"
@@ -12,7 +12,7 @@ function cobij = transcribeOpenBoundary(zoom, pobij)
 %                    child grid.  The resolution of the child grid is 
 %                    child.res = zoom*parent.res.
 %
-%       pobij      : Structure with parent-grid open boundary info with fields:
+%       parentObij : Cell array of structures of ob info with fields:
 %            .face : Face on which the open boundary lives.
 %            .edge : Compass direction of the boundary.  .edge='south' 
 %                    corresponds to a southern boundary. 
@@ -21,66 +21,78 @@ function cobij = transcribeOpenBoundary(zoom, pobij)
 %            .nn   : Number of points along the open boundary.
 %      
 %   Outputs:
-%       cobij      : Structure with child-grid open boundary info, with 
-%                    the same fields listed above for pobij.
+%       childObij  : Cell array of structures with child-grid open boundary info
+%                    with the same fields listed above for the elements of 
+%                    parentObij.
 %  
 % ----------------------------------------------------------------------------- 
 
-% Transcribe descriptive info
-cobij.face = pobij.face;
-cobij.edge = pobij.edge;
+% Loop over open boundaries.
+for iOb = 1:length(parentObij)
 
-% Number of boundary cells on child grid
-cobij.nn = zoom*pobij.nn;
+    % Rename structure for convenience
+    pobij = parentObij{iOb};
 
-% Transcribe ii and jj. Because indices specify grid interior by convention, 
-% the beginning and ending boundary indices depend on boundary orientation.
-switch cobij.edge
-    case 'south'
-        % Recall: ii is tangent and jj is normal to north/south boundary.
+    % Transcribe descriptive info
+    cobij.face = pobij.face;
+    cobij.edge = pobij.edge;
 
-        % Set beginning and ending indices.
-        ii0 = (pobij.ii(1)-1)*zoom+1;
-        iif = pobij.ii(end)*zoom;
+    % Number of boundary cells on child grid
+    cobij.nn = zoom*pobij.nn;
 
-        cobij.ii = ii0:iif;
+    % Transcribe ii and jj. Because indices specify grid interior by convention, 
+    % the beginning and ending boundary indices depend on boundary orientation.
+    switch cobij.edge
+        case 'south'
+            % Recall: ii is tangent and jj is normal to north/south boundary.
 
-        % For north/south boundary, jj index is single-valued and denotes interior.
-        cobij.jj = ((pobij.jj(1)-1)*zoom+1)*ones(1, length(cobij.ii));
+            % Set beginning and ending indices.
+            ii0 = (pobij.ii(1)-1)*zoom+1;
+            iif = pobij.ii(end)*zoom;
 
-    case 'north'
-        % Recall: ii is tangent and jj is normal to north/south boundary.
+            cobij.ii = ii0:iif;
 
-        % Set beginning and ending indices.
-        ii0 = (pobij.ii(1)-1)*zoom+1;
-        iif = pobij.ii(end)*zoom;
+            % For north/south boundary, jj index is single-valued and denotes interior.
+            cobij.jj = ((pobij.jj(1)-1)*zoom+1)*ones(1, length(cobij.ii));
 
-        cobij.ii = ii0:iif;
+        case 'north'
+            % Recall: ii is tangent and jj is normal to north/south boundary.
 
-        % For north/south boundary, jj index is single-valued and denotes interior.
-        cobij.jj = pobij.jj(1)*zoom*ones(1, length(cobij.ii));
+            % Set beginning and ending indices.
+            ii0 = (pobij.ii(1)-1)*zoom+1;
+            iif = pobij.ii(end)*zoom;
 
-    case 'east'
-        % Recall: ii is normal and jj is tangent to east/west boundary.
+            cobij.ii = ii0:iif;
 
-        % Set beginning and ending indices.
-        jj0 = (pobij.jj(1)-1)*zoom+1;
-        jjf = pobij.jj(end)*zoom;
-        
-        cobij.jj = jj0:jjf;
+            % For north/south boundary, jj index is single-valued and denotes interior.
+            cobij.jj = pobij.jj(1)*zoom*ones(1, length(cobij.ii));
 
-        % For east/west boundary, ii index is single-valued and denotes interior.
-        cobij.ii = pobij.ii(1)*zoom*ones(1, length(cobij.jj));
+        case 'east'
+            % Recall: ii is normal and jj is tangent to east/west boundary.
 
-    case 'west'
-        % Recall: ii is normal and jj is tangent to east/west boundary.
+            % Set beginning and ending indices.
+            jj0 = (pobij.jj(1)-1)*zoom+1;
+            jjf = pobij.jj(end)*zoom;
+            
+            cobij.jj = jj0:jjf;
 
-        % Set beginning and ending indices.
-        jj0 = (pobij.jj(1)-1)*zoom+1;
-        jjf = pobij.jj(end)*zoom;
-        
-        cobij.jj = jj0:jjf;
+            % For east/west boundary, ii index is single-valued and denotes interior.
+            cobij.ii = pobij.ii(1)*zoom*ones(1, length(cobij.jj));
 
-        % For east/west boundary, ii index is single-valued and denotes interior.
-        cobij.ii = ((pobij.ii(1)-1)*zoom+1)*ones(1, length(cobij.jj));
+        case 'west'
+            % Recall: ii is normal and jj is tangent to east/west boundary.
+
+            % Set beginning and ending indices.
+            jj0 = (pobij.jj(1)-1)*zoom+1;
+            jjf = pobij.jj(end)*zoom;
+            
+            cobij.jj = jj0:jjf;
+
+            % For east/west boundary, ii index is single-valued and denotes interior.
+            cobij.ii = ((pobij.ii(1)-1)*zoom+1)*ones(1, length(cobij.jj));
+    end
+
+    % Store transcribed open boundary structure.
+    childObij{iOb} = cobij;
+
 end

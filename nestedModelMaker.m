@@ -46,7 +46,7 @@ parentObij = parseOpenBoundaries(child);
 % Get grid info along boundary and then extract obcs from full 3D parent fields.
 parentObij = getOpenBoundaryHorizontalGrid(dirz.parentGlobalGrids, parent, parentObij);
 parentObij = getOpenBoundaryVerticalGrid_aste(dirz.parentGlobalGrids, parent, parentObij);
-parentObuv = getOpenBoundaryConditions(dirz, parent, child, parentObij);
+parentObuv = getParentOpenBoundaryConditions(dirz, parent, child, parentObij);
 
 % Check-point open boundary files.
 save([dirz.childObcs 'obij_parent.mat'], 'parentObij')
@@ -55,9 +55,7 @@ save([dirz.childObcs 'obuv_parent.mat'], 'parentObuv')
 % Construct child model obcs and grid - - - - - - - - - - - - - - - - - - - - - 
 
 % Get boundary indices for child grid.
-for iOb = 1:child.nOb
-    childObij{iOb} = transcribeOpenBoundary(child.zoom, parentObij{iOb});
-end
+childObij = transcribeOpenBoundary(child.zoom, parentObij);
 
 % Get grid info along boundary and then extract obcs from full 3d parent fields.
 childObij = getOpenBoundaryHorizontalGrid(dirz.childGlobalGrids, child, childObij);
@@ -67,11 +65,8 @@ load([ dirz.childGrid 'zgrid.mat' ], 'zgrid')
 childObij = getOpenBoundaryVerticalGrid_child(dirz.childBathy, child, ...
                 childObij, zgrid);
 
-% Interpolate open boundary condition to child grid.
-for iOb = 1:child.nOb
-    childObuv{iOb} = interpolateOpenBoundaryCondition(childObij{iOb}, ...
-                        parentObij{iOb}, parentObuv{iOb});
-end
+% Interpolate open boundary conditions to child grid.
+childObuv = getChildOpenBoundaryConditions(childObij, parentObij, parentObuv);
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 % Extract tidal amplitudes and phases at open boundaries (using parent model
@@ -80,22 +75,26 @@ childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
     child.tspan.months(1), 1));
 
 % Generate the child domain - - - - - - - - - - - - - - - - - - - - - - - - - - 
-child = initializeChildGrid(child);
-child = snapToSuperGrid(child, child.nSuperGrid);
-child = getChildBathymetry(dirz.childBathy, child);
+child = initializeDomain(child);
+child = snapDomainToSuperGrid(child, child.nSuperGrid);
+child = getDomainBathymetry(dirz.childBathy, child);
 
-% Write this function:
-%for iOb = 1:child.nOb
-%   [childObij{iOb}, childObuv{iOb}] = snapOpenBoundariesToSuperGrid( ...
-%        childObij{iOb}, childObuv{iOb}, child);
-%end
+[childObij, childObuv] = snapOpenBoundaryToSuperGrid(childObij, childObuv, child);
+
+% Re-get open boundary grid info.
+childObij = getOpenBoundaryHorizontalGrid(dirz.childGlobalGrids, child, childObij);
 
 fig = 1; visualizeChildDomain(dirz, child, fig)
 input('Press enter to continue.')
 
+% Get child grid  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%child = getDomainGrid(dirz.childGlobalGrids, child);
+
+% Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
+%initialCondition = getInitialConditions(dirz, parent, child);
+
 % Next... - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-% 1. Generate initial conditions.
-% 2. Figure out how to write data, data.obcs, data.exch2, etc.
+% 1. Figure out how to write data, data.obcs, data.exch2, etc.
 
 % Plot  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 for iOb = 1:child.nOb
@@ -113,3 +112,14 @@ end
 
 % Copy user-defined functions into model directory when script is complete.
 %eval(['!cp -r ' pwd '/user ' dirz.child.home])
+
+%{
+% Compare bathymetry along parent and child open boundaries.
+figure(2), clf, hold on
+plot(1/2 + [0:parentObij{iOb}.nn-1], parentObij{iOb}.depth1, 'k-')
+plot(1/child.zoom + [0:1/child.zoom:parentObij{iOb}.nn-1/child.zoom], childObij{iOb}.depth1, 'r-')
+xlabel('kkp'), ylabel('depth'), legend('parent grid', 'child grid')
+title(sprintf('Open boundary on the %s edge of face %d', childObij{iOb}.edge, childObij{iOb}.face))
+
+pause(0.1)
+%}
