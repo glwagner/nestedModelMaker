@@ -78,7 +78,8 @@ childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
 child = initializeDomain(child);
 child = snapDomainToSuperGrid(child, child.nSuperGrid);
 child = getDomainBathymetry(dirz.childBathy, child);
-child = bathymetryAdjustments(child);
+child = modifyBathymetry(child);
+child = discardUnconnectedOcean(child);
 
 [childObij, childObuv] = snapOpenBoundaryToSuperGrid(childObij, childObuv, child);
 

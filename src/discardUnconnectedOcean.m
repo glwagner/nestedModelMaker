@@ -1,15 +1,22 @@
-function child = bathymetryAdjustments(child)
+function child = discardUnconnectedOcean(child)
 % removes ocean that is not connected
 
 for face = 1:5
   if child.ii(face, 1) ~= 0
+    figure(1+face);
+    imagesc(child.bathy{face}');
+    daspect([1 1 1]);
+    set(gca,'YDir','normal');
+    hold on;
+    scatter(child.oceanPoint(face,1), child.oceanPoint(face,2),'r')
+    hold off;
     % land sea mask
     mask_full = zeros(size(child.bathy{face}));
     mask_full(child.bathy{face}<0) = 1;
     % connected mask to be created
     mask_cnct = zeros(size(child.bathy{face}));
     % specify one point that's in the domain (allow user specification!)
-    mask_cnct(200,100) = 1;
+    mask_cnct(child.oceanPoint(face,1),child.oceanPoint(face,2)) = 1;
     % counter of added cells per iteration
     n = 1;
     % while new cells are added
@@ -55,4 +62,6 @@ for face = 1:5
     % apply new mask
     child.bathy{face} = child.bathy{face} .* mask_cnct;
   end
+end
+
 end
