@@ -88,7 +88,8 @@ fig = 1; visualizeChildDomain(dirz, child, fig)
 input('Press enter to continue.')
 
 % Get child grid  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-%child = getDomainGrid(dirz.childGlobalGrids, child);
+% We need to verify this is done correctly.
+child = getDomainGrid(dirz.childGlobalGrids, child);
 
 % Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
 %initialCondition = getInitialConditions(dirz, parent, child);

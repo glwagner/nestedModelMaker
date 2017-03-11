@@ -29,6 +29,11 @@ hc(2) = colorbar(ax(2), 'eastoutside');
 hc(3) = colorbar(ax(3), 'eastoutside');
 hc(4) = colorbar(ax(4), 'eastoutside');
 
+hc(1).TickLabelInterpreter = 'latex';
+hc(2).TickLabelInterpreter = 'latex';
+hc(3).TickLabelInterpreter = 'latex';
+hc(4).TickLabelInterpreter = 'latex';
+
 % Titles and labels
 title(ax(2), 'salinity')
 

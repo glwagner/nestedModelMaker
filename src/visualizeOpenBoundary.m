@@ -25,7 +25,7 @@ jjz{4} = 1:subSize;
 jjz{5} = 1:subSize;
 
 % Load and subsample (not as good as averaging, but what we do now).
-disp(' '), disp('Loading bathymetry...'), t1=tic;
+fprintf('Loading bathymetry... '), t1=tic;
 hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
 					1, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
 bathy{1} = hiResBathymetry(1:sub:end, 1:sub:end);
@@ -45,7 +45,7 @@ bathy{4} = hiResBathymetry(1:sub:end, 1:sub:end);
 hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
 					5, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
 bathy{5} = hiResBathymetry(1:sub:end, 1:sub:end);
-disp(['   ... time = ' num2str(toc(t1), '%6.3f') ' s']), clear t1
+fprintf('done. (time = %6.3f s)', toc(t1))
 
 % Adjust 3, 4, and 5.
 bathy{3} = bathy{3}(1:subSize, 1:subSize);

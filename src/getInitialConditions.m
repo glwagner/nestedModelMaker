@@ -115,23 +115,50 @@ field(iBot.V) = NaN;
 field = field./hFacS;
 VVEL = get_aste_faces(field, parent.nx, parent.ny);
 
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-% Set initial condition to zonally-averaged buoyancy profile with zero velocity.
-% Interpolate in the vertical.
-
-% Get zonal average of parent model initial state.
+% Use inpaint_nans to continue model data into land regions
 for face = 1:5
-    switch face
-        case {'1', '2'}
-            zonalT{face} = mean(THETA{face}, 1, 'omitnan')
-            zonalS{face} = mean(SALT{face},  1, 'omitnan')
-        case {'3', '4' ,'5'}
-            % Note that 'zonal' has little meaning for face 3.
-            zonalT{face} = mean(THETA{face}, 2, 'omitnan')
-            zonalS{face} = mean(SALT{face},  2, 'omitnan')
+    SALT{face}  = inpaint_nans(SALT{face});
+    THETA{face} = inpaint_nans(THETA{face});
+    UVEL{face}  = inpaint_nans(UVEL{face});
+    VVEL{face}  = inpaint_nans(VVEL{face});
+end
+
+% Initialize intermediate step and initial conditions.
+for face = 1:5
+    if child.nii(face) ~= 0
+        zInterp.S{face} = zeros(parent.nx(face), parent.ny(face), child.nz);
+        zInterp.T{face} = zeros(parent.nx(face), parent.ny(face), child.nz);
+        zInterp.U{face} = zeros(parent.nx(face), parent.ny(face), child.nz);
+        zInterp.V{face} = zeros(parent.nx(face), parent.ny(face), child.nz);
+
+        initialCondition{face}.T = zeros(child.nii(face), child.njj(face), child.nz);
+        initialCondition{face}.S = zeros(child.nii(face), child.njj(face), child.nz);
+        initialCondition{face}.U = zeros(child.nii(face), child.njj(face), child.nz);
+        initialCondition{face}.V = zeros(child.nii(face), child.njj(face), child.nz);
     end
 end
+
+%{
+child
+pause
+
+% Interpolate in z first
+for face = 1:5
+    if child.nii(face) ~= 0
+%}
+        
+
+
+% Set initial condition.
+for face = 1:5
+    % Loop over 'meridional' index, which depends on the face.
+    switch face
+        % Meridional is index 2.
+        case {'1', '2'}
+        case {'3', '4' ,'5'}
+    end
+end
+
 
 
 %disp(['        Loaded 3D parent fields for averaging period ending ', ...
