@@ -1,5 +1,11 @@
 function initialCondition = getInitialConditions(dirz, parent, child)
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+% Load model fields - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+fprintf('Loading parent model fields for interpolation... ')
+clear t0, t0 = tic;
+
 % Initialize the files to be loaded for the open boundaries.
 tracerFiles = dir([dirz.parentTSdata parent.model.TSname '.*.data']);
 velFiles    = dir([dirz.parentUVdata parent.model.UVname '.*.data']);
@@ -31,7 +37,6 @@ end
 iFilez = find(fileTimez(:,1)==parent.model.years(1));
 iFile0 = iFilez(1);
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 % Load bottom / bathymetry information for the parent model; this allows us
 % to store the area-averaged velocity, rather than the area-integrated velocity 
 % that ASTE outputs.
@@ -42,15 +47,15 @@ hFacW = rdmds([dirz.parentGrid 'hFacW']);
 hFacS = rdmds([dirz.parentGrid 'hFacS']); 
 
 % Reshape.
-hFacC = reshape(hFacC, parent.nx0, parent.ny0, parent.nz);
-hFacW = reshape(hFacW, parent.nx0, parent.ny0, parent.nz); 
-hFacS = reshape(hFacS, parent.nx0, parent.ny0, parent.nz); 
+hFacC = reshape(hFacC, parent.nii_asteFormat, parent.njj_asteFormat, parent.nz);
+hFacW = reshape(hFacW, parent.nii_asteFormat, parent.njj_asteFormat, parent.nz); 
+hFacS = reshape(hFacS, parent.nii_asteFormat, parent.njj_asteFormat, parent.nz); 
 
 % Tranform grid properties into the 'aste' format.  
 % Output is a cell array of length 5 for each face..
-hFacC_aste = get_aste_faces(hFacC, parent.nx, parent.ny);
-hFacW_aste = get_aste_faces(hFacC, parent.nx, parent.ny);
-hFacS_aste = get_aste_faces(hFacC, parent.nx, parent.ny);
+hFacC_aste = get_aste_faces(hFacC, parent.nii, parent.njj);
+hFacW_aste = get_aste_faces(hFacC, parent.nii, parent.njj);
+hFacS_aste = get_aste_faces(hFacC, parent.nii, parent.njj);
 
 % Find bottom (where hFac=0) for U, V, and T.
 iBot.U = find(hFacW(:)==0);
@@ -63,12 +68,6 @@ precision.TS = get_precision([dirz.parentTSdata, ...
 precision.UV = get_precision([dirz.parentUVdata, ...
 						 		velFiles(1).name(1:end-4) 'meta']);
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-fprintf('    Calculating initial condition...\n')
-
-% Set timer.
-clear t2, t2 = tic;
-
 % Set the file index.
 iFile = iFile0 - 1 ...
             + 12*(child.tspan.years(1)-parent.model.year0) ...
@@ -78,78 +77,103 @@ iFile = iFile0 - 1 ...
 loadFile.TS = [dirz.parentTSdata tracerFiles(iFile).name]; 
 loadFile.UV = [dirz.parentUVdata velFiles(iFile).name]; 
 
-% -------------------------------------------------------------------------  
 % Load entire parent fields.  The function "get_aste_faces" outputs
 % a cell array of length five corresponding to each of the faces.
-% We are assuming, unfortunately, that the data is in the 'ASTE' format.
-% -------------------------------------------------------------------------  
 
 % Get avg(T).
-field = read_slice(loadFile.TS, parent.nx0, parent.ny0, ...
+field = read_slice(loadFile.TS, parent.nii_asteFormat, parent.njj_asteFormat, ...
                     1:parent.nz, precision.TS);     
 field(iBot.T) = NaN;
-THETA = get_aste_faces(field, parent.nx, parent.ny);
+THETA = get_aste_faces(field, parent.nii, parent.njj);
 
 % Get avg(S).
-field = read_slice(loadFile.TS, parent.nx0, parent.ny0, ...
+field = read_slice(loadFile.TS, parent.nii_asteFormat, parent.njj_asteFormat, ...
                     [1:parent.nz]+parent.nz, precision.TS);
 field(iBot.T) = NaN;
-SALT = get_aste_faces(field, parent.nx, parent.ny);
+SALT = get_aste_faces(field, parent.nii, parent.njj);
 
 % Get avg(U*hFac)
-field = read_slice(loadFile.UV, parent.nx0, parent.ny0, ...
+field = read_slice(loadFile.UV, parent.nii_asteFormat, parent.njj_asteFormat, ...
                     1:parent.nz, precision.UV);     
-% NaN-out bottom regions before getting the area-averaged velocity.
 field(iBot.U) = NaN;
+
 % Compute U* = avg(U*hFac)/hFac0
 field = field./hFacW;
-UVEL = get_aste_faces(field, parent.nx, parent.ny);
+UVEL = get_aste_faces(field, parent.nii, parent.njj);
 
 % Get avg(V*hFac)
-field = read_slice(loadFile.UV, parent.nx0, parent.ny0, ...
+field = read_slice(loadFile.UV, parent.nii_asteFormat, parent.njj_asteFormat, ...
                     [1:parent.nz]+parent.nz, precision.UV);
-
-% NaN-out bottom regions before getting the area-averaged velocity.
 field(iBot.V) = NaN;
+
 % Compute V* = avg(V*hFac)/hFac0.
 field = field./hFacS;
-VVEL = get_aste_faces(field, parent.nx, parent.ny);
+VVEL = get_aste_faces(field, parent.nii, parent.njj);
+
+fprintf('done. (time = %0.3f s)\n', toc(t0))
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+% Interpolation - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+fprintf('Inpaint-NaNs-ing the parent model fields for face '), t0=tic;
 
 % Use inpaint_nans to continue model data into land regions
 for face = 1:5
+    fprintf('%d... ', face), t1=tic;
+
     SALT{face}  = inpaint_nans(SALT{face});
     THETA{face} = inpaint_nans(THETA{face});
     UVEL{face}  = inpaint_nans(UVEL{face});
     VVEL{face}  = inpaint_nans(VVEL{face});
-end
 
-% Initialize intermediate step and initial conditions.
-for face = 1:5
-    if child.nii(face) ~= 0
-        zInterp.S{face} = zeros(parent.nx(face), parent.ny(face), child.nz);
-        zInterp.T{face} = zeros(parent.nx(face), parent.ny(face), child.nz);
-        zInterp.U{face} = zeros(parent.nx(face), parent.ny(face), child.nz);
-        zInterp.V{face} = zeros(parent.nx(face), parent.ny(face), child.nz);
-
-        initialCondition{face}.T = zeros(child.nii(face), child.njj(face), child.nz);
-        initialCondition{face}.S = zeros(child.nii(face), child.njj(face), child.nz);
-        initialCondition{face}.U = zeros(child.nii(face), child.njj(face), child.nz);
-        initialCondition{face}.V = zeros(child.nii(face), child.njj(face), child.nz);
+    if face ~= 5
+        fprintf('(t = %0.3f s), face ', toc(t1))
     end
 end
+fprintf('(t = %0.3f s).', toc(t1))
 
-%{
-child
-pause
 
-% Interpolate in z first
+% Interpolate.
 for face = 1:5
+    % Interpolate in z first
     if child.nii(face) ~= 0
-%}
+        SALT_zInterp{face}  = interp1( parent.zGrid.zC, ...
+                                       permute(SALT{face}, [3 1 2]), ...
+                                       child.zGrid.zC );
+
+        THETA_zInterp{face} = interp1( parent.zGrid.zC, ...
+                                       permute(THETA{face}, [3 1 2]), ...
+                                       child.zGrid.zC );
+
+        UVEL_zInterp{face}  = interp1( parent.zGrid.zC, ...
+                                       permute(UVEL{face}, [3 1 2]), ...
+                                       child.zGrid.zC );
+
+        VVEL_zInterp{face}  = interp1( parent.zGrid.zC, ...
+                                       permute(VVEL{face}, [3 1 2]), ...
+                                       child.zGrid.zC );
+
+        % Return matrices to indexing form (x, y, z)
+        SALT_zInterp{face}  = permute(SALT_zInterp{face},  [2 3 1]);
+        THETA_zInterp{face} = permute(THETA_zInterp{face}, [2 3 1]);
+        UVEL_zInterp{face}  = permute(UVEL_zInterp{face},  [2 3 1]);
+        VVEL_zInterp{face}  = permute(VVEL_zInterp{face},  [2 3 1]);
+    end
+
+end
+
+% Memory tricks. 
+
+size(SALT{1})
+size(SALT_zInterp{1})
+
+input('Press enter to continue')
+
+% Initialize.
+%initialCondition = zeros(child.nii, child.njj, 
         
 
-
-% Set initial condition.
+%{
+%% Set initial condition.
 for face = 1:5
     % Loop over 'meridional' index, which depends on the face.
     switch face
@@ -159,6 +183,7 @@ for face = 1:5
     end
 end
 
+%}
 
 
 %disp(['        Loaded 3D parent fields for averaging period ending ', ...

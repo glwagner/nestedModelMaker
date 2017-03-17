@@ -1,4 +1,4 @@
-function obij = getOpenBoundaryVerticalGrid_child(bathyDir, model, obij, zgrid)
+function obij = getOpenBoundaryVerticalGrid_child(bathyDir, model, obij, zGrid)
 
 % Get the vertical grid for the child grid.  A bit messy right now and
 % reliant on the proper structure of input 'zgrid'.
@@ -7,14 +7,10 @@ function obij = getOpenBoundaryVerticalGrid_child(bathyDir, model, obij, zgrid)
 for iOb = 1:model.nOb
 
 	% Store properties of the vertical grid.
-	obij{iOb}.zF  = zgrid.zf';
-	obij{iOb}.zC  = 1/2*(zgrid.zf(2:end)+zgrid.zf(1:end-1))';
-	obij{iOb}.dzF = zgrid.delz';
-	obij{iOb}.dzC = obij{iOb}.zC(2:end)-obij{iOb}.zC(1:end-1);
-
-    % Ensure grid convention is positive upwards.
-    obij{iOb}.zF  = -abs(obij{iOb}.zF);
-    obij{iOb}.zC  = -abs(obij{iOb}.zC);
+	obij{iOb}.zF  = zGrid.zF;
+	obij{iOb}.zC  = zGrid.zC;
+	obij{iOb}.dzF = zGrid.dzF;
+	obij{iOb}.dzC = zGrid.dzC;
 
     % Get the indices of the open boundary in llc coordinates.
     [ii, jj] = getOpenBoundaryIndices(obij{iOb}, 'llc');

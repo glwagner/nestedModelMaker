@@ -18,8 +18,8 @@ dirz.childGlobalGrids = ['/net/barents/raid16/weddell/raid3/gforget/grids/', ...
 child.res  = 1080;
 
 % Properties of the global llc grid on which the child lives.
-child.llc.nx = [ [1 1 1]*child.res [3 3]*child.res ];
-child.llc.ny = [ [3 3]*child.res [1 1 1]*child.res ];
+child.llc.nii = [ [1 1 1]*child.res [3 3]*child.res ];
+child.llc.njj = [ [3 3]*child.res [1 1 1]*child.res ];
 
 % ----------------------------------------------------------------------------- 
 % Parameters of the planned child model run.
@@ -90,3 +90,6 @@ child.oceanPoint = [[50,50]; [NaN,NaN]; [NaN,NaN]; [NaN,NaN]; [100,200]];
 dirz.home  = [ './models/' child.name '/'];
 dirz.childGrid = [ dirz.home 'grids/' ];
 dirz.childObcs = [ dirz.home 'obcs/' ];
+dirz.childInitialCondition = [ dirz.home 'initialCondition/' ];
+
+dirz.childZGrid = [ dirz.childGrid 'zGrid.mat' ];

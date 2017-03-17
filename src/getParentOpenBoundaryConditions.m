@@ -70,15 +70,15 @@ hFacW = rdmds([dirz.parentGrid 'hFacW']);
 hFacS = rdmds([dirz.parentGrid 'hFacS']); 
 
 % Reshape.
-hFacC = reshape(hFacC, parent.nx0, parent.ny0, parent.nz);
-hFacW = reshape(hFacW, parent.nx0, parent.ny0, parent.nz); 
-hFacS = reshape(hFacS, parent.nx0, parent.ny0, parent.nz); 
+hFacC = reshape(hFacC, parent.nii_asteFormat, parent.njj_asteFormat, parent.nz);
+hFacW = reshape(hFacW, parent.nii_asteFormat, parent.njj_asteFormat, parent.nz); 
+hFacS = reshape(hFacS, parent.nii_asteFormat, parent.njj_asteFormat, parent.nz); 
 
 % Tranform grid properties into the 'aste' format.  
 % Output is a cell array of length 5 for each face..
-hFacC_aste = get_aste_faces(hFacC, parent.nx, parent.ny);
-hFacW_aste = get_aste_faces(hFacC, parent.nx, parent.ny);
-hFacS_aste = get_aste_faces(hFacC, parent.nx, parent.ny);
+hFacC_aste = get_aste_faces(hFacC, parent.nii, parent.njj);
+hFacW_aste = get_aste_faces(hFacC, parent.nii, parent.njj);
+hFacS_aste = get_aste_faces(hFacC, parent.nii, parent.njj);
 
 % Find bottom (where hFac=0) for U, V, and T.
 iBot.U = find(hFacW(:)==0);
@@ -139,35 +139,35 @@ for iit = 1:child.nObcMonths
 	% -------------------------------------------------------------------------  
 
 	% Get avg(T).
-  	field = read_slice(loadFile.TS, parent.nx0, parent.ny0, ...
+  	field = read_slice(loadFile.TS, parent.nii_asteFormat, parent.njj_asteFormat, ...
 						1:parent.nz, precision.TS);     
 	field(iBot.T) = NaN;
-	THETA = get_aste_faces(field, parent.nx, parent.ny);
+	THETA = get_aste_faces(field, parent.nii, parent.njj);
 
 	% Get avg(S).
-  	field = read_slice(loadFile.TS, parent.nx0, parent.ny0, ...
+  	field = read_slice(loadFile.TS, parent.nii_asteFormat, parent.njj_asteFormat, ...
 						[1:parent.nz]+parent.nz, precision.TS);
 	field(iBot.T) = NaN;
-	SALT = get_aste_faces(field, parent.nx, parent.ny);
+	SALT = get_aste_faces(field, parent.nii, parent.njj);
 
 	% Get avg(U*hFac)
-  	field = read_slice(loadFile.UV, parent.nx0, parent.ny0, ...
+  	field = read_slice(loadFile.UV, parent.nii_asteFormat, parent.njj_asteFormat, ...
 						1:parent.nz, precision.UV);     
 	% NaN-out bottom regions before getting the area-averaged velocity.
 	field(iBot.U) = NaN;
 	% Compute U* = avg(U*hFac)/hFac0
 	field = field./hFacW;
-	UVEL = get_aste_faces(field, parent.nx, parent.ny);
+	UVEL = get_aste_faces(field, parent.nii, parent.njj);
 
 	% Get avg(V*hFac)
-  	field = read_slice(loadFile.UV, parent.nx0, parent.ny0, ...
+  	field = read_slice(loadFile.UV, parent.nii_asteFormat, parent.njj_asteFormat, ...
 						[1:parent.nz]+parent.nz, precision.UV);
 
 	% NaN-out bottom regions before getting the area-averaged velocity.
 	field(iBot.V) = NaN;
 	% Compute V* = avg(V*hFac)/hFac0.
 	field = field./hFacS;
-	VVEL = get_aste_faces(field, parent.nx, parent.ny);
+	VVEL = get_aste_faces(field, parent.nii, parent.njj);
 
 	% Write a message.
 	year  = fileTimez(iFile, 1);

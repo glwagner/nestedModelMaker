@@ -40,17 +40,17 @@ hFacS = rdmds([gridDir 'hFacS']);
 depth = rdmds([gridDir 'Depth']); 
 
 % Reshape.
-hFacC = reshape(hFacC, model.nx0, model.ny0, model.nz);
-hFacW = reshape(hFacW, model.nx0, model.ny0, model.nz); 
-hFacS = reshape(hFacS, model.nx0, model.ny0, model.nz); 
-depth = reshape(depth, model.nx0, model.ny0);
+hFacC = reshape(hFacC, model.nii_asteFormat, model.njj_asteFormat, model.nz);
+hFacW = reshape(hFacW, model.nii_asteFormat, model.njj_asteFormat, model.nz); 
+hFacS = reshape(hFacS, model.nii_asteFormat, model.njj_asteFormat, model.nz); 
+depth = reshape(depth, model.nii_asteFormat, model.njj_asteFormat);
 
 % Tranform grid properties into the 'aste' format.  
 % Output is a cell array of length 5 for each face..
-hFacC_aste = get_aste_faces(hFacC, model.nx, model.ny);
-hFacW_aste = get_aste_faces(hFacC, model.nx, model.ny);
-hFacS_aste = get_aste_faces(hFacC, model.nx, model.ny);
-depth_aste = get_aste_faces(depth, model.nx, model.ny);
+hFacC_aste = get_aste_faces(hFacC, model.nii, model.njj);
+hFacW_aste = get_aste_faces(hFacC, model.nii, model.njj);
+hFacS_aste = get_aste_faces(hFacC, model.nii, model.njj);
+depth_aste = get_aste_faces(depth, model.nii, model.njj);
 
 % Store grid properties for each open boundary condition.
 for iOb = 1:length(obij)

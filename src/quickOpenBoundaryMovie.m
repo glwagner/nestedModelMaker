@@ -74,10 +74,10 @@ ax(2).YLim = [-6500 0];
 ax(3).YLim = [-6500 0];
 ax(4).YLim = [-6500 0];
 
-ylabel(ax(1), '$z$')
-ylabel(ax(2), '$z$')
-ylabel(ax(3), '$z$')
-ylabel(ax(4), '$z$')
+ylabel(ax(1), '$z$ (m)')
+ylabel(ax(2), '$z$ (m)')
+ylabel(ax(3), '$z$ (m)')
+ylabel(ax(4), '$z$ (m)')
 
 % Loop through all time points.
 for iit = 1:nt

@@ -61,9 +61,9 @@ childObij = transcribeOpenBoundary(child.zoom, parentObij);
 childObij = getOpenBoundaryHorizontalGrid(dirz.childGlobalGrids, child, childObij);
 
 % Messy treatment of vertical grid for now.
-load([ dirz.childGrid 'zgrid.mat' ], 'zgrid')
+load(dirz.childZGrid, 'zGrid')
 childObij = getOpenBoundaryVerticalGrid_child(dirz.childBathy, child, ...
-                childObij, zgrid);
+                childObij, zGrid);
 
 % Interpolate open boundary conditions to child grid.
 childObuv = getChildOpenBoundaryConditions(childObij, parentObij, parentObuv);
@@ -71,8 +71,8 @@ childObuv = getChildOpenBoundaryConditions(childObij, parentObij, parentObuv);
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 % Extract tidal amplitudes and phases at open boundaries (using parent model
 % date information -- make sure the child model is started at that time!).
-childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
-    child.tspan.months(1), 1));
+%childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
+%    child.tspan.months(1), 1));
 
 % Generate the child domain - - - - - - - - - - - - - - - - - - - - - - - - - - 
 child = initializeDomain(child);
@@ -86,12 +86,20 @@ child = discardUnconnectedOcean(child);
 % Re-get open boundary grid info.
 childObij = getOpenBoundaryHorizontalGrid(dirz.childGlobalGrids, child, childObij);
 
-fig = 1; visualizeChildDomain(dirz, child, fig)
-input('Press enter to continue.')
+%fig = 1; visualizeChildDomain(dirz, child, fig)
+%input('Press enter to continue.')
 
-% Get child grid  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+% Get parent and child grids  - - - - - - - - - - - - - - - - - - - - - - - - - 
 % We need to verify this is done correctly.
+parent = getDomainGrid(dirz.parentGlobalGrids, parent);
+%parent.zGrid = load(dirz.parentZGrid, 'zGrid')
+parent.zGrid.zF  = parentObij{1}.zF;
+parent.zGrid.zC  = parentObij{1}.zC;
+parent.zGrid.dzF = parentObij{1}.dzF;
+parent.zGrid.dzC = parentObij{1}.dzC;
+
 child = getDomainGrid(dirz.childGlobalGrids, child);
+child.zGrid = load(dirz.childZGrid, 'zGrid');
 
 % Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
 %initialCondition = getInitialConditions(dirz, parent, child);

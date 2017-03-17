@@ -45,7 +45,7 @@ bathy{4} = hiResBathymetry(1:sub:end, 1:sub:end);
 hiResBathymetry = read_llc_fkij(bathyDir, faceSize, ...
 					5, 1, 1:faceSize, 1:3*faceSize, 'real*8'); 
 bathy{5} = hiResBathymetry(1:sub:end, 1:sub:end);
-fprintf('done. (time = %6.3f s)', toc(t1))
+fprintf('done. (time = %6.3f s)\n', toc(t1))
 
 % Adjust 3, 4, and 5.
 bathy{3} = bathy{3}(1:subSize, 1:subSize);
