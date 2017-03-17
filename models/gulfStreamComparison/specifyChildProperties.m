@@ -77,6 +77,14 @@ end, end
 % Dimension of super grid to stick the child grid to.
 child.nSuperGrid = 30;
 
+% Bathymetry adjustment:
+% Specify indices of grid cells that are part of the main ocean domain on each
+% face. The code will determine what part of the ocean in the child domain is
+% connected to these points and discard everything else (lakes, obstructed
+% ocean, etc.). The bathymetry plots that are generated should be consulted to
+% pick these points.
+child.oceanPoint = [[50,50]; [NaN,NaN]; [NaN,NaN]; [NaN,NaN]; [100,200]];
+
 % Extra ----------------------------------------------------------------------- 
 % Directories to store the child grids and obcs.
 dirz.home  = [ './models/' child.name '/'];

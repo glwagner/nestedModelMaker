@@ -21,11 +21,11 @@ function [aam, aph] = tidalConversionCorrection(time, aam, aph, cl)
   % loop through constituents
   for i = 1:length(cl)
     % get constituent data
-    [ispec, am, ph, omega, alpha, constitNum] = constit(cl(i));
+    [ispec, am, ph, omega, alpha, constitNum] = constit(cl(i,:));
     % nodal correction to amplitude (and conversion to m/s)
     aam(i,:) = pf(i)*aam(i,:)/100;
     % phase conversion to time lag and nodal correction
     aph(i,:) = -(ph+pu(i)-aph(i,:)*pi/180)/omega - (time-datenum(1992,1,1))*86400;
   end
 
-end  
+end
