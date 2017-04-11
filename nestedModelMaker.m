@@ -62,6 +62,7 @@ child = snapDomainToSuperGrid(child, child.nSuperGrid);
 child = getDomainBathymetry(dirz.childBathy, child);
 child = modifyBathymetry(child);
 child = discardUnconnectedOcean(child);
+saveBathymetry(child);
 
 [childObij, childObuv] = snapOpenBoundaryToSuperGrid(childObij, childObuv, child);
 
