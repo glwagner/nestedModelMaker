@@ -72,14 +72,14 @@ childObij = getOpenBoundaryHorizontalGrid(dirz.childGlobalGrids, child, childObi
 %input('Press enter to continue.')
 
 % Get parent and child grids  - - - - - - - - - - - - - - - - - - - - - - - - - 
-% We need to verify this is done correctly.
 parent = getDomainGrid(dirz.parentGlobalGrids, parent);
 child = getDomainGrid(dirz.childGlobalGrids, child);
 
 % Get z-grids.
 child.zGrid = getfield(load(dirz.childZGrid, 'zGrid'), 'zGrid');
-parent.zGrid = getfield(load(dirz.parentZGrid, 'zGrid'), 'zGrid');
 child.nz = length(child.zGrid.zC);
+
+parent.zGrid = getfield(load(dirz.parentZGrid, 'zGrid'), 'zGrid');
 parent.nz = length(parent.zGrid.zC);
 
 % Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
