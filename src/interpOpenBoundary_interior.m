@@ -118,7 +118,7 @@ for kk = 1:cobij.nn
                 if pobij.depth1(kkp) == 0
 
                     warning(['New ocean is being created on the boundary. ', ...
-                            'The resulting boundary condition will be unrealistic.'])
+                            'As a result, the boundary condition there will not be realistic.'])
 
                     if kkp == 1
                         kkLeft = 1;

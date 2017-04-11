@@ -1,23 +1,12 @@
 clear all
 
-% User-defined functions:
-%
-%    - specifyParentProperties.m
-%    - specifyChildProperties.m
-%
-% Parameters  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
 % Define the names of both the parent model, and of child model to be built.
 child.name = 'gulfStreamComparison';
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-% Initialize the script by copying code to active directory and moving there.
+% Initialize the script by copying code to active directory and adding the path.
 if ~isdir('./active'), mkdir('./active'), end
-
 eval( '!cp ./src/*.m ./active/')
 eval(['!cp ./models/' child.name '/*.m ./active/'])
-
-% Add active directory to path.
 addpath('./active/')
 
 % Initialize dirz structure.
@@ -26,24 +15,21 @@ dirz = [];
 % Call user-defined functions - - - - - - - - - - - - - - - - - - - - - - - - - 
 % Specify properties of the parent model.
 [dirz, parent] = specifyParentProperties(dirz);
-
-% Specify properties of the child model. 
 [dirz, child] = specifyChildProperties(dirz, child);
-
-% Zoom-factor between child- and parent-grid resolution.
-child.zoom = child.res / parent.res;
 
 % Extra: directory to high-res bathymetry.
 bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
 dirz.plotBathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/' bathyName ];
 
+% Zoom-factor between child- and parent-grid resolution.
+child.zoom = child.res / parent.res;
+
 checkDirectories(dirz)
 
 % Get open boundary conditions and grid info  - - - - - - - - - - - - - - - - - 
+
 % Parse parent data structure for open boundary information.
 parentObij = parseOpenBoundaries(child);
-
-% Get grid info along boundary and then extract obcs from full 3D parent fields.
 parentObij = getOpenBoundaryHorizontalGrid(dirz.parentGlobalGrids, parent, parentObij);
 parentObij = getOpenBoundaryVerticalGrid_aste(dirz.parentGlobalGrids, parent, parentObij);
 parentObuv = getParentOpenBoundaryConditions(dirz, parent, child, parentObij);
@@ -56,8 +42,6 @@ save([dirz.childObcs 'obuv_parent.mat'], 'parentObuv')
 
 % Get boundary indices for child grid.
 childObij = transcribeOpenBoundary(child.zoom, parentObij);
-
-% Get grid info along boundary and then extract obcs from full 3d parent fields.
 childObij = getOpenBoundaryHorizontalGrid(dirz.childGlobalGrids, child, childObij);
 
 % Messy treatment of vertical grid for now.
@@ -65,10 +49,8 @@ load(dirz.childZGrid, 'zGrid')
 childObij = getOpenBoundaryVerticalGrid_child(dirz.childBathy, child, ...
                 childObij, zGrid);
 
-% Interpolate open boundary conditions to child grid.
 childObuv = getChildOpenBoundaryConditions(childObij, parentObij, parentObuv);
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 % Extract tidal amplitudes and phases at open boundaries (using parent model
 % date information -- make sure the child model is started at that time!).
 %childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
@@ -92,17 +74,16 @@ childObij = getOpenBoundaryHorizontalGrid(dirz.childGlobalGrids, child, childObi
 % Get parent and child grids  - - - - - - - - - - - - - - - - - - - - - - - - - 
 % We need to verify this is done correctly.
 parent = getDomainGrid(dirz.parentGlobalGrids, parent);
-%parent.zGrid = load(dirz.parentZGrid, 'zGrid')
-parent.zGrid.zF  = parentObij{1}.zF;
-parent.zGrid.zC  = parentObij{1}.zC;
-parent.zGrid.dzF = parentObij{1}.dzF;
-parent.zGrid.dzC = parentObij{1}.dzC;
-
 child = getDomainGrid(dirz.childGlobalGrids, child);
-child.zGrid = load(dirz.childZGrid, 'zGrid');
+
+% Get z-grids.
+child.zGrid = getfield(load(dirz.childZGrid, 'zGrid'), 'zGrid');
+parent.zGrid = getfield(load(dirz.parentZGrid, 'zGrid'), 'zGrid');
+child.nz = length(child.zGrid.zC);
+parent.nz = length(parent.zGrid.zC);
 
 % Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
-%initialCondition = getInitialConditions(dirz, parent, child);
+extractAndSaveInitialConditions(dirz, parent, child);
 
 % Next... - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 % 1. Figure out how to write data, data.obcs, data.exch2, etc.

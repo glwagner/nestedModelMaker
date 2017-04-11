@@ -1,191 +1,198 @@
-function initialCondition = getInitialConditions(dirz, parent, child)
+function extractAndSaveInitialConditions(dirz, parent, child)
+
+% Load model fields
+fprintf('Loading parent model fields for interpolation... '), t0 = tic;
+
+[SALT, THETA, UVEL, VVEL] = loadInitialParentFields(dirz, parent, child);
+[SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
+    SALT, THETA, UVEL, VVEL, parent, child);
+
+fprintf('done. (time = %.3f s).\n', toc(t0))
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-% Load model fields - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-fprintf('Loading parent model fields for interpolation... ')
-clear t0, t0 = tic;
+% Use inpaint_nans on lon, lat slices to continue model data into land regions.
+fprintf('Inpainting NaNs in the parent fields... '), t0 = tic;
+% Inpaint NaNs method:
+method = 0;
 
-% Initialize the files to be loaded for the open boundaries.
-tracerFiles = dir([dirz.parentTSdata parent.model.TSname '.*.data']);
-velFiles    = dir([dirz.parentUVdata parent.model.UVname '.*.data']);
+% For checking the results of the the in-painting:
+%fields = {'SALT', 'THETA', 'UVEL', 'VVEL'};
+%unpaintedField.SALT = SALT;
+%unpaintedField.THETA = THETA;
+%unpaintedField.UVEL = UVEL;
+%unpaintedField.VVEL = VVEL;
 
-% This is the length of the list; it also specifies how many files to load.
-nTracerFiles = length(tracerFiles);
-
-% Get the indices corresponding to the time-stamp within the filename string.
-iDot  = find(tracerFiles(1).name=='.');
-iSecs = iDot(1)+1:iDot(2)-1;
-
-% This loop gets a vector of length 4 for each time-step to be loaded (LL of them)
-timeSteps = zeros(nTracerFiles, 4);
-for iFile = 1:nTracerFiles
-
-	% Get the timestamp of the data file in seconds.
-  	seconds  = str2num(tracerFiles(iFile).name(iSecs));
-	% This appears to convert seconds to a date vec.  One day must taken off
-	% To get the time correct
-  	dates    = datevec(ts2dte(seconds, parent.model.dt, ...
-								parent.model.year0, parent.model.mnth0, 0));	
-
-	% Store the relevant information in fileTimez
-  	fileTimez(iFile, 1:3) = dates(1:3);
-	fileTimez(iFile, 4)   = seconds;
-end
-
-% Fine the index of the file to load first.
-iFilez = find(fileTimez(:,1)==parent.model.years(1));
-iFile0 = iFilez(1);
-
-% Load bottom / bathymetry information for the parent model; this allows us
-% to store the area-averaged velocity, rather than the area-integrated velocity 
-% that ASTE outputs.
-
-% Load hFac's.
-hFacC = rdmds([dirz.parentGrid 'hFacC']); 
-hFacW = rdmds([dirz.parentGrid 'hFacW']); 
-hFacS = rdmds([dirz.parentGrid 'hFacS']); 
-
-% Reshape.
-hFacC = reshape(hFacC, parent.nii_asteFormat, parent.njj_asteFormat, parent.nz);
-hFacW = reshape(hFacW, parent.nii_asteFormat, parent.njj_asteFormat, parent.nz); 
-hFacS = reshape(hFacS, parent.nii_asteFormat, parent.njj_asteFormat, parent.nz); 
-
-% Tranform grid properties into the 'aste' format.  
-% Output is a cell array of length 5 for each face..
-hFacC_aste = get_aste_faces(hFacC, parent.nii, parent.njj);
-hFacW_aste = get_aste_faces(hFacC, parent.nii, parent.njj);
-hFacS_aste = get_aste_faces(hFacC, parent.nii, parent.njj);
-
-% Find bottom (where hFac=0) for U, V, and T.
-iBot.U = find(hFacW(:)==0);
-iBot.V = find(hFacS(:)==0);
-iBot.T = find(hFacC(:)==0);
-
-% Get the precision for T, S, U, V from their associated .meta files.
-precision.TS = get_precision([dirz.parentTSdata, ...
-						 		tracerFiles(1).name(1:end-4) 'meta']);
-precision.UV = get_precision([dirz.parentUVdata, ...
-						 		velFiles(1).name(1:end-4) 'meta']);
-
-% Set the file index.
-iFile = iFile0 - 1 ...
-            + 12*(child.tspan.years(1)-parent.model.year0) ...
-            + child.tspan.months(1)-parent.model.mnth0;
-
-% File names.
-loadFile.TS = [dirz.parentTSdata tracerFiles(iFile).name]; 
-loadFile.UV = [dirz.parentUVdata velFiles(iFile).name]; 
-
-% Load entire parent fields.  The function "get_aste_faces" outputs
-% a cell array of length five corresponding to each of the faces.
-
-% Get avg(T).
-field = read_slice(loadFile.TS, parent.nii_asteFormat, parent.njj_asteFormat, ...
-                    1:parent.nz, precision.TS);     
-field(iBot.T) = NaN;
-THETA = get_aste_faces(field, parent.nii, parent.njj);
-
-% Get avg(S).
-field = read_slice(loadFile.TS, parent.nii_asteFormat, parent.njj_asteFormat, ...
-                    [1:parent.nz]+parent.nz, precision.TS);
-field(iBot.T) = NaN;
-SALT = get_aste_faces(field, parent.nii, parent.njj);
-
-% Get avg(U*hFac)
-field = read_slice(loadFile.UV, parent.nii_asteFormat, parent.njj_asteFormat, ...
-                    1:parent.nz, precision.UV);     
-field(iBot.U) = NaN;
-
-% Compute U* = avg(U*hFac)/hFac0
-field = field./hFacW;
-UVEL = get_aste_faces(field, parent.nii, parent.njj);
-
-% Get avg(V*hFac)
-field = read_slice(loadFile.UV, parent.nii_asteFormat, parent.njj_asteFormat, ...
-                    [1:parent.nz]+parent.nz, precision.UV);
-field(iBot.V) = NaN;
-
-% Compute V* = avg(V*hFac)/hFac0.
-field = field./hFacS;
-VVEL = get_aste_faces(field, parent.nii, parent.njj);
-
-fprintf('done. (time = %0.3f s)\n', toc(t0))
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-% Interpolation - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-fprintf('Inpaint-NaNs-ing the parent model fields for face '), t0=tic;
-
-% Use inpaint_nans to continue model data into land regions
 for face = 1:5
-    fprintf('%d... ', face), t1=tic;
+    if child.nii(face) ~= 0
 
-    SALT{face}  = inpaint_nans(SALT{face});
-    THETA{face} = inpaint_nans(THETA{face});
-    UVEL{face}  = inpaint_nans(UVEL{face});
-    VVEL{face}  = inpaint_nans(VVEL{face});
+        [nii, njj, nz] = size(SALT{face});
 
-    if face ~= 5
-        fprintf('(t = %0.3f s), face ', toc(t1))
+        % Interpreting 'x, y' to mean lon, lat requires accounting for different 
+        % face orientations.
+        fprintf('    Inpainting NaNs on face %d. First, xz-slices...', ...
+            face), t1=tic;
+        switch face
+            case {1, 2, 3}
+                for iiy = 1:njj
+                    SALT{face} (:, iiy, :)  = inpaint_nans(squeeze(SALT{face} (:, iiy, :)), method);
+                    THETA{face}(:, iiy, :)  = inpaint_nans(squeeze(THETA{face}(:, iiy, :)), method);
+                    UVEL{face} (:, iiy, :)  = inpaint_nans(squeeze(UVEL{face} (:, iiy, :)), method);
+                    VVEL{face} (:, iiy, :)  = inpaint_nans(squeeze(VVEL{face} (:, iiy, :)), method);
+                end
+            case {4, 5}
+                for iiy = 1:nii
+                    SALT{face} (iiy, :, :)  = inpaint_nans(squeeze(SALT{face} (iiy, :, :)), method);
+                    THETA{face}(iiy, :, :)  = inpaint_nans(squeeze(THETA{face}(iiy, :, :)), method);
+                    UVEL{face} (iiy, :, :)  = inpaint_nans(squeeze(UVEL{face} (iiy, :, :)), method);
+                    VVEL{face} (iiy, :, :)  = inpaint_nans(squeeze(VVEL{face} (iiy, :, :)), method);
+                end
+        end
+        fprintf('(time = %0.3f s).\n', toc(t1))
+
+        %{
+        % XY slices.
+        for iiz = 1:nz
+            SALT{face}(:, :, iiz)  = inpaint_nans(SALT{face}(:, :, iiz), method);
+            THETA{face}(:, :, iiz) = inpaint_nans(THETA{face}(:, :, iiz), method);
+            UVEL{face}(:, :, iiz)  = inpaint_nans(UVEL{face}(:, :, iiz), method);
+            VVEL{face}(:, :, iiz)  = inpaint_nans(VVEL{face}(:, :, iiz), method);
+        end
+        %}
+
     end
 end
-fprintf('(t = %0.3f s).', toc(t1))
 
+fprintf('done. (time = %.3f s)', toc(t0))
 
-% Interpolate.
+% For checking the results of the the in-painting:
+%{
+paintedField.SALT = SALT;
+paintedField.THETA = THETA;
+paintedField.UVEL = UVEL;
+paintedField.VVEL = VVEL;
+
+figure(1), clf
+for ii = 1:length(fields)
+    for zSlice = 1:parent.nz
+        fprintf('field %s at z-level %d', fields{ii}, zSlice)
+
+        ax(1) = subplot(1, 2, 1);
+        pcolor(unpaintedField.(fields{ii}){1}(:, :, zSlice))
+        shading flat
+        
+        ax(2) = subplot(1, 2, 2);
+        pcolor(paintedField.(fields{ii}){1}(:, :, zSlice))
+        shading flat
+
+        ax(2).CLim = ax(1).CLim;
+        linkaxes(ax)
+        input('Press enter to continue')
+    end
+end
+%}
+
+% Interpolation - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+% Initialize.
+fprintf('Allocating memory for the initial condition...'), t1=tic;
+for face = 1:5
+    if child.nii(face) ~= 0
+        initialCondition{face}.T = zeros(child.nii(face), child.njj(face), child.nz);
+        initialCondition{face}.S = zeros(child.nii(face), child.njj(face), child.nz);
+        initialCondition{face}.U = zeros(child.nii(face), child.njj(face), child.nz);
+        initialCondition{face}.V = zeros(child.nii(face), child.njj(face), child.nz);
+    end
+end
+fprintf('done. (time = %0.3f s).\n', toc(t1))
+
+% Interpolate in z.
 for face = 1:5
     % Interpolate in z first
     if child.nii(face) ~= 0
-        SALT_zInterp{face}  = interp1( parent.zGrid.zC, ...
+        fprintf('Interpolating fields in z on face %d: ', face)
+        t1=tic;
+
+        fprintf('salt... ')
+        zInterpedFields{face}.S  = interp1( parent.zGrid.zC, ...
                                        permute(SALT{face}, [3 1 2]), ...
                                        child.zGrid.zC );
 
-        THETA_zInterp{face} = interp1( parent.zGrid.zC, ...
+        fprintf('theta... ')
+        zInterpedFields{face}.T = interp1( parent.zGrid.zC, ...
                                        permute(THETA{face}, [3 1 2]), ...
                                        child.zGrid.zC );
 
-        UVEL_zInterp{face}  = interp1( parent.zGrid.zC, ...
+        fprintf('u... ')
+        zInterpedFields{face}.U  = interp1( parent.zGrid.zC, ...
                                        permute(UVEL{face}, [3 1 2]), ...
                                        child.zGrid.zC );
 
-        VVEL_zInterp{face}  = interp1( parent.zGrid.zC, ...
+        fprintf('and v... ')
+        zInterpedFields{face}.V  = interp1( parent.zGrid.zC, ...
                                        permute(VVEL{face}, [3 1 2]), ...
                                        child.zGrid.zC );
 
         % Return matrices to indexing form (x, y, z)
-        SALT_zInterp{face}  = permute(SALT_zInterp{face},  [2 3 1]);
-        THETA_zInterp{face} = permute(THETA_zInterp{face}, [2 3 1]);
-        UVEL_zInterp{face}  = permute(UVEL_zInterp{face},  [2 3 1]);
-        VVEL_zInterp{face}  = permute(VVEL_zInterp{face},  [2 3 1]);
+        zInterpedFields{face}.T = permute(zInterpedFields{face}.T, [2 3 1]);
+        zInterpedFields{face}.S = permute(zInterpedFields{face}.S, [2 3 1]);
+        zInterpedFields{face}.U = permute(zInterpedFields{face}.U, [2 3 1]);
+        zInterpedFields{face}.V = permute(zInterpedFields{face}.V, [2 3 1]);
+
+        fprintf('done. (time = %0.3f s).\n', toc(t1))
     end
-
 end
-
-% Memory tricks. 
-
-size(SALT{1})
-size(SALT_zInterp{1})
-
-input('Press enter to continue')
-
-% Initialize.
-%initialCondition = zeros(child.nii, child.njj, 
-        
 
 %{
-%% Set initial condition.
+% Interpolate in x and y.
+interpolationMethod = 'linear';
 for face = 1:5
-    % Loop over 'meridional' index, which depends on the face.
-    switch face
-        % Meridional is index 2.
-        case {'1', '2'}
-        case {'3', '4' ,'5'}
+    if child.nii(face) ~= 0
+        fprintf('Interpolating fields in xy on face %d', face)
+        for iiz = 1:child.nz
+
+            size(parent.hGrid{face}.xC)
+            size(parent.hGrid{face}.yC)
+            size(zInterpedFields{face}.T(:, :, iiz))
+            size(child.hGrid{face}.xC)
+            size(child.hGrid{face}.yC)
+
+            max(max(parent.hGrid{face}.xC))
+            min(min(parent.hGrid{face}.xC))
+
+            max(max(parent.hGrid{face}.yC))
+            min(min(parent.hGrid{face}.yC))
+
+            max(max(child.hGrid{face}.xC))
+            min(min(child.hGrid{face}.xC))
+
+            max(max(child.hGrid{face}.yC))
+            min(min(child.hGrid{face}.yC))
+
+            initialCondition{face}.T(:, :, iiz) = ...
+                griddata( parent.hGrid{face}.xC, parent.hGrid{face}.yC, ...
+                         zInterpedFields{face}.T(:, :, iiz), ...
+                         child.hGrid{face}.xC, child.hGrid{face}.yC, ...
+                        interpolationMethod);
+
+            initialCondition{face}.S(:, :, iiz) = ...
+                griddata( parent.hGrid{face}.xC, parent.hGrid{face}.yC, ...
+                         zInterpedFields{face}.S(:, :, iiz), ...
+                         child.hGrid{face}.xC, child.hGrid{face}.yC, ...
+                        interpolationMethod);
+
+            initialCondition{face}.U(:, :, iiz) = ...
+                griddata( parent.hGrid{face}.xC, parent.hGrid{face}.yC, ...
+                         zInterpedFields{face}.U(:, :, iiz), ...
+                         child.hGrid{face}.xC, child.hGrid{face}.yC, ...
+                        interpolationMethod);
+
+            initialCondition{face}.V(:, :, iiz) = ...
+                griddata( parent.hGrid{face}.xC, parent.hGrid{face}.yC, ...
+                         zInterpedFields{face}.V(:, :, iiz), ...
+                         child.hGrid{face}.xC, child.hGrid{face}.yC, ...
+                        interpolationMethod);
+
+        end
+        fprintf('done. (time = %0.3f s).\n', toc(t1))
     end
 end
-
 %}
-
-
-%disp(['        Loaded 3D parent fields for averaging period ending ', ...
-%         datestr([year month day 0 0 0]), ...
-%        ' (time = ' num2str(toc(t2), '%6.3f'), ' s)']), 
