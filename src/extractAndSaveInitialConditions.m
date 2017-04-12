@@ -61,8 +61,6 @@ for face = 1:5
     end
 end
 
-fprintf('done. (time = %.3f s)', toc(t0))
-
 % For checking the results of the the in-painting:
 if checkInpainting
     painted.SALT = SALT;
