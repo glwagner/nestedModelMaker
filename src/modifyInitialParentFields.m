@@ -73,8 +73,8 @@ function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
     end
 
 
-    % Copy top cell on the parent grid
-    parent.zGrid.zF = [ 0; 
+    % Copy top cell on the parent grid into land.
+    parent.zGrid.zF = [ -parent.zGrid.zF(1); 
                         reshape(parent.zGrid.zF, parent.nz+1, 1) ];
 
     parent.zGrid.dzF = [ parent.zGrid.zF(1)-parent.zGrid.zF(2);
