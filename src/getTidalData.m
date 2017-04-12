@@ -48,6 +48,7 @@ for i = 1:length(childObij)
 
   % get coordinates of boundary velocity points (tangential velocities are
   % prescribed at the first wet point)
+  % !!! These don't seem to be the right coordinates. !!!
   switch childObij{i}.edge
     case {'north', 'south'}
       x_u = childObij{i}.xC1;
