@@ -9,36 +9,26 @@ eval( '!cp ./src/*.m ./active/')
 eval(['!cp ./models/' child.name '/*.m ./active/'])
 addpath('./active/')
 
-% Initialize dirz structure.
-dirz = [];
+% Directory to high-res bathymetry.
+bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
+dirz.plotBathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/' bathyName ];
 
 % Call user-defined functions - - - - - - - - - - - - - - - - - - - - - - - - - 
 % Specify properties of the parent model.
 [dirz, parent] = specifyParentProperties(dirz);
 [dirz, child] = specifyChildProperties(dirz, child);
 
-% Extra: directory to high-res bathymetry.
-bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
-dirz.plotBathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/' bathyName ];
+checkDirectories(dirz)
 
 % Zoom-factor between child- and parent-grid resolution.
 child.zoom = child.res / parent.res;
 
-checkDirectories(dirz)
-
 % Get open boundary conditions and grid info  - - - - - - - - - - - - - - - - - 
-
 % Parse parent data structure for open boundary information.
 parentObij = parseOpenBoundaries(child);
 parentObij = getOpenBoundaryHorizontalGrid(dirz.parentGlobalGrids, parent, parentObij);
 parentObij = getOpenBoundaryVerticalGrid_aste(dirz.parentGlobalGrids, parent, parentObij);
 parentObuv = getParentOpenBoundaryConditions(dirz, parent, child, parentObij);
-
-% Check-point open boundary files.
-save([dirz.childObcs 'obij_parent.mat'], 'parentObij')
-save([dirz.childObcs 'obuv_parent.mat'], 'parentObuv')
-
-% Construct child model obcs and grid - - - - - - - - - - - - - - - - - - - - - 
 
 % Get boundary indices for child grid.
 childObij = transcribeOpenBoundary(child.zoom, parentObij);
@@ -65,17 +55,12 @@ child = discardUnconnectedOcean(child);
 
 [childObij, childObuv] = snapOpenBoundaryToSuperGrid(childObij, childObuv, child);
 
-% Re-get open boundary grid info.
 childObij = getOpenBoundaryHorizontalGrid(dirz.childGlobalGrids, child, childObij);
 
-%fig = 1; visualizeChildDomain(dirz, child, fig)
-%input('Press enter to continue.')
-
-% Get parent and child grids  - - - - - - - - - - - - - - - - - - - - - - - - - 
 parent = getDomainGrid(dirz.parentGlobalGrids, parent);
 child = getDomainGrid(dirz.childGlobalGrids, child);
 
-% Get z-grids.
+% Load z-grids.
 child.zGrid = getfield(load(dirz.childZGrid, 'zGrid'), 'zGrid');
 child.nz = length(child.zGrid.zC);
 

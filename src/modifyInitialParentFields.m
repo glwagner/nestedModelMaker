@@ -3,7 +3,7 @@ function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
 
     %{
     % Modify fields - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    % Cut parent grids to size.
+    % Cut parent grids to size (not implemented yet).
     for face = 1:5
         if child.nii(face) == 0
             % Clear up space in memory.
@@ -55,11 +55,13 @@ function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
     %   2. The child-grid cells that are adjacent to interior boundaries between
     %       faces, which require information across face.
 
+
     % Copy bottom cell on the parent grid
     parent.zGrid.zF(parent.nz+2) = parent.zGrid.zF(end)-parent.zGrid.dzF(end);
     parent.zGrid.dzF(parent.nz+1) = parent.zGrid.zF(end);
     parent.zGrid.zC(parent.nz+1) = 1/2*(parent.zGrid.zF(end-1)+parent.zGrid.zF(end));
     parent.zGrid.dzC(parent.nz) = parent.zGrid.zC(end-1)-parent.zGrid.zC(end);
+    parent.nz = length(parent.zGrid.zC);
 
     for face = 1:5
         if child.nii(face) ~= 0
@@ -67,6 +69,30 @@ function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
             THETA{face} = cat(3, THETA{face}, NaN(size(SALT{face}(:, :, 1))));
             UVEL{face}  = cat(3, UVEL{face},  NaN(size(SALT{face}(:, :, 1))));
             VVEL{face}  = cat(3, VVEL{face},  NaN(size(SALT{face}(:, :, 1))));
+        end
+    end
+
+
+    % Copy top cell on the parent grid into land.
+    parent.zGrid.zF = [ -parent.zGrid.zF(1); 
+                        reshape(parent.zGrid.zF, parent.nz+1, 1) ];
+
+    parent.zGrid.dzF = [ parent.zGrid.zF(1)-parent.zGrid.zF(2);
+                         reshape(parent.zGrid.dzF, parent.nz, 1) ];
+
+    parent.zGrid.zC = [ 1/2*(parent.zGrid.zF(1)+parent.zGrid.zF(2));
+                        reshape(parent.zGrid.zC, parent.nz, 1) ];
+
+    parent.zGrid.dzC = [ parent.zGrid.zC(1)-parent.zGrid.zC(2);
+                         reshape(parent.zGrid.dzC, parent.nz-1, 1) ];
+    parent.nz = length(parent.zGrid.zC)
+
+    for face = 1:5
+        if child.nii(face) ~= 0
+            SALT{face}  = cat(3, SALT{face}(:, :, 1),  SALT{face}  ); 
+            THETA{face} = cat(3, THETA{face}(:, :, 1), THETA{face} ); 
+            UVEL{face}  = cat(3, UVEL{face}(:, :, 1),  UVEL{face}  ); 
+            VVEL{face}  = cat(3, VVEL{face}(:, :, 1),  VVEL{face}  ); 
         end
     end
 
@@ -315,11 +341,6 @@ function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
                     ii = 1:parent.nii(neighbor);
                     jj = 1;
                 end
-
-                face
-                neighbor
-                size(SALT{face})
-                size(permute(SALT{neighbor}(ii, jj, :), permuteKey3))
 
                 % Add cells on right side.
                 SALT{face} = cat(2, ...

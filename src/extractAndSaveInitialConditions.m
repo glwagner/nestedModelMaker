@@ -9,90 +9,86 @@ fprintf('Loading parent model fields for interpolation... '), t0 = tic;
 
 fprintf('done. (time = %.3f s).\n', toc(t0))
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-% Use inpaint_nans on lon, lat slices to continue model data into land regions.
-fprintf('Inpainting NaNs in the parent fields... '), t0 = tic;
-% Inpaint NaNs method:
+% Use inpaint_nans on 2D slices to continue model data into land regions.
+% Specify inpaint method, the slices to inpaint on ('xz' or 'xy'), and 
+% whether or not to check the results of the inpainting.
 method = 0;
+inpaintSlices = 'xz';
+checkInpainting = 0;
 
 % For checking the results of the the in-painting:
-%fields = {'SALT', 'THETA', 'UVEL', 'VVEL'};
-%unpaintedField.SALT = SALT;
-%unpaintedField.THETA = THETA;
-%unpaintedField.UVEL = UVEL;
-%unpaintedField.VVEL = VVEL;
+fields = {'SALT', 'THETA', 'UVEL', 'VVEL'};
+unpainted.SALT = SALT;
+unpainted.THETA = THETA;
+unpainted.UVEL = UVEL;
+unpainted.VVEL = VVEL;
 
 for face = 1:5
     if child.nii(face) ~= 0
 
         [nii, njj, nz] = size(SALT{face});
 
-        % Interpreting 'x, y' to mean lon, lat requires accounting for different 
-        % face orientations.
-        fprintf('    Inpainting NaNs on face %d. First, xz-slices...', ...
-            face), t1=tic;
-        switch face
-            case {1, 2, 3}
-                for iiy = 1:njj
-                    SALT{face} (:, iiy, :)  = inpaint_nans(squeeze(SALT{face} (:, iiy, :)), method);
-                    THETA{face}(:, iiy, :)  = inpaint_nans(squeeze(THETA{face}(:, iiy, :)), method);
-                    UVEL{face} (:, iiy, :)  = inpaint_nans(squeeze(UVEL{face} (:, iiy, :)), method);
-                    VVEL{face} (:, iiy, :)  = inpaint_nans(squeeze(VVEL{face} (:, iiy, :)), method);
-                end
-            case {4, 5}
-                for iiy = 1:nii
-                    SALT{face} (iiy, :, :)  = inpaint_nans(squeeze(SALT{face} (iiy, :, :)), method);
-                    THETA{face}(iiy, :, :)  = inpaint_nans(squeeze(THETA{face}(iiy, :, :)), method);
-                    UVEL{face} (iiy, :, :)  = inpaint_nans(squeeze(UVEL{face} (iiy, :, :)), method);
-                    VVEL{face} (iiy, :, :)  = inpaint_nans(squeeze(VVEL{face} (iiy, :, :)), method);
-                end
-        end
-        fprintf('(time = %0.3f s).\n', toc(t1))
+        fprintf('Inpainting NaNs on %s slices on face %d...', inpaintSlices, face)
+        t0=tic;
 
-        %{
-        % XY slices.
-        for iiz = 1:nz
-            SALT{face}(:, :, iiz)  = inpaint_nans(SALT{face}(:, :, iiz), method);
-            THETA{face}(:, :, iiz) = inpaint_nans(THETA{face}(:, :, iiz), method);
-            UVEL{face}(:, :, iiz)  = inpaint_nans(UVEL{face}(:, :, iiz), method);
-            VVEL{face}(:, :, iiz)  = inpaint_nans(VVEL{face}(:, :, iiz), method);
+        if strcmp(inpaintSlices, 'xz')
+            switch face
+                case {1, 2, 3}
+                    for iiy = 1:njj
+                        SALT{face} (:, iiy, :) = inpaint_nans(squeeze(SALT{face} (:, iiy, :)), method);
+                        THETA{face}(:, iiy, :) = inpaint_nans(squeeze(THETA{face}(:, iiy, :)), method);
+                        UVEL{face} (:, iiy, :) = inpaint_nans(squeeze(UVEL{face} (:, iiy, :)), method);
+                        VVEL{face} (:, iiy, :) = inpaint_nans(squeeze(VVEL{face} (:, iiy, :)), method);
+                    end
+                case {4, 5}
+                    for iiy = 1:nii
+                        SALT{face} (iiy, :, :) = inpaint_nans(squeeze(SALT{face} (iiy, :, :)), method);
+                        THETA{face}(iiy, :, :) = inpaint_nans(squeeze(THETA{face}(iiy, :, :)), method);
+                        UVEL{face} (iiy, :, :) = inpaint_nans(squeeze(UVEL{face} (iiy, :, :)), method);
+                        VVEL{face} (iiy, :, :) = inpaint_nans(squeeze(VVEL{face} (iiy, :, :)), method);
+                    end
+            end
+        elseif strcmp(inpaintSlices, 'xy')
+            for iiz = 1:nz
+                SALT{face}(:, :, iiz)  = inpaint_nans(SALT{face}(:, :, iiz), method);
+                THETA{face}(:, :, iiz) = inpaint_nans(THETA{face}(:, :, iiz), method);
+                UVEL{face}(:, :, iiz)  = inpaint_nans(UVEL{face}(:, :, iiz), method);
+                VVEL{face}(:, :, iiz)  = inpaint_nans(VVEL{face}(:, :, iiz), method);
+            end
         end
-        %}
 
+        fprintf('(time = %0.3f s).\n', toc(t0))
     end
 end
-
-fprintf('done. (time = %.3f s)', toc(t0))
 
 % For checking the results of the the in-painting:
-%{
-paintedField.SALT = SALT;
-paintedField.THETA = THETA;
-paintedField.UVEL = UVEL;
-paintedField.VVEL = VVEL;
+if checkInpainting
+    painted.SALT = SALT;
+    painted.THETA = THETA;
+    painted.UVEL = UVEL;
+    painted.VVEL = VVEL;
 
-figure(1), clf
-for ii = 1:length(fields)
-    for zSlice = 1:parent.nz
-        fprintf('field %s at z-level %d', fields{ii}, zSlice)
+    figure(1), clf
+    for ii = 1:length(fields)
+        for zSlice = 1:parent.nz
+            fprintf('field %s at z-level %d', fields{ii}, zSlice)
 
-        ax(1) = subplot(1, 2, 1);
-        pcolor(unpaintedField.(fields{ii}){1}(:, :, zSlice))
-        shading flat
-        
-        ax(2) = subplot(1, 2, 2);
-        pcolor(paintedField.(fields{ii}){1}(:, :, zSlice))
-        shading flat
+            ax(1) = subplot(1, 2, 1);
+            pcolor(unpainted.(fields{ii}){1}(:, :, zSlice))
+            shading flat
+            
+            ax(2) = subplot(1, 2, 2);
+            pcolor(painted.(fields{ii}){1}(:, :, zSlice))
+            shading flat
 
-        ax(2).CLim = ax(1).CLim;
-        linkaxes(ax)
-        input('Press enter to continue')
+            ax(2).CLim = ax(1).CLim;
+            linkaxes(ax)
+            input('Press enter to continue')
+        end
     end
 end
-%}
 
 % Interpolation - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-% Initialize.
 fprintf('Allocating memory for the initial condition...'), t1=tic;
 for face = 1:5
     if child.nii(face) ~= 0
@@ -106,7 +102,6 @@ fprintf('done. (time = %0.3f s).\n', toc(t1))
 
 % Interpolate in z.
 for face = 1:5
-    % Interpolate in z first
     if child.nii(face) ~= 0
         fprintf('Interpolating fields in z on face %d: ', face)
         t1=tic;
