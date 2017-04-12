@@ -18,13 +18,13 @@ for edge = {'west', 'east', 'south', 'north'}
         if strcmp(edge, 'west') | strcmp(edge, 'east')
           i0 = sum(child.njj(1:face-1))+1;
           i1 = sum(child.njj(1:face));
-          am(:,i0:i1) = childObTides{ib}.am_u(:,1:end-1); % !!! these are 1 too long !!!
-          ph(:,i0:i1) = childObTides{ib}.ph_u(:,1:end-1);
+          am(:,i0:i1) = childObTides{ib}.am_u;
+          ph(:,i0:i1) = childObTides{ib}.ph_u;
         else
           i0 = sum(child.nii(1:face-1))+1;
           i1 = sum(child.nii(1:face));
-          am(:,i0:i1) = childObTides{ib}.am_v(:,1:end-1);
-          ph(:,i0:i1) = childObTides{ib}.ph_v(:,1:end-1);
+          am(:,i0:i1) = childObTides{ib}.am_v;
+          ph(:,i0:i1) = childObTides{ib}.ph_v;
         end
       end
     end
