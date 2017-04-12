@@ -61,6 +61,7 @@ function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
     parent.zGrid.dzF(parent.nz+1) = parent.zGrid.zF(end);
     parent.zGrid.zC(parent.nz+1) = 1/2*(parent.zGrid.zF(end-1)+parent.zGrid.zF(end));
     parent.zGrid.dzC(parent.nz) = parent.zGrid.zC(end-1)-parent.zGrid.zC(end);
+    parent.nz = length(parent.zGrid.zC);
 
     for face = 1:5
         if child.nii(face) ~= 0
@@ -70,6 +71,7 @@ function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
             VVEL{face}  = cat(3, VVEL{face},  NaN(size(SALT{face}(:, :, 1))));
         end
     end
+
 
     % Copy top cell on the parent grid
     parent.zGrid.zF = [ 0; 
@@ -83,6 +85,7 @@ function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
 
     parent.zGrid.dzC = [ parent.zGrid.zC(1)-parent.zGrid.zC(2);
                          reshape(parent.zGrid.dzC, parent.nz-1, 1) ];
+    parent.nz = length(parent.zGrid.zC)
 
     for face = 1:5
         if child.nii(face) ~= 0
@@ -338,11 +341,6 @@ function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
                     ii = 1:parent.nii(neighbor);
                     jj = 1;
                 end
-
-                face
-                neighbor
-                size(SALT{face})
-                size(permute(SALT{neighbor}(ii, jj, :), permuteKey3))
 
                 % Add cells on right side.
                 SALT{face} = cat(2, ...
