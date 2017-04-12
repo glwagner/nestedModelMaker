@@ -46,7 +46,7 @@ switch obij.edge
         % On southern boundaries:
         %	- V is normal velocity
         %	- Velocity across boundary is defined at the second wet point.
-        %	- First wet point is outside the interior to the south (-y dir).
+        %	- First wet point is outside the interior to the south (-(grid y) dir).
 
         % First wet point.
         jj.T1 = obij.jj(1) - 1;
@@ -82,7 +82,7 @@ switch obij.edge
         % On northern boundaries:
         %	- V is normal velocity
         %	- Velocity across boundary is defined at the first wet point.
-        %	- First wet point is outside the interior to the north (+y dir).
+        %	- First wet point is outside the interior to the north (+(grid y) dir).
 
         % First wet point.
         jj.T1 = obij.jj(1)+1;
@@ -118,7 +118,7 @@ switch obij.edge
         % On western boundaries:
         %	- U is normal velocity
         %	- Velocity across boundary is defined at the second wet point.
-        %	- First wet point is outside the interior to the west (-x dir).
+        %	- First wet point is outside the interior to the west (-(grid x) dir).
 
         % First wet point.
         ii.T1 = obij.ii(1)-1;
@@ -155,7 +155,7 @@ switch obij.edge
         % On eastern boundaries:
         %	- U is normal velocity
         %	- Velocity across boundary is defined at the first wet point.
-        %	- First wet point is outside the interior to the east (+x dir).
+        %	- First wet point is outside the interior to the east (+(grid x) dir).
 
         % First wet point.
         ii.T1 = obij.ii(1)+1;
