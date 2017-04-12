@@ -62,7 +62,6 @@ child = snapDomainToSuperGrid(child, child.nSuperGrid);
 child = getDomainBathymetry(dirz.childBathy, child);
 child = modifyBathymetry(child);
 child = discardUnconnectedOcean(child);
-saveBathymetry(child);
 
 [childObij, childObuv] = snapOpenBoundaryToSuperGrid(childObij, childObuv, child);
 
@@ -82,6 +81,10 @@ child.nz = length(child.zGrid.zC);
 
 parent.zGrid = getfield(load(dirz.parentZGrid, 'zGrid'), 'zGrid');
 parent.nz = length(parent.zGrid.zC);
+
+% Save things to file
+saveBathymetry(child);
+saveObuv(child, childObij, childObuv);
 
 % Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
 extractAndSaveInitialConditions(dirz, parent, child);
