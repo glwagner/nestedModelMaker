@@ -58,24 +58,33 @@ for face = 1:5
         idx = 11; dxC = read_slice(gridFileName, niiG, njjG, idx, 'real*8');    
         idx = 12; dyC = read_slice(gridFileName, niiG, njjG, idx, 'real*8');    
 
+        % rAw = rAu (west, u-face), rAs = rAv (south, v-face)
         idx = 13; rAw = read_slice(gridFileName, niiG, njjG, idx, 'real*8');    
         idx = 14; rAs = read_slice(gridFileName, niiG, njjG, idx, 'real*8');    
 
         idx = 15; dxG = read_slice(gridFileName, niiG, njjG, idx, 'real*8');    
         idx = 16; dyG = read_slice(gridFileName, niiG, njjG, idx, 'real*8');    
 
-        % TODO: Remove trimming and ensure there are no consequences 
-        % TODO: down the line.
+        % location of these:
+        %   at centers: xC, yC, dxF, dyF, rAc
+        %   at corners: xG, yG, dxV, dyU, rAz
+        %   at u-faces: dxC, rAw, dyG
+        %   at v-faces: dyC, rAs, dxG
 
-        % Trim xC, yC, dxG, and dyG to eliminate any possible ambiguity.
+        % Trim to eliminate any possible ambiguity.
         xC = xC(1:end-1, 1:end-1);
         yC = yC(1:end-1, 1:end-1);
-        
-        dxG = dxG(1:end-1, :);
+        dxF = dxF(1:end-1, 1:end-1);
+        dyF = dyF(1:end-1, 1:end-1);
+        rAc = rAc(1:end-1, 1:end-1);
+
+        dxC = dxC(:, 1:end-1);
+        rAw = rAw(:, 1:end-1);
         dyG = dyG(:, 1:end-1);
 
-        % TODO: Cut all fields to model domain (right now only 
-        % TODO: xC, yC, xG, yG, dxG, and dyG are being cut)
+        dyC = dyC(1:end-1, :);
+        rAs = rAs(1:end-1, :);
+        dxG = dxG(1:end-1, :);
 
         % Define indices
         iiC = model.ii(face, 1):model.ii(face, 2);
@@ -89,8 +98,24 @@ for face = 1:5
         model.hGrid{face}.xC = xC(iiC, jjC);
         model.hGrid{face}.yC = yC(iiC, jjC);
 
+        model.hGrid{face}.dxF = dxF(iiC, jjC);
+        model.hGrid{face}.dyF = dyF(iiC, jjC);
+
+        model.hGrid{face}.rAc = rAc(iiC, jjC);
+
         model.hGrid{face}.xG = xG(iiG, jjG);
         model.hGrid{face}.yG = xG(iiG, jjG);
+
+        model.hGrid{face}.dxV = dxV(iiG, jjG);
+        model.hGrid{face}.dyU = dyU(iiG, jjG);
+
+        model.hGrid{face}.rAz = rAz(iiG, jjG);
+
+        model.hGrid{face}.dxC = dxC(iiG, jjC);
+        model.hGrid{face}.dyC = dyC(iiC, jjG);
+
+        model.hGrid{face}.rAw = rAw(iiG, jjC);
+        model.hGrid{face}.rAs = rAs(iiC, jjG);
 
         model.hGrid{face}.dxG = dxG(iiC, jjG);
         model.hGrid{face}.dyG = dyG(iiG, jjC);
