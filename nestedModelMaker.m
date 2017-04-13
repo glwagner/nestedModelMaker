@@ -73,6 +73,9 @@ saveBathymetry(child);
 saveObuv(child, childObij, childObuv);
 %saveObTides(child, childObij, childObTides);
 
+% print tiling information
+tiling(child);
+
 % Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
 extractAndSaveInitialConditions(dirz, parent, child);
 
