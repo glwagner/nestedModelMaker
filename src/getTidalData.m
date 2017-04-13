@@ -48,38 +48,19 @@ for i = 1:length(childObij)
 
   % get coordinates of boundary velocity points (tangential velocities are
   % prescribed at the first wet point)
-  % Check whether these are the right coordinates!!!
-  switch childObij{i}.edge
-    case {'north', 'south'}
-      switch childObij{i}.face
-        case 1
-          x_u = childObij{i}.xG(1:end-1);
-          y_u = childObij{i}.yC1;
-          x_v = childObij{i}.xC1;
-          y_v = childObij{i}.yG(1:end-1);
-        case 5
-          x_u = childObij{i}.xC1;
-          y_u = childObij{i}.yG(1:end-1);
-          x_v = childObij{i}.xG(1:end-1);
-          y_v = childObij{i}.yC1;
-        otherwise
-          error('Face number %d is not implemented.', childObij{i}.face);
-      end
-    case {'east', 'west'}
-      switch childObij{i}.face
-        case 1
-          x_u = childObij{i}.xG(1:end-1);
-          y_u = childObij{i}.yC1;
-          x_v = childObij{i}.xC1;
-          y_v = childObij{i}.yG(1:end-1);
-        case 5
-          x_u = childObij{i}.xC1;
-          y_u = childObij{i}.yG(1:end-1);
-          x_v = childObij{i}.xG(1:end-1);
-          y_v = childObij{i}.yC1;
-        otherwise
-          error('Face number %d is not implemented.', childObij{i}.face);
-      end
+  switch childObij{i}.face
+    case 1
+      x_u = childObij{i}.xG(1:end-1);
+      y_u = childObij{i}.yC1;
+      x_v = childObij{i}.xC1;
+      y_v = childObij{i}.yG(1:end-1);
+    case 5
+      x_u = childObij{i}.xC1;
+      y_u = childObij{i}.yG(1:end-1);
+      x_v = childObij{i}.xG(1:end-1);
+      y_v = childObij{i}.yC1;
+    otherwise
+      error('Face number %d is not implemented.', childObij{i}.face);
   end
 
   % extract amplitude, phase, h, constituent list
