@@ -1,4 +1,4 @@
-function [SALT, THETA, UVEL, VVEL] = loadInitialParentFields(dirz, parent, child);
+function fields = loadInitialParentFields(dirz, parent, child);
 
 % File manipulation and initialization  - - - - - - - - - - - - - - - - - - - - 
 % Initialize the files to be loaded for the open boundaries.
@@ -105,3 +105,12 @@ field(iBot.V) = NaN;
 % Compute V* = avg(V*hFac)/hFac0.
 field = field./hFacS;
 VVEL = get_aste_faces(field, parent.nii, parent.njj);
+
+for face = 1:5
+    fields{face}.T = THETA{face};
+    fields{face}.S = SALT{face};
+    fields{face}.U = UVEL{face};
+    fields{face}.V = VVEL{face};
+end
+
+

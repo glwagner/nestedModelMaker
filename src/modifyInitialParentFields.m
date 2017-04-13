@@ -1,5 +1,4 @@
-function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
-            SALT, THETA, UVEL, VVEL, parent, child);
+function [fields, parent] = modifyInitialParentFields(fields, parent, child)
 
 % Add border to three-dimensional parent fields to allow interpolation onto
 %   1. The deepest bottom cell mid-point on the child grid, which is deeper
@@ -7,43 +6,48 @@ function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
 %   2. The child-grid cells that are adjacent to interior boundaries between
 %       faces, which require information across face.
 
+% Names of temperature, salinitiy, and velocitiy vectors in the struct 
+% "fields".
+names = {'T', 'S', 'U', 'V'};
+
 % Copy bottom cell on the parent grid
-parent.zGrid.zF(parent.nz+2) = parent.zGrid.zF(end)-parent.zGrid.dzF(end);
+parent.zGrid.zF (parent.nz+2) = parent.zGrid.zF(end)-parent.zGrid.dzF(end);
 parent.zGrid.dzF(parent.nz+1) = parent.zGrid.zF(end);
-parent.zGrid.zC(parent.nz+1) = 1/2*(parent.zGrid.zF(end-1)+parent.zGrid.zF(end));
+parent.zGrid.zC (parent.nz+1) = 1/2*(parent.zGrid.zF(end-1)+parent.zGrid.zF(end));
 parent.zGrid.dzC(parent.nz) = parent.zGrid.zC(end-1)-parent.zGrid.zC(end);
 parent.nz = length(parent.zGrid.zC);
 
 for face = 1:5
     if child.nii(face) ~= 0
-        SALT{face}  = cat(3, SALT{face},  NaN(size(SALT{face}(:, :, 1))));
-        THETA{face} = cat(3, THETA{face}, NaN(size(SALT{face}(:, :, 1))));
-        UVEL{face}  = cat(3, UVEL{face},  NaN(size(SALT{face}(:, :, 1))));
-        VVEL{face}  = cat(3, VVEL{face},  NaN(size(SALT{face}(:, :, 1))));
+        for nn = 1:numel(names)
+            fields{face}.(names{nn}) = ...
+                cat(3, fields{face}.(names{nn}),  NaN(size(fields{face}.(names{nn})(:, :, 1))));
+        end
     end
 end
 
 
 % Copy top cell on the parent grid into land.
-parent.zGrid.zF = [ -parent.zGrid.zF(1); 
+parent.zGrid.zF  = [ -parent.zGrid.zF(1); 
                     reshape(parent.zGrid.zF, parent.nz+1, 1) ];
 
 parent.zGrid.dzF = [ parent.zGrid.zF(1)-parent.zGrid.zF(2);
                      reshape(parent.zGrid.dzF, parent.nz, 1) ];
 
-parent.zGrid.zC = [ 1/2*(parent.zGrid.zF(1)+parent.zGrid.zF(2));
+parent.zGrid.zC  = [ 1/2*(parent.zGrid.zF(1)+parent.zGrid.zF(2));
                     reshape(parent.zGrid.zC, parent.nz, 1) ];
 
 parent.zGrid.dzC = [ parent.zGrid.zC(1)-parent.zGrid.zC(2);
                      reshape(parent.zGrid.dzC, parent.nz-1, 1) ];
-parent.nz = length(parent.zGrid.zC)
+
+parent.nz = length(parent.zGrid.zC);
 
 for face = 1:5
     if child.nii(face) ~= 0
-        SALT{face}  = cat(3, SALT{face}(:, :, 1),  SALT{face}  ); 
-        THETA{face} = cat(3, THETA{face}(:, :, 1), THETA{face} ); 
-        UVEL{face}  = cat(3, UVEL{face}(:, :, 1),  UVEL{face}  ); 
-        VVEL{face}  = cat(3, VVEL{face}(:, :, 1),  VVEL{face}  ); 
+        for nn = 1:numel(names)
+            fields{face}.(names{nn}) = ...
+                cat(3, fields{face}.(names{nn})(:, :, 1), fields{face}.(names{nn}) ); 
+        end
     end
 end
 
@@ -104,21 +108,11 @@ for face = 1:5
             end
 
             % Add cells on left side.
-            SALT{face} = cat(1, ...
-                permute(SALT{neighbor}(ii, jj, :), permuteKey3), ...
-                SALT{face});
-
-            THETA{face} = cat(1, ...
-                permute(THETA{neighbor}(ii, jj, :), permuteKey3), ...
-                THETA{face});
-
-            UVEL{face} = cat(1, ...
-                permute(UVEL{neighbor}(ii, jj, :), permuteKey3), ...
-                UVEL{face});
-
-            VVEL{face} = cat(1, ...
-                permute(VVEL{neighbor}(ii, jj, :), permuteKey3), ...
-                VVEL{face});
+            for nn = 1:numel(names)
+                fields{face}.(names{nn}) = cat(1, ...
+                    permute(fields{neighbor}.(names{nn})(ii, jj, :), permuteKey3), ...
+                    fields{face}.(names{nn}));
+            end
 
             parent.hGrid{face}.xC = cat(1, ...
                 permute(parent.hGrid{neighbor}.xC(ii, jj, :), permuteKey2), ...
@@ -167,22 +161,12 @@ for face = 1:5
                 jj = 1:parent.njj(neighbor);
             end
 
-            % Add cells on right side.
-            SALT{face} = cat(1, ...
-                SALT{face}, ...
-                permute(SALT{neighbor}(ii, jj, :), permuteKey3));
-
-            THETA{face} = cat(1, ...
-                THETA{face}, ...
-                permute(THETA{neighbor}(ii, jj, :), permuteKey3));
-
-            UVEL{face} = cat(1, ...
-                UVEL{face}, ...
-                permute(UVEL{neighbor}(ii, jj, :), permuteKey3));
-
-            VVEL{face} = cat(1, ...
-                VVEL{face}, ...
-                permute(VVEL{neighbor}(ii, jj, :), permuteKey3));
+            for nn = 1:numel(names)
+                % Add cells on right side.
+                fields{face}.(names{nn}) = cat(1, ...
+                    fields{face}.(names{nn}), ...
+                    permute(fields{neighbor}.(names{nn})(ii, jj, :), permuteKey3));
+            end
 
             parent.hGrid{face}.xC = cat(1, ...
                 parent.hGrid{face}.xC, ...
@@ -227,22 +211,13 @@ for face = 1:5
                 jj = parent.njj(neighbor);
             end
 
-            % Add cells on the lower side.
-            SALT{face} = cat(2, ...
-                permute(SALT{neighbor}(ii, jj, :), permuteKey3), ...
-                SALT{face});
-
-            THETA{face} = cat(2, ...
-                permute(THETA{neighbor}(ii, jj, :), permuteKey3), ...
-                THETA{face});
-
-            UVEL{face} = cat(2, ...
-                permute(UVEL{neighbor}(ii, jj, :), permuteKey3), ...
-                UVEL{face});
-
-            VVEL{face} = cat(2, ...
-                permute(VVEL{neighbor}(ii, jj, :), permuteKey3), ...
-                VVEL{face});
+            % Add cells on left side.
+            for nn = 1:numel(names)
+                % Add cells on the lower side.
+                fields{face}.(names{nn}) = cat(2, ...
+                    permute(fields{neighbor}.(names{nn})(ii, jj, :), permuteKey3), ...
+                    fields{face}.(names{nn}));
+            end
 
             parent.hGrid{face}.xC = cat(2, ...
                 permute(parent.hGrid{neighbor}.xC(ii, jj, :), permuteKey2), ...
@@ -293,22 +268,12 @@ for face = 1:5
                 jj = 1;
             end
 
-            % Add cells on right side.
-            SALT{face} = cat(2, ...
-                SALT{face}, ...
-                permute(SALT{neighbor}(ii, jj, :), permuteKey3));
-
-            THETA{face} = cat(2, ...
-                THETA{face}, ...
-                permute(THETA{neighbor}(ii, jj, :), permuteKey3));
-
-            UVEL{face} = cat(2, ...
-                UVEL{face}, ...
-                permute(UVEL{neighbor}(ii, jj, :), permuteKey3));
-
-            VVEL{face} = cat(2, ...
-                VVEL{face}, ...
-                permute(VVEL{neighbor}(ii, jj, :), permuteKey3));
+            for nn = 1:numel(names)
+                % Add cells on right side.
+                fields{face}.(names{nn}) = cat(2, ...
+                    fields{face}.(names{nn}), ...
+                    permute(fields{neighbor}.(names{nn})(ii, jj, :), permuteKey3));
+            end
 
             parent.hGrid{face}.xC = cat(2, ...
                 parent.hGrid{face}.xC, ...

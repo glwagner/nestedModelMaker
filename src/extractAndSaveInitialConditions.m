@@ -3,9 +3,9 @@ function extractAndSaveInitialConditions(dirz, parent, child)
 % Load model fields
 fprintf('Loading parent model fields for interpolation... '), t0 = tic;
 
-[SALT, THETA, UVEL, VVEL] = loadInitialParentFields(dirz, parent, child);
-[SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
-    SALT, THETA, UVEL, VVEL, parent, child);
+names = {'T', 'S', 'U', 'V'};
+fields = loadInitialParentFields(dirz, parent, child);
+[fields, parent] = modifyInitialParentFields(fields, parent, child);
 
 fprintf('done. (time = %.3f s).\n', toc(t0))
 
@@ -17,16 +17,12 @@ inpaintSlices = 'xz';
 checkInpainting = 0;
 
 % For checking the results of the the in-painting:
-fields = {'SALT', 'THETA', 'UVEL', 'VVEL'};
-unpainted.SALT = SALT;
-unpainted.THETA = THETA;
-unpainted.UVEL = UVEL;
-unpainted.VVEL = VVEL;
+unpainted = fields;
 
 for face = 1:5
     if child.nii(face) ~= 0
 
-        [nii, njj, nz] = size(SALT{face});
+        [nii, njj, nz] = size(fields{face}.S);
 
         fprintf('Inpainting NaNs on %s slices on face %d...', inpaintSlices, face)
         t0=tic;
@@ -35,25 +31,25 @@ for face = 1:5
             switch face
                 case {1, 2, 3}
                     for iiy = 1:njj
-                        SALT{face} (:, iiy, :) = inpaint_nans(squeeze(SALT{face} (:, iiy, :)), method);
-                        THETA{face}(:, iiy, :) = inpaint_nans(squeeze(THETA{face}(:, iiy, :)), method);
-                        UVEL{face} (:, iiy, :) = inpaint_nans(squeeze(UVEL{face} (:, iiy, :)), method);
-                        VVEL{face} (:, iiy, :) = inpaint_nans(squeeze(VVEL{face} (:, iiy, :)), method);
+                        for nn = 1:numel(names)
+                            fields{face}.(names{nn})(:, iiy, :) = ...
+                                inpaint_nans(squeeze(fields{face}.(names{nn}) (:, iiy, :)), method);
+                        end
                     end
                 case {4, 5}
                     for iiy = 1:nii
-                        SALT{face} (iiy, :, :) = inpaint_nans(squeeze(SALT{face} (iiy, :, :)), method);
-                        THETA{face}(iiy, :, :) = inpaint_nans(squeeze(THETA{face}(iiy, :, :)), method);
-                        UVEL{face} (iiy, :, :) = inpaint_nans(squeeze(UVEL{face} (iiy, :, :)), method);
-                        VVEL{face} (iiy, :, :) = inpaint_nans(squeeze(VVEL{face} (iiy, :, :)), method);
+                        for nn = 1:numel(names)
+                            fields{face}.(names{nn})(iiy, :, :) = ...
+                                inpaint_nans(squeeze(fields{face}.(names{nn}) (iiy, :, :)), method);
+                        end
                     end
             end
         elseif strcmp(inpaintSlices, 'xy')
             for iiz = 1:nz
-                SALT{face}(:, :, iiz)  = inpaint_nans(SALT{face}(:, :, iiz), method);
-                THETA{face}(:, :, iiz) = inpaint_nans(THETA{face}(:, :, iiz), method);
-                UVEL{face}(:, :, iiz)  = inpaint_nans(UVEL{face}(:, :, iiz), method);
-                VVEL{face}(:, :, iiz)  = inpaint_nans(VVEL{face}(:, :, iiz), method);
+                for nn = 1:numel(names)
+                    fields{face}.(names{nn})(:, :, iiz) = ...
+                        inpaint_nans(fields{face}.(names{nn})(:, :, iiz), method);
+                end
             end
         end
 
@@ -63,22 +59,19 @@ end
 
 % For checking the results of the the in-painting:
 if checkInpainting
-    painted.SALT = SALT;
-    painted.THETA = THETA;
-    painted.UVEL = UVEL;
-    painted.VVEL = VVEL;
+    face = 1;
 
     figure(1), clf
-    for ii = 1:length(fields)
+    for nn = 1:length(names)
         for zSlice = 1:parent.nz
-            fprintf('field %s at z-level %d', fields{ii}, zSlice)
+            fprintf('field %s at z-level %d', names{ii}, zSlice)
 
             ax(1) = subplot(1, 2, 1);
-            pcolor(unpainted.(fields{ii}){1}(:, :, zSlice))
+            pcolor(unpainted{face}.(names{nn})(:, :, zSlice))
             shading flat
             
             ax(2) = subplot(1, 2, 2);
-            pcolor(painted.(fields{ii}){1}(:, :, zSlice))
+            pcolor(fields{face}.(names{nn})(:, :, zSlice))
             shading flat
 
             ax(2).CLim = ax(1).CLim;
@@ -92,10 +85,10 @@ end
 fprintf('Allocating memory for the initial condition...'), t1=tic;
 for face = 1:5
     if child.nii(face) ~= 0
-        initialCondition{face}.T = zeros(child.nii(face), child.njj(face), child.nz);
-        initialCondition{face}.S = zeros(child.nii(face), child.njj(face), child.nz);
-        initialCondition{face}.U = zeros(child.nii(face), child.njj(face), child.nz);
-        initialCondition{face}.V = zeros(child.nii(face), child.njj(face), child.nz);
+        for nn = 1:numel(names)
+            initCond{face}.(names{nn}) = ...
+                zeros(child.nii(face), child.njj(face), child.nz);
+        end
     end
 end
 fprintf('done. (time = %0.3f s).\n', toc(t1))
@@ -106,105 +99,91 @@ for face = 1:5
         fprintf('Interpolating fields in z on face %d: ', face)
         t1=tic;
 
-        fprintf('salt... ')
-        zInterpedFields{face}.S = interp1( parent.zGrid.zC, ...
-                                       permute(SALT{face}, [3 1 2]), ...
-                                       child.zGrid.zC );
+        for nn = 1:numel(names)
+            fprintf('%s... ', names{nn})
+            zInterped{face}.(names{nn}) = interp1( parent.zGrid.zC, ...
+               permute(fields{face}.(names{nn}), [3 1 2]), ...
+               child.zGrid.zC );
 
-        fprintf('theta... ')
-        zInterpedFields{face}.T = interp1( parent.zGrid.zC, ...
-                                       permute(THETA{face}, [3 1 2]), ...
-                                       child.zGrid.zC );
-
-        fprintf('u... ')
-        zInterpedFields{face}.U = interp1( parent.zGrid.zC, ...
-                                       permute(UVEL{face}, [3 1 2]), ...
-                                       child.zGrid.zC );
-
-        fprintf('and v... ')
-        zInterpedFields{face}.V = interp1( parent.zGrid.zC, ...
-                                       permute(VVEL{face}, [3 1 2]), ...
-                                       child.zGrid.zC );
-
-        % Return matrices to indexing form (x, y, z)
-        zInterpedFields{face}.T = permute(zInterpedFields{face}.T, [2 3 1]);
-        zInterpedFields{face}.S = permute(zInterpedFields{face}.S, [2 3 1]);
-        zInterpedFields{face}.U = permute(zInterpedFields{face}.U, [2 3 1]);
-        zInterpedFields{face}.V = permute(zInterpedFields{face}.V, [2 3 1]);
+            % Return matrices to indexing form (y, x, z)
+            zInterped{face}.(names{nn}) = ...
+                permute(zInterped{face}.(names{nn}), [2 3 1]);
+        end
 
         fprintf('done. (time = %0.3f s).\n', toc(t1))
-
-        close all
-        for ii = 1:length(SALT{face}(:, 1, 1))
-
-            figure(1), clf
-
-            ax(1) = subplot(211);
-            pcolor(squeeze(SALT{face}(ii, :, :))'), shading flat
-
-            ax(2) = subplot(212);
-            pcolor(squeeze(zInterpedFields{face}.S(ii, :, :))'), shading flat
-        
-            input('Press enter to continue.')
-
-        end
-            
     
     end
 end
 
-%{
+close all
 % Interpolate in x and y.
-interpolationMethod = 'linear';
+interpMethod = 'linear';
 for face = 1:5
     if child.nii(face) ~= 0
-        fprintf('Interpolating fields in xy on face %d', face)
         for iiz = 1:child.nz
 
-            size(parent.hGrid{face}.xC)
-            size(parent.hGrid{face}.yC)
-            size(zInterpedFields{face}.T(:, :, iiz))
-            size(child.hGrid{face}.xC)
-            size(child.hGrid{face}.yC)
+            fprintf('Interpolating fields in xy on face %d at z = %0.3f m... ', ...
+                face, child.zGrid.zC(iiz)), t1=tic;
 
-            max(max(parent.hGrid{face}.xC))
-            min(min(parent.hGrid{face}.xC))
+            % T and S
+            X = parent.hGrid{face}.xC;
+            Y = parent.hGrid{face}.yC;
 
-            max(max(parent.hGrid{face}.yC))
-            min(min(parent.hGrid{face}.yC))
+            Xq = child.hGrid{face}.xC;
+            Yq = child.hGrid{face}.yC;
 
-            max(max(child.hGrid{face}.xC))
-            min(min(child.hGrid{face}.xC))
+            initCond{face}.T(:, :, iiz) = griddata(X, Y, ...
+                zInterped{face}.T(:, :, iiz), Xq, Yq, interpMethod);
 
-            max(max(child.hGrid{face}.yC))
-            min(min(child.hGrid{face}.yC))
+            initCond{face}.S(:, :, iiz) = griddata(X, Y, ...
+                zInterped{face}.S(:, :, iiz), Xq, Yq, interpMethod);
 
-            initialCondition{face}.T(:, :, iiz) = ...
-                griddata( parent.hGrid{face}.xC, parent.hGrid{face}.yC, ...
-                         zInterpedFields{face}.T(:, :, iiz), ...
-                         child.hGrid{face}.xC, child.hGrid{face}.yC, ...
-                        interpolationMethod);
+            % TODO: fix this part by adding xG to the fields that get 
+            % modified in "modifyInitialParentFields".
 
-            initialCondition{face}.S(:, :, iiz) = ...
-                griddata( parent.hGrid{face}.xC, parent.hGrid{face}.yC, ...
-                         zInterpedFields{face}.S(:, :, iiz), ...
-                         child.hGrid{face}.xC, child.hGrid{face}.yC, ...
-                        interpolationMethod);
+            % U
+            X = parent.hGrid{face}.xC;
+            Y = parent.hGrid{face}.yC;
 
-            initialCondition{face}.U(:, :, iiz) = ...
-                griddata( parent.hGrid{face}.xC, parent.hGrid{face}.yC, ...
-                         zInterpedFields{face}.U(:, :, iiz), ...
-                         child.hGrid{face}.xC, child.hGrid{face}.yC, ...
-                        interpolationMethod);
+            Xq = child.hGrid{face}.xC;
+            Yq = child.hGrid{face}.yC;
 
-            initialCondition{face}.V(:, :, iiz) = ...
-                griddata( parent.hGrid{face}.xC, parent.hGrid{face}.yC, ...
-                         zInterpedFields{face}.V(:, :, iiz), ...
-                         child.hGrid{face}.xC, child.hGrid{face}.yC, ...
-                        interpolationMethod);
+            initCond{face}.U(:, :, iiz) = griddata(X, Y, ...
+                zInterped{face}.U(:, :, iiz), Xq, Yq, interpMethod);
+
+            %% V
+            %X = parent.hGrid{face}.xC;
+            %Y = parent.hGrid{face}.yG(1:end-1, 1:end-1);
+
+            %Xq = child.hGrid{face}.xC;
+            %Yq = child.hGrid{face}.yG(1:end-1, 1:end-1);
+
+            initCond{face}.V(:, :, iiz) = griddata(X, Y, ...
+                zInterped{face}.V(:, :, iiz), Xq, Yq, interpMethod);
+        
+            fprintf('done. (time = %0.3f s).\n', toc(t1))
+
+            %{
+            for nn = 1:numel(names)
+
+                % Check
+                originalSlab = zInterped{face}.(names{nn})(:, :, iiz);
+                interpedSlab = initCond{face}.(names{nn})(:, :, iiz);
+
+                figure(1), clf
+                
+                ax(1) = subplot(121);
+                pcolor(originalSlab), shading flat
+
+                ax(2) = subplot(122);
+                pcolor(interpedSlab), shading flat
+
+                input('Press enter.')
+
+            end
+            %}
 
         end
         fprintf('done. (time = %0.3f s).\n', toc(t1))
     end
 end
-%}
