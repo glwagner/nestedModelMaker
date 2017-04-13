@@ -73,7 +73,20 @@ parent.jj = [ 361 810
                 1 270
                 1 270
                 1 270 ];
-    
+
+% Three kinds of boundaries: 'open', 'land', and 'interior'
+parent.bcs.ii{1} = { 'interior'     'open' };
+parent.bcs.ii{2} = { 'land'         'land' };
+parent.bcs.ii{3} = { 'interior' 'interior' };
+parent.bcs.ii{4} = { 'interior'     'open' };
+parent.bcs.ii{5} = { 'interior'     'land' };
+
+parent.bcs.jj{1} = {     'open' 'interior' };
+parent.bcs.jj{2} = { 'interior' 'interior' };
+parent.bcs.jj{3} = { 'interior' 'interior' };
+parent.bcs.jj{4} = { 'interior' 'interior' };
+parent.bcs.jj{5} = {     'land' 'interior' };
+
 % Parameters needed to convert between An's "ASTE format" and the standard LLC format.
 parent.nii_asteFormat = parent.res;
 parent.njj_asteFormat = 1350;
