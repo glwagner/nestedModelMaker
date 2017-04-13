@@ -107,7 +107,7 @@ for face = 1:5
         t1=tic;
 
         fprintf('salt... ')
-        zInterpedFields{face}.S  = interp1( parent.zGrid.zC, ...
+        zInterpedFields{face}.S = interp1( parent.zGrid.zC, ...
                                        permute(SALT{face}, [3 1 2]), ...
                                        child.zGrid.zC );
 
@@ -117,12 +117,12 @@ for face = 1:5
                                        child.zGrid.zC );
 
         fprintf('u... ')
-        zInterpedFields{face}.U  = interp1( parent.zGrid.zC, ...
+        zInterpedFields{face}.U = interp1( parent.zGrid.zC, ...
                                        permute(UVEL{face}, [3 1 2]), ...
                                        child.zGrid.zC );
 
         fprintf('and v... ')
-        zInterpedFields{face}.V  = interp1( parent.zGrid.zC, ...
+        zInterpedFields{face}.V = interp1( parent.zGrid.zC, ...
                                        permute(VVEL{face}, [3 1 2]), ...
                                        child.zGrid.zC );
 
@@ -133,6 +133,23 @@ for face = 1:5
         zInterpedFields{face}.V = permute(zInterpedFields{face}.V, [2 3 1]);
 
         fprintf('done. (time = %0.3f s).\n', toc(t1))
+
+        close all
+        for ii = 1:length(SALT{face}(:, 1, 1))
+
+            figure(1), clf
+
+            ax(1) = subplot(211);
+            pcolor(squeeze(SALT{face}(ii, :, :))'), shading flat
+
+            ax(2) = subplot(212);
+            pcolor(squeeze(zInterpedFields{face}.S(ii, :, :))'), shading flat
+        
+            input('Press enter to continue.')
+
+        end
+            
+    
     end
 end
 

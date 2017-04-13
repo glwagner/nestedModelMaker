@@ -25,5 +25,3 @@ fprintf(fileID, '\n');
 fprintf(fileID, 'period (s):  ');
 fprintf(fileID, '%12.6f ', periods');
 fclose(fileID);
-
-end

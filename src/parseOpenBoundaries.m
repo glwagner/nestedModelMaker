@@ -63,4 +63,3 @@ for face = 1:5
         end
     end
 end
-

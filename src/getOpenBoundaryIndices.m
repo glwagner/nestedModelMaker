@@ -206,4 +206,3 @@ if changingCoordinates
 	jj.U  = jj.U  - jjOff;
 	jj.V  = jj.V  - jjOff;
 end
-

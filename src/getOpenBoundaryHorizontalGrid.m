@@ -198,6 +198,3 @@ for iOb = 1:length(obij)
 end
 
 fprintf('done. (time = %6.3f s)\n', toc(t1))
-
-
-

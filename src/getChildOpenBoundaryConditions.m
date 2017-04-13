@@ -15,4 +15,3 @@ for iOb = 1:length(childObij)
     fprintf(' done. (time = %6.3f s)\n', toc(t1))
 
 end
-

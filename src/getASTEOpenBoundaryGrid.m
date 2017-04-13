@@ -249,6 +249,3 @@ end
 
 %----------------------------------------------------------------------------- 
 disp(['   ... done extracting grid on open boundary. (time = ' num2str(toc(t1), '%6.3f') ' s)'])
-
-
-

@@ -63,5 +63,3 @@ for face = 1:5
     child.bathy{face} = child.bathy{face} .* mask_cnct;
   end
 end
-
-end

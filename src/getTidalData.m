@@ -94,5 +94,3 @@ for i = 1:length(childObij)
   childObTides{i}.ph_v(isnan(childObTides{i}.ph_v)) = 0;
 
 end
-
-end
