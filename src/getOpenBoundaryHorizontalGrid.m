@@ -44,6 +44,8 @@ function obij = getOpenBoundaryHorizontalGrid(gridDir, model, obij)
 %        2    yC            6    xG          10    rAz         14    rAs
 %        3    dxF           7    yG          11    dxC         15    dxG
 %        4    dyF           8    dxV         12    dyC         16    dyG
+% 
+% Refer to http://mitgcm.org/sealion/online_documents/node47.html for more info.
 % -----------------------------------------------------------------------------  
 %%% From "GRID.h":
 %
@@ -195,7 +197,6 @@ for iOb = 1:length(obij)
     
 end
 
-%----------------------------------------------------------------------------- 
 fprintf('done. (time = %6.3f s)\n', toc(t1))
 
 

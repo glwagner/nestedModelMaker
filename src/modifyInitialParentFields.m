@@ -1,60 +1,11 @@
 function [SALT, THETA, UVEL, VVEL, parent] = modifyInitialParentFields( ...
             SALT, THETA, UVEL, VVEL, parent, child);
 
-    %{
-    % Modify fields - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    % Cut parent grids to size (not implemented yet).
-    for face = 1:5
-        if child.nii(face) == 0
-            % Clear up space in memory.
-            SALT{face}  = [];
-            THETA{face} = [];
-            UVEL{face}  = []; 
-            VVEL{face}  = [];
-        else
-            % Need to convert from 'global' coordinates given by child.parent.ii 
-            % To local coordinates on the ASTE grid, on which SALT{face} lives.
-            % We also buffer the frame to be chopped out of the parent grid by 
-            % a hard-coded number of cells to be safe.
-            buffer = 10;
-            iiLeft = max(1, ...
-                child.parent.ii(face, 1) - parent.ii(face, 1) + 1 - buffer);
-            iiRight = min(parent.nii(face), ...
-                child.parent.ii(face, 2) - parent.ii(face, 1) + 1 + buffer);
-
-            jjBottom = max(1, ...
-                child.parent.jj(face, 1) - parent.jj(face, 1) + 1 - buffer);
-            jjTop = min(parent.njj(face), ...
-                child.parent.jj(face, 2) - parent.jj(face, 1) + 1 + buffer);
-
-            ii = iiLeft:iiRight;
-            jj = jjBottom:jjTop;
-
-            % Cut both parent fields and parent grid.
-            SALT{face}  = SALT{face} (ii, jj, :);
-            THETA{face} = THETA{face}(ii, jj, :);
-            UVEL{face}  = UVEL{face} (ii, jj, :);
-            VVEL{face}  = VVEL{face} (ii, jj, :);
-
-            parent.hGrid{face}.xC = parent.hGrid{face}.xC(ii, jj);
-            parent.hGrid{face}.yC = parent.hGrid{face}.yC(ii, jj);
-
-            % Remove parent grid variables that haven't been cut to avoid errors.
-            rmfield(parent.hGrid{face}, 'xG' );
-            rmfield(parent.hGrid{face}, 'yG' );
-            rmfield(parent.hGrid{face}, 'dxG');
-            rmfield(parent.hGrid{face}, 'dyG');
-        end
-    end
-    %}
-
-
     % Add border to three-dimensional parent fields to allow interpolation onto
     %   1. The deepest bottom cell mid-point on the child grid, which is deeper
     %       than the deepest parent cell mid-point; 
     %   2. The child-grid cells that are adjacent to interior boundaries between
     %       faces, which require information across face.
-
 
     % Copy bottom cell on the parent grid
     parent.zGrid.zF(parent.nz+2) = parent.zGrid.zF(end)-parent.zGrid.dzF(end);
