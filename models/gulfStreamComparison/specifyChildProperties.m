@@ -75,7 +75,10 @@ for face = 1:5, for side = 1:2,
 end, end
 
 % Dimension of super grid to stick the child grid to.
-child.nSuperGrid = 30;
+child.nSuperGrid = 60;
+
+% Dimension of computational tile (nSuperGrid should be multiple of this)
+child.tileSize = 30;
 
 % Bathymetry adjustment:
 % Specify indices of grid cells that are part of the main ocean domain on each
