@@ -104,7 +104,7 @@ for face = 1:5
         model.hGrid{face}.rAc = rAc(iiC, jjC);
 
         model.hGrid{face}.xG = xG(iiG, jjG);
-        model.hGrid{face}.yG = xG(iiG, jjG);
+        model.hGrid{face}.yG = yG(iiG, jjG);
 
         model.hGrid{face}.dxV = dxV(iiG, jjG);
         model.hGrid{face}.dyU = dyU(iiG, jjG);
