@@ -22,7 +22,6 @@ for edge = {'west', 'east', 'south', 'north'}
           i0 = sum(child.nii(1:face-1))+1;
           i1 = sum(child.nii(1:face));
         end
-        % Are these oriented correctly?
         U(i0:i1,:,:) = childObuv{ib}.U;
         V(i0:i1,:,:) = childObuv{ib}.V;
         % Need first or second wet point?
