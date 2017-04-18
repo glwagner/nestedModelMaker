@@ -4,8 +4,8 @@ function tiling(child)
 tileNumber = 0;
 blankTiles = [];
 for i = 1:5
-  for ni = 1:child.nii(i)/child.tileSize
-    for nj = 1:child.njj(i)/child.tileSize
+  for nj = 1:child.njj(i)/child.tileSize
+    for ni = 1:child.nii(i)/child.tileSize
       tileNumber = tileNumber + 1;
       % indices of tile
       ii = (ni-1)*child.tileSize+1:ni*child.tileSize;

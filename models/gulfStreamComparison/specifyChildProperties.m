@@ -78,7 +78,7 @@ end, end
 child.nSuperGrid = 60;
 
 % Dimension of computational tile (nSuperGrid should be multiple of this)
-child.tileSize = 30;
+child.tileSize = 60;
 
 % Bathymetry adjustment:
 % Specify indices of grid cells that are part of the main ocean domain on each
