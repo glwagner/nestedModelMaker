@@ -30,14 +30,14 @@ for edge = {'west', 'east', 'south', 'north'}
     end
   end
   % save amplitude
-  file = sprintf('OB%cam_%dx%d.bin', upper(edge{1}(1)), nconst, n);
+  file = sprintf('OB%cam_%dx%d.bin', upper(edge{1}(1)), n, nconst);
   f = fopen(['out/', file], 'w', 'ieee-be');
-  fwrite(f, am, 'real*4');
+  fwrite(f, am', 'real*4');
   fclose(f);
   % save phase
-  file = sprintf('OB%cph_%dx%d.bin', upper(edge{1}(1)), nconst, n);
+  file = sprintf('OB%cph_%dx%d.bin', upper(edge{1}(1)), n, nconst);
   f = fopen(['out/', file], 'w', 'ieee-be');
-  fwrite(f, ph, 'real*4');
+  fwrite(f, ph', 'real*4');
   fclose(f);
 end
 
