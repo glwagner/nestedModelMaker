@@ -67,6 +67,9 @@ child.nz = length(child.zGrid.zC);
 parent.zGrid = getfield(load(dirz.parentZGrid, 'zGrid'), 'zGrid');
 parent.nz = length(parent.zGrid.zC);
 
+% Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
+extractAndSaveInitialConditions(dirz, parent, child);
+
 % Save things to file
 saveGrid(child);
 saveBathymetry(child);
@@ -78,9 +81,6 @@ tiling(child);
 
 % print obcs setup
 obcsSetup(child, childObij);
-
-% Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
-extractAndSaveInitialConditions(dirz, parent, child);
 
 % Next... - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 % 1. Figure out how to write data, data.obcs, data.exch2, etc.
