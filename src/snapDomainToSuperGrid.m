@@ -39,7 +39,7 @@ for face = 1:5
     child.njjPad(face, :) = abs(child.unsnapped.jj(face, :) - child.jj(face, :));
 end
 
-% Measure size of the grid.
+% Measure the face-wise size of the grid.
 for face = 1:5
     if child.ii(face, 1) == 0 
         child.nii(face) = 0;
@@ -49,3 +49,25 @@ for face = 1:5
         child.njj(face) = child.jj(face, upper) - child.jj(face, lower) + 1;
     end
 end
+
+% Measure the east-west dimension of the grid.
+% WARNING: this breaks if the grid resides completely on face 3.
+nEast = 0;
+nNorth = 0;
+for face = 1:5
+    switch face
+        case {1, 2}
+            nEast = nEast + child.nii(face);
+            if child.njj(face) ~= 0
+                nNorth = child.njj(face);
+            end
+        case {4, 5}
+            nEast = nEast + child.njj(face)
+            if child.nii(face) ~= 0
+                nNorth = child.nii(face);
+            end
+    end
+end
+
+child.nEast = nEast;
+child.nNorth = nNorth;
