@@ -62,12 +62,13 @@ for face = 1:5
                 nNorth = child.njj(face);
             end
         case {4, 5}
-            nEast = nEast + child.njj(face)
+            nEast = nEast + child.njj(face);
             if child.nii(face) ~= 0
                 nNorth = child.nii(face);
             end
     end
 end
 
+% Assign the final result
 child.nEast = nEast;
 child.nNorth = nNorth;

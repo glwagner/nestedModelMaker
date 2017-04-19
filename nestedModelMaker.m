@@ -43,8 +43,8 @@ childObuv = getChildOpenBoundaryConditions(childObij, parentObij, parentObuv);
 
 % Extract tidal amplitudes and phases at open boundaries (using parent model
 % date information -- make sure the child model is started at that time!).
-childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
-    child.tspan.months(1), 1));
+%childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
+%    child.tspan.months(1), 1));
 
 % Generate the child domain - - - - - - - - - - - - - - - - - - - - - - - - - - 
 child = initializeDomain(child);

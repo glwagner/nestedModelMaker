@@ -8,7 +8,7 @@ function [fields, parent] = modifyInitialParentFields(fields, parent, child)
 
 % Names of temperature, salinitiy, and velocity vectors in the struct 
 % "fields".
-names = {'T', 'S', 'U', 'V'};
+fieldNames = {'T', 'S', 'U', 'V'};
 
 % Names of the hGrid properties to modify along with solution fields
 hGridProps = {'xC', 'yC', 'xU', 'yU', 'xV', 'yV'};
@@ -22,16 +22,16 @@ parent.nz = length(parent.zGrid.zC);
 
 for face = 1:5
     if child.nii(face) ~= 0
-        for nn = 1:numel(names)
-            fields{face}.(names{nn}) = ...
-                cat(3, fields{face}.(names{nn}),  NaN(size(fields{face}.(names{nn})(:, :, 1))));
+        for nn = 1:numel(fieldNames)
+            fields{face}.(fieldNames{nn}) = ...
+                cat(3, fields{face}.(fieldNames{nn}),  NaN(size(fields{face}.(fieldNames{nn})(:, :, 1))));
         end
     end
 end
 
-
 % Copy top cell on the parent grid into land.
-parent.zGrid.zF  = [ -parent.zGrid.zF(1); 
+% TODO: Check this.
+parent.zGrid.zF  = [ -parent.zGrid.zF(2); 
                     reshape(parent.zGrid.zF, parent.nz+1, 1) ];
 
 parent.zGrid.dzF = [ parent.zGrid.zF(1)-parent.zGrid.zF(2);
@@ -47,9 +47,9 @@ parent.nz = length(parent.zGrid.zC);
 
 for face = 1:5
     if child.nii(face) ~= 0
-        for nn = 1:numel(names)
-            fields{face}.(names{nn}) = ...
-                cat(3, fields{face}.(names{nn})(:, :, 1), fields{face}.(names{nn}) ); 
+        for nn = 1:numel(fieldNames)
+            fields{face}.(fieldNames{nn}) = ...
+                cat(3, fields{face}.(fieldNames{nn})(:, :, 1), fields{face}.(fieldNames{nn}) ); 
         end
     end
 end
@@ -111,10 +111,10 @@ for face = 1:5
             end
 
             % Add cells on left side.
-            for nn = 1:numel(names)
-                fields{face}.(names{nn}) = cat(1, ...
-                    permute(fields{neighbor}.(names{nn})(ii, jj, :), permuteKey3), ...
-                    fields{face}.(names{nn}));
+            for nn = 1:numel(fieldNames)
+                fields{face}.(fieldNames{nn}) = cat(1, ...
+                    permute(fields{neighbor}.(fieldNames{nn})(ii, jj, :), permuteKey3), ...
+                    fields{face}.(fieldNames{nn}));
             end
 
             % Horizontal grid properties
@@ -166,10 +166,10 @@ for face = 1:5
             end
 
             % Solution fields: add cells on right side.
-            for nn = 1:numel(names)
-                fields{face}.(names{nn}) = cat(1, ...
-                    fields{face}.(names{nn}), ...
-                    permute(fields{neighbor}.(names{nn})(ii, jj, :), permuteKey3));
+            for nn = 1:numel(fieldNames)
+                fields{face}.(fieldNames{nn}) = cat(1, ...
+                    fields{face}.(fieldNames{nn}), ...
+                    permute(fields{neighbor}.(fieldNames{nn})(ii, jj, :), permuteKey3));
             end
 
             % Horizontal grid properties
@@ -217,10 +217,10 @@ for face = 1:5
             end
 
             % Add cells on left side.
-            for nn = 1:numel(names)
-                fields{face}.(names{nn}) = cat(2, ...
-                    permute(fields{neighbor}.(names{nn})(ii, jj, :), permuteKey3), ...
-                    fields{face}.(names{nn}));
+            for nn = 1:numel(fieldNames)
+                fields{face}.(fieldNames{nn}) = cat(2, ...
+                    permute(fields{neighbor}.(fieldNames{nn})(ii, jj, :), permuteKey3), ...
+                    fields{face}.(fieldNames{nn}));
             end
 
             % Horizontal grid properties
@@ -234,6 +234,7 @@ for face = 1:5
 
         end
 
+        % Upper boundary
         if strcmp(child.bcs.jj{face}{upper}, 'interior')
             % Add cells.
             switch face
@@ -273,11 +274,11 @@ for face = 1:5
                 jj = 1;
             end
 
-            for nn = 1:numel(names)
+            for nn = 1:numel(fieldNames)
                 % Add cells on right side.
-                fields{face}.(names{nn}) = cat(2, ...
-                    fields{face}.(names{nn}), ...
-                    permute(fields{neighbor}.(names{nn})(ii, jj, :), permuteKey3));
+                fields{face}.(fieldNames{nn}) = cat(2, ...
+                    fields{face}.(fieldNames{nn}), ...
+                    permute(fields{neighbor}.(fieldNames{nn})(ii, jj, :), permuteKey3));
             end
 
             % Horizontal grid properties

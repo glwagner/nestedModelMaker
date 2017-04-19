@@ -5,14 +5,17 @@ fprintf('Loading parent model fields for interpolation... '), t0 = tic;
 
 names = {'T', 'S', 'U', 'V'};
 fields = loadInitialParentFields(dirz, parent, child);
-[fields, parent] = modifyInitialParentFields(fields, parent, child);
+[fields, zGrid] = addTopBottomBufferLayers(fields, parent);
+[fields, hGrid] = padInteriorBoundaries(fields, parent, child);
+
+%[fields, parent] = modifyInitialParentFields(fields, parent, child);
 
 fprintf('done. (time = %.3f s).\n', toc(t0))
 
 % Use inpaint_nans on 2D slices to continue model data into land regions.
 % Specify inpaint method, the slices to inpaint on ('xz' or 'xy'), and 
 % whether or not to check the results of the inpainting.
-method = 0;
+method = 4;
 inpaintSlices = 'xz';
 checkInpainting = 0;
 
@@ -44,6 +47,7 @@ for face = 1:5
                         end
                     end
             end
+
         elseif strcmp(inpaintSlices, 'xy')
             for iiz = 1:nz
                 for nn = 1:numel(names)
@@ -63,7 +67,7 @@ if checkInpainting
 
     figure(1), clf
     for nn = 1:length(names)
-        for zSlice = 1:parent.nz
+        for zSlice = 1:zGrid.nz
             fprintf('field %s at z-level %d', names{ii}, zSlice)
 
             ax(1) = subplot(1, 2, 1);
@@ -103,7 +107,7 @@ for face = 1:5
 
         for nn = 1:numel(names)
             fprintf('%s... ', names{nn})
-            zInterped{face}.(names{nn}) = interp1( parent.zGrid.zC, ...
+            zInterped{face}.(names{nn}) = interp1( zGrid.zC, ...
                permute(fields{face}.(names{nn}), [3 1 2]), ...
                child.zGrid.zC );
 
@@ -124,11 +128,12 @@ for cellName = names
     icFileName.(name) = sprintf('%s0_%dx%dx%d.bin', ...
         name, child.nEast, child.nNorth, child.nz);
 
-    disp( icFileName.(name) )
+    disp(icFileName.(name) )
 
     icFile.(name) = fopen(['out/' icFileName.(name)], 'w', 'ieee-be') ;
 end
 
+keyboard
 
 % Interpolate in x and y and save the result
 interpMethod = 'linear';
@@ -141,8 +146,8 @@ for iiz = 1:child.nz
                 face, child.zGrid.zC(iiz)), t1=tic;
 
             % T and S
-            X = parent.hGrid{face}.xC;
-            Y = parent.hGrid{face}.yC;
+            X = hGrid{face}.xC;
+            Y = hGrid{face}.yC;
 
             Xq = child.hGrid{face}.xC;
             Yq = child.hGrid{face}.yC;
@@ -154,8 +159,8 @@ for iiz = 1:child.nz
                             Xq, Yq, interpMethod);
 
             % U
-            X = parent.hGrid{face}.xU;
-            Y = parent.hGrid{face}.yU;
+            X = hGrid{face}.xU;
+            Y = hGrid{face}.yU;
 
             Xq = child.hGrid{face}.xU;
             Yq = child.hGrid{face}.yU;
@@ -164,8 +169,8 @@ for iiz = 1:child.nz
                             Xq, Yq, interpMethod);
 
             % V
-            X = parent.hGrid{face}.xV;
-            Y = parent.hGrid{face}.yV;
+            X = hGrid{face}.xV;
+            Y = hGrid{face}.yV;
 
             Xq = child.hGrid{face}.xV;
             Yq = child.hGrid{face}.yV;
@@ -173,11 +178,13 @@ for iiz = 1:child.nz
             xySlices.V = griddata(X, Y, zInterped{face}.V(:, :, iiz), ...
                             Xq, Yq, interpMethod);
 
+            keyboard
+
             % Write initial condition slices to icFile
-            fwrite(icFile.T, xySlices.T, precision)
-            fwrite(icFile.S, xySlices.S, precision)
-            fwrite(icFile.U, xySlices.U, precision)
-            fwrite(icFile.V, xySlices.V, precision)
+            fwrite(icFile.T, xySlices.T, precision);
+            fwrite(icFile.S, xySlices.S, precision);
+            fwrite(icFile.U, xySlices.U, precision);
+            fwrite(icFile.V, xySlices.V, precision);
        
             fprintf('done. (time = %0.3f s).\n', toc(t1))
 
