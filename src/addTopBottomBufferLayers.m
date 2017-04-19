@@ -13,9 +13,9 @@ nz = parent.nz;
 
 % Copy bottom cell on the parent grid
 zGrid.zF (nz+2) = parent.zGrid.zF(end)-parent.zGrid.dzF(end);
-zGrid.dzF(nz+1) = parent.zGrid.zF(end);
-zGrid.zC (nz+1) = 1/2*(parent.zGrid.zF(end-1)+parent.zGrid.zF(end));
-zGrid.dzC(nz)  = parent.zGrid.zC(end-1)-parent.zGrid.zC(end);
+zGrid.dzF(nz+1) = parent.zGrid.dzF(end);
+zGrid.zC (nz+1) = 1/2*(zGrid.zF(end-1)+zGrid.zF(end));
+zGrid.dzC(nz)  = zGrid.zC(end-1)-zGrid.zC(end);
 
 % New number of z-points.
 nz = length(zGrid.zC);
@@ -24,7 +24,7 @@ nz = length(zGrid.zC);
 zGrid.zF  = [ -parent.zGrid.zF(2); 
                 reshape(zGrid.zF, nz+1, 1) ];
 
-zGrid.dzF = [ parent.zGrid.zF(1)-parent.zGrid.zF(2);
+zGrid.dzF = [ zGrid.zF(1)-zGrid.zF(2);
                 reshape(zGrid.dzF, nz, 1) ];
 
 zGrid.zC  = [ 1/2*(zGrid.zF(1)+zGrid.zF(2));
