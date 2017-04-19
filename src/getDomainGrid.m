@@ -93,8 +93,7 @@ for face = 1:5
         iiG = model.ii(face, 1):model.ii(face, 2)+1;
         jjG = model.jj(face, 1):model.jj(face, 2)+1;
 
-        % Cut grids for model domain. The accuracy of this 
-        % code must be checked.
+        % Cut grids for model domain.
         model.hGrid{face}.xC = xC(iiC, jjC);
         model.hGrid{face}.yC = yC(iiC, jjC);
 
@@ -120,5 +119,27 @@ for face = 1:5
         model.hGrid{face}.dxG = dxG(iiC, jjG);
         model.hGrid{face}.dyG = dyG(iiG, jjC);
 
+        switch face
+            case {1, 2}
+                model.hGrid{face}.xU = xG(iiC, jjC);
+                model.hGrid{face}.yU = yC(iiC, jjC);
+
+                model.hGrid{face}.xV = xC(iiC, jjC);
+                model.hGrid{face}.yV = yG(iiC, jjC);
+            case 3
+                warning('Operations on face 3 are not supported!')
+
+                model.hGrid{face}.xU = xG(iiC, jjC);
+                model.hGrid{face}.yU = yC(iiC, jjC);
+
+                model.hGrid{face}.xV = xC(iiC, jjC);
+                model.hGrid{face}.yV = yG(iiC, jjC);
+            case {4, 5}
+                model.hGrid{face}.xU = xC(iiC, jjC);
+                model.hGrid{face}.yU = yG(iiC, jjC);
+
+                model.hGrid{face}.xV = xG(iiC, jjC);
+                model.hGrid{face}.yV = yC(iiC, jjC);
+        end
     end
 end
