@@ -115,7 +115,6 @@ precision.TS = get_precision([dirz.parentTSdata, ...
 precision.UV = get_precision([dirz.parentUVdata, ...
 						 		velFiles(1).name(1:end-4) 'meta']);
 
-
 % Loop through all time-points.
 fprintf('    Loading and cutting 3D fields...\n')
 for iit = 1:child.nObcMonths
@@ -123,7 +122,8 @@ for iit = 1:child.nObcMonths
 	% Set timer.
 	clear t2, t2 = tic;
 
-	% Set the file index.
+	% Set the file index. The "-2" ensures the first extracted month
+    % is one month prior to the intended start date of the child model run.
 	iFile = iit + iFile0 - 2 ...
                 + 12*(child.tspan.years(1)-parent.model.year0) ...
                 + child.tspan.months(1)-parent.model.mnth0;
