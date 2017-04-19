@@ -99,6 +99,9 @@ end
 fprintf('done. (time = %0.3f s).\n', toc(t1))
 %}
 
+zGrid.zC
+child.zGrid.zC
+
 % Interpolate in z.
 for face = 1:5
     if child.nii(face) ~= 0
@@ -132,8 +135,6 @@ for cellName = names
 
     icFile.(name) = fopen(['out/' icFileName.(name)], 'w', 'ieee-be') ;
 end
-
-keyboard
 
 % Interpolate in x and y and save the result
 interpMethod = 'linear';
@@ -177,8 +178,6 @@ for iiz = 1:child.nz
 
             xySlices.V = griddata(X, Y, zInterped{face}.V(:, :, iiz), ...
                             Xq, Yq, interpMethod);
-
-            keyboard
 
             % Write initial condition slices to icFile
             fwrite(icFile.T, xySlices.T, precision);
