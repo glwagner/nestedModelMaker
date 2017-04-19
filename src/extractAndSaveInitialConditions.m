@@ -82,6 +82,7 @@ if checkInpainting
 end
 
 % Interpolation - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%{
 fprintf('Allocating memory for the initial condition...'), t1=tic;
 for face = 1:5
     if child.nii(face) ~= 0
@@ -92,6 +93,7 @@ for face = 1:5
     end
 end
 fprintf('done. (time = %0.3f s).\n', toc(t1))
+%}
 
 % Interpolate in z.
 for face = 1:5
@@ -115,14 +117,23 @@ for face = 1:5
     end
 end
 
-close all
-% Interpolate in x and y.
-interpMethod = 'linear';
-for face = 1:5
-    if child.nii(face) ~= 0
-        for iiz = 1:child.nz
+% Open files for saving
+precision = 'real*4';
+for cellName = names
+    name = cellName{:};
+    icFileName.(name) = sprintf('out/%s0_%dx%dx%d.bin', ...
+        name, child.nEast, child.nNorth, child.nz);
+    icFile.(name) = fopen(['out/' icFileName.(name)], 'w', 'ieee-be') 
+end
 
-            fprintf('Interpolating fields in xy on face %d at z = %0.3f m... ', ...
+% Interpolate in x and y and save the result
+interpMethod = 'linear';
+for iiz = 1:child.nz
+    for face = 1:5
+        if child.nii(face) ~= 0
+
+            fprintf(['Interpolating and saving fields in ' ...
+                'xy on face %d at z = %0.3f m... '], ...
                 face, child.zGrid.zC(iiz)), t1=tic;
 
             % T and S
@@ -132,11 +143,11 @@ for face = 1:5
             Xq = child.hGrid{face}.xC;
             Yq = child.hGrid{face}.yC;
 
-            initCond{face}.T(:, :, iiz) = griddata(X, Y, ...
-                zInterped{face}.T(:, :, iiz), Xq, Yq, interpMethod);
-
-            initCond{face}.S(:, :, iiz) = griddata(X, Y, ...
-                zInterped{face}.S(:, :, iiz), Xq, Yq, interpMethod);
+            xySlices.T = griddata(X, Y, zInterped{face}.T(:, :, iiz), ...
+                            Xq, Yq, interpMethod);
+                            
+            xySlices.S = griddata(X, Y, zInterped{face}.S(:, :, iiz), ...
+                            Xq, Yq, interpMethod);
 
             % U
             X = parent.hGrid{face}.xU;
@@ -145,8 +156,8 @@ for face = 1:5
             Xq = child.hGrid{face}.xU;
             Yq = child.hGrid{face}.yU;
 
-            initCond{face}.U(:, :, iiz) = griddata(X, Y, ...
-                zInterped{face}.U(:, :, iiz), Xq, Yq, interpMethod);
+            xySlices.U = griddata(X, Y, zInterped{face}.U(:, :, iiz), ...
+                            Xq, Yq, interpMethod);
 
             % V
             X = parent.hGrid{face}.xV;
@@ -155,30 +166,23 @@ for face = 1:5
             Xq = child.hGrid{face}.xV;
             Yq = child.hGrid{face}.yV;
 
-            initCond{face}.V(:, :, iiz) = griddata(X, Y, ...
-                zInterped{face}.V(:, :, iiz), Xq, Yq, interpMethod);
-        
+            xySlices.V = griddata(X, Y, zInterped{face}.V(:, :, iiz), ...
+                            Xq, Yq, interpMethod);
+
+            % Write initial condition slices to icFile
+            fwrite(icFile.T, xySlices.T, precision)
+            fwrite(icFile.S, xySlices.S, precision)
+            fwrite(icFile.U, xySlices.U, precision)
+            fwrite(icFile.V, xySlices.V, precision)
+       
             fprintf('done. (time = %0.3f s).\n', toc(t1))
 
-            for nn = 1:numel(names)
-
-                % Check
-                originalSlab = zInterped{face}.(names{nn})(:, :, iiz);
-                interpedSlab = initCond{face}.(names{nn})(:, :, iiz);
-
-                figure(1), clf
-                
-                ax(1) = subplot(121);
-                pcolor(originalSlab), shading flat
-
-                ax(2) = subplot(122);
-                pcolor(interpedSlab), shading flat
-
-                input('Press enter.')
-
-            end
-
         end
-        fprintf('done. (time = %0.3f s).\n', toc(t1))
     end
 end
+
+% Close files
+fclose(icFile.T)
+fclose(icFile.S)
+fclose(icFile.U)
+fclose(icFile.V)
