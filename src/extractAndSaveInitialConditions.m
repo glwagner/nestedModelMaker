@@ -86,21 +86,6 @@ if checkInpainting
 end
 
 % Interpolation - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-%{
-fprintf('Allocating memory for the initial condition...'), t1=tic;
-for face = 1:5
-    if child.nii(face) ~= 0
-        for nn = 1:numel(names)
-            initCond{face}.(names{nn}) = ...
-                zeros(child.nii(face), child.njj(face), child.nz);
-        end
-    end
-end
-fprintf('done. (time = %0.3f s).\n', toc(t1))
-%}
-
-zGrid.zC
-child.zGrid.zC
 
 % Interpolate in z.
 for face = 1:5
