@@ -77,7 +77,7 @@ saveObTides(child, childObij, childObTides);
 tiling(child);
 
 % print obcs setup
-obcsSetup(childm, childObij);
+obcsSetup(child, childObij);
 
 % Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
 extractAndSaveInitialConditions(dirz, parent, child);

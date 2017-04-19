@@ -121,10 +121,14 @@ end
 precision = 'real*4';
 for cellName = names
     name = cellName{:};
-    icFileName.(name) = sprintf('out/%s0_%dx%dx%d.bin', ...
+    icFileName.(name) = sprintf('%s0_%dx%dx%d.bin', ...
         name, child.nEast, child.nNorth, child.nz);
-    icFile.(name) = fopen(['out/' icFileName.(name)], 'w', 'ieee-be') 
+
+    disp( icFileName.(name) )
+
+    icFile.(name) = fopen(['out/' icFileName.(name)], 'w', 'ieee-be') ;
 end
+
 
 % Interpolate in x and y and save the result
 interpMethod = 'linear';

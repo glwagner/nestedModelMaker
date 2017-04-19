@@ -32,7 +32,7 @@ child.tspan.months = [    1    2 ];
 
 % Length of the open boundary condition to be extracted.  Due to the MITgcm's
 % linear interpolation of open boundary conditions, The number of months of 
-% boundary condition to be extracted is 2 + the number of months in the forward 
+% boundary condition to be extracted is 3 + the number of months in the forward 
 % simulation.
 child.nObcMonths = 2 + 12*(child.tspan.years(2)-child.tspan.years(1)) ...
     + (child.tspan.months(2)-child.tspan.months(1));            

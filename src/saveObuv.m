@@ -24,7 +24,6 @@ for edge = {'west', 'east', 'south', 'north'}
         end
         U(i0:i1,:,:) = childObuv{ib}.U;
         V(i0:i1,:,:) = childObuv{ib}.V;
-        % Need first or second wet point?
         T(i0:i1,:,:) = childObuv{ib}.T1;
         S(i0:i1,:,:) = childObuv{ib}.S1;
       end
