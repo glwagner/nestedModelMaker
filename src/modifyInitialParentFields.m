@@ -6,9 +6,12 @@ function [fields, parent] = modifyInitialParentFields(fields, parent, child)
 %   2. The child-grid cells that are adjacent to interior boundaries between
 %       faces, which require information across face.
 
-% Names of temperature, salinitiy, and velocitiy vectors in the struct 
+% Names of temperature, salinitiy, and velocity vectors in the struct 
 % "fields".
 names = {'T', 'S', 'U', 'V'};
+
+% Names of the hGrid properties to modify along with solution fields
+hGridProps = {'xC', 'yC', 'xU', 'yU', 'xV', 'yV'};
 
 % Copy bottom cell on the parent grid
 parent.zGrid.zF (parent.nz+2) = parent.zGrid.zF(end)-parent.zGrid.dzF(end);
@@ -114,13 +117,14 @@ for face = 1:5
                     fields{face}.(names{nn}));
             end
 
-            parent.hGrid{face}.xC = cat(1, ...
-                permute(parent.hGrid{neighbor}.xC(ii, jj, :), permuteKey2), ...
-                parent.hGrid{face}.xC);
+            % Horizontal grid properties
+            for kk = 1:numel(hGridProps)
+                prop = hGridProps{kk};
 
-            parent.hGrid{face}.yC = cat(1, ...
-                permute(parent.hGrid{neighbor}.yC(ii, jj, :), permuteKey2), ...
-                parent.hGrid{face}.yC);
+                parent.hGrid{face}.(prop) = cat(1, ...
+                    permute(parent.hGrid{neighbor}.(prop)(ii, jj, :), permuteKey2), ...
+                    parent.hGrid{face}.(prop));
+            end
 
         end
 
@@ -161,20 +165,21 @@ for face = 1:5
                 jj = 1:parent.njj(neighbor);
             end
 
+            % Solution fields: add cells on right side.
             for nn = 1:numel(names)
-                % Add cells on right side.
                 fields{face}.(names{nn}) = cat(1, ...
                     fields{face}.(names{nn}), ...
                     permute(fields{neighbor}.(names{nn})(ii, jj, :), permuteKey3));
             end
 
-            parent.hGrid{face}.xC = cat(1, ...
-                parent.hGrid{face}.xC, ...
-                permute(parent.hGrid{neighbor}.xC(ii, jj, :), permuteKey2));
+            % Horizontal grid properties
+            for kk = 1:numel(hGridProps)
+                prop = hGridProps{kk};
 
-            parent.hGrid{face}.yC = cat(1, ...
-                parent.hGrid{face}.yC, ...
-                permute(parent.hGrid{neighbor}.yC(ii, jj, :), permuteKey2));
+                parent.hGrid{face}.(prop) = cat(1, ...
+                    parent.hGrid{face}.(prop), ...
+                    permute(parent.hGrid{neighbor}.(prop)(ii, jj, :), permuteKey2));
+            end
 
         end
 
@@ -213,19 +218,19 @@ for face = 1:5
 
             % Add cells on left side.
             for nn = 1:numel(names)
-                % Add cells on the lower side.
                 fields{face}.(names{nn}) = cat(2, ...
                     permute(fields{neighbor}.(names{nn})(ii, jj, :), permuteKey3), ...
                     fields{face}.(names{nn}));
             end
 
-            parent.hGrid{face}.xC = cat(2, ...
-                permute(parent.hGrid{neighbor}.xC(ii, jj, :), permuteKey2), ...
-                parent.hGrid{face}.xC);
+            % Horizontal grid properties
+            for kk = 1:numel(hGridProps)
+                prop = hGridProps{kk};
 
-            parent.hGrid{face}.yC = cat(2, ...
-                permute(parent.hGrid{neighbor}.yC(ii, jj, :), permuteKey2), ...
-                parent.hGrid{face}.yC);
+                parent.hGrid{face}.(prop) = cat(2, ...
+                    permute(parent.hGrid{neighbor}.(prop)(ii, jj, :), permuteKey2), ...
+                    parent.hGrid{face}.(prop));
+            end
 
         end
 
@@ -275,13 +280,14 @@ for face = 1:5
                     permute(fields{neighbor}.(names{nn})(ii, jj, :), permuteKey3));
             end
 
-            parent.hGrid{face}.xC = cat(2, ...
-                parent.hGrid{face}.xC, ...
-                permute(parent.hGrid{neighbor}.xC(ii, jj, :), permuteKey2));
+            % Horizontal grid properties
+            for kk = 1:numel(hGridProps)
+                prop = hGridProps{kk};
 
-            parent.hGrid{face}.yC = cat(2, ...
-                parent.hGrid{face}.yC, ...
-                permute(parent.hGrid{neighbor}.yC(ii, jj, :), permuteKey2));
+                parent.hGrid{face}.(prop) = cat(2, ...
+                    parent.hGrid{face}.(prop), ...
+                    permute(parent.hGrid{neighbor}.(prop)(ii, jj, :), permuteKey2));
+            end
 
         end
     end
