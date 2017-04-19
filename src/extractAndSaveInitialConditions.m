@@ -138,32 +138,28 @@ for face = 1:5
             initCond{face}.S(:, :, iiz) = griddata(X, Y, ...
                 zInterped{face}.S(:, :, iiz), Xq, Yq, interpMethod);
 
-            % TODO: fix this part by adding xG to the fields that get 
-            % modified in "modifyInitialParentFields".
-
             % U
-            X = parent.hGrid{face}.xC;
-            Y = parent.hGrid{face}.yC;
+            X = parent.hGrid{face}.xU;
+            Y = parent.hGrid{face}.yU;
 
-            Xq = child.hGrid{face}.xC;
-            Yq = child.hGrid{face}.yC;
+            Xq = child.hGrid{face}.xU;
+            Yq = child.hGrid{face}.yU;
 
             initCond{face}.U(:, :, iiz) = griddata(X, Y, ...
                 zInterped{face}.U(:, :, iiz), Xq, Yq, interpMethod);
 
-            %% V
-            %X = parent.hGrid{face}.xC;
-            %Y = parent.hGrid{face}.yG(1:end-1, 1:end-1);
+            % V
+            X = parent.hGrid{face}.xV;
+            Y = parent.hGrid{face}.yV;
 
-            %Xq = child.hGrid{face}.xC;
-            %Yq = child.hGrid{face}.yG(1:end-1, 1:end-1);
+            Xq = child.hGrid{face}.xV;
+            Yq = child.hGrid{face}.yV;
 
             initCond{face}.V(:, :, iiz) = griddata(X, Y, ...
                 zInterped{face}.V(:, :, iiz), Xq, Yq, interpMethod);
         
             fprintf('done. (time = %0.3f s).\n', toc(t1))
 
-            %{
             for nn = 1:numel(names)
 
                 % Check
@@ -181,7 +177,6 @@ for face = 1:5
                 input('Press enter.')
 
             end
-            %}
 
         end
         fprintf('done. (time = %0.3f s).\n', toc(t1))
