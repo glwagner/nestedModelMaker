@@ -12,7 +12,7 @@ fprintf('done. (time = %.3f s).\n', toc(t0))
 % Use inpaint_nans on 2D slices to continue model data into land regions.
 % Specify inpaint method, the slices to inpaint on ('xz' or 'xy'), and 
 % whether or not to check the results of the inpainting.
-method = 0;
+method = 4;
 inpaintSlices = 'xz';
 checkInpainting = 0;
 
