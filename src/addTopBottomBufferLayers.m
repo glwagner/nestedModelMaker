@@ -9,28 +9,29 @@ bottomNaNLayer = 1;
 
 % Vertical grid to be modified and outputted
 zGrid = parent.zGrid;
+nz = parent.nz;
 
 % Copy bottom cell on the parent grid
-zGrid.zF (parent.nz+2) = parent.zGrid.zF(end)-parent.zGrid.dzF(end);
-zGrid.dzF(parent.nz+1) = parent.zGrid.zF(end);
-zGrid.zC (parent.nz+1) = 1/2*(parent.zGrid.zF(end-1)+parent.zGrid.zF(end));
-zGrid.dzC(parent.nz)  = parent.zGrid.zC(end-1)-parent.zGrid.zC(end);
+zGrid.zF (nz+2) = parent.zGrid.zF(end)-parent.zGrid.dzF(end);
+zGrid.dzF(nz+1) = parent.zGrid.zF(end);
+zGrid.zC (nz+1) = 1/2*(parent.zGrid.zF(end-1)+parent.zGrid.zF(end));
+zGrid.dzC(nz)  = parent.zGrid.zC(end-1)-parent.zGrid.zC(end);
 
 % New number of z-points.
-nzInt = length(zGrid.zC);
+nz = length(zGrid.zC);
 
 % Copy top cell on the parent grid into land.
 zGrid.zF  = [ -parent.zGrid.zF(2); 
-                reshape(zGrid.zF, nzInt+1, 1) ];
+                reshape(zGrid.zF, nz+1, 1) ];
 
 zGrid.dzF = [ parent.zGrid.zF(1)-parent.zGrid.zF(2);
-                reshape(zGrid.dzF, nzInt, 1) ];
+                reshape(zGrid.dzF, nz, 1) ];
 
-zGrid.zC  = [ 1/2*(parent.zGrid.zF(1)+parent.zGrid.zF(2));
-                reshape(zGrid.zC, nzInt, 1) ];
+zGrid.zC  = [ 1/2*(zGrid.zF(1)+zGrid.zF(2));
+                reshape(zGrid.zC, nz, 1) ];
 
-zGrid.dzC = [ parent.zGrid.zC(1)-parent.zGrid.zC(2);
-                reshape(zGrid.dzC, nzInt-1, 1) ];
+zGrid.dzC = [ zGrid.zC(1)-zGrid.zC(2);
+                reshape(zGrid.dzC, nz-1, 1) ];
 
 % New number of z-points.
 zGrid.nz = length(zGrid.zC);
