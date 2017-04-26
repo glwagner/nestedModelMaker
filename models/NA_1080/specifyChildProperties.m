@@ -27,8 +27,8 @@ child.llc.njj = [ [3 3]*child.res [1 1 1]*child.res ];
 % Time span of the forward simulation.  The forward simulation will 
 % extend from the month parent.tspan.months(1) in year parent.tspan.years(1) to
 % month parent.tspan.months(2) in year parent.tspan.years(2).
-child.tspan.years =  [ 2003 2003 ]; 
-child.tspan.months = [    1    2 ]; 
+child.tspan.years =  [ 2003 2013 ];
+child.tspan.months = [    1    1 ];
 
 % Length of the open boundary condition to be extracted.  Due to the MITgcm's
 % linear interpolation of open boundary conditions, The number of months of 
@@ -92,7 +92,6 @@ child.oceanPoint = [[50,50]; [NaN,NaN]; [NaN,NaN]; [NaN,NaN]; [100,200]];
 % Directories to store the child grids and obcs.
 dirz.home  = [ './models/' child.name '/'];
 dirz.childGrid = [ dirz.home 'grids/' ];
-dirz.childObcs = [ dirz.home 'obcs/' ];
-dirz.childInitialCondition = [ dirz.home 'initialCondition/' ];
+dirz.childInput = [ dirz.home 'input/' ];
 
 dirz.childZGrid = [ dirz.childGrid 'zGrid.mat' ];

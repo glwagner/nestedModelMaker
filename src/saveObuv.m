@@ -1,4 +1,4 @@
-function saveObuv(child, childObij, childObuv)
+function saveObuv(dirz, child, childObij, childObuv)
 
 for edge = {'west', 'east', 'south', 'north'}
   % initialize boundary fields with zeros
@@ -31,22 +31,22 @@ for edge = {'west', 'east', 'south', 'north'}
   end
   % save U
   file = sprintf('OB%cu_%dx%dx%d.bin', upper(edge{1}(1)), n, child.nz, child.nObcMonths);
-  f = fopen(['out/', file], 'w', 'ieee-be');
+  f = fopen([dirz.childInput, file], 'w', 'ieee-be');
   fwrite(f, U, 'real*4');
   fclose(f);
   % save V
   file = sprintf('OB%cv_%dx%dx%d.bin', upper(edge{1}(1)), n, child.nz, child.nObcMonths);
-  f = fopen(['out/', file], 'w', 'ieee-be');
+  f = fopen([dirz.childInput, file], 'w', 'ieee-be');
   fwrite(f, V, 'real*4');
   fclose(f);
   % save T
   file = sprintf('OB%ct_%dx%dx%d.bin', upper(edge{1}(1)), n, child.nz, child.nObcMonths);
-  f = fopen(['out/', file], 'w', 'ieee-be');
+  f = fopen([dirz.childInput, file], 'w', 'ieee-be');
   fwrite(f, T, 'real*4');
   fclose(f);
   % save S
   file = sprintf('OB%cs_%dx%dx%d.bin', upper(edge{1}(1)), n, child.nz, child.nObcMonths);
-  f = fopen(['out/', file], 'w', 'ieee-be');
+  f = fopen([dirz.childInput, file], 'w', 'ieee-be');
   fwrite(f, S, 'real*4');
   fclose(f);
 end

@@ -1,7 +1,7 @@
 function child = getDomainBathymetry(bathyDir, child)
 
-% This hook is needed because we only have the 1080 bathy in real*4.
-if child.res == 1080
+% This hook is needed because we only have the 1080, 2160 bathys in real*4.
+if child.res == 1080 | child.res == 2160
     precision = 'real*4';
 else
     precision = 'real*8';

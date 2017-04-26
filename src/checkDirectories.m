@@ -10,9 +10,9 @@ if exist(dirz.childGrid) == 0
 	fprintf('Making directory %s\n', dirz.childGrid);
 end
 
-if exist(dirz.childObcs) == 0
-	mkdir(dirz.childObcs);
-	fprintf('Making directory %s\n', dirz.childObcs);
+if exist(dirz.childInput) == 0
+	mkdir(dirz.childInput);
+	fprintf('Making directory %s\n', dirz.childInput);
 end
 
 % Open boundary conditions output

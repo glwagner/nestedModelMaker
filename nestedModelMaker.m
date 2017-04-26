@@ -1,7 +1,8 @@
 clear all
 
 % Define the names of both the parent model, and of child model to be built.
-child.name = 'gulfStreamComparison';
+%child.name = 'gulfStreamComparison';
+child.name = 'NA_2160';
 
 % Initialize the script by copying code to active directory and adding the path.
 if ~isdir('./active'), mkdir('./active'), end
@@ -71,10 +72,10 @@ parent.nz = length(parent.zGrid.zC);
 extractAndSaveInitialConditions(dirz, parent, child);
 
 % Save things to file
-saveGrid(child);
-saveBathymetry(child);
-saveObuv(child, childObij, childObuv);
-saveObTides(child, childObij, childObTides);
+saveGrid(dirz, child);
+saveBathymetry(dirz, child);
+saveObuv(dirz, child, childObij, childObuv);
+saveObTides(dirz, child, childObij, childObTides);
 
 % print tiling information
 tiling(child);

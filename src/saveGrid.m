@@ -1,10 +1,10 @@
-function saveGrid(child)
+function saveGrid(dirz, child)
 
 % save grid files for each face
 
 for i = 1:5
 
-  f = fopen(sprintf('out/tile%03d.mitgrid', i), 'w', 'ieee-be');
+  f = fopen(sprintf('%stile%03d.mitgrid', dirz.childInput, i), 'w', 'ieee-be');
 
   if ~isempty(child.hGrid{i})
 

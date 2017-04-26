@@ -15,8 +15,8 @@ for iOb = 1:model.nOb
     % Get the indices of the open boundary in llc coordinates.
     [ii, jj] = getOpenBoundaryIndices(obij{iOb}, 'llc');
 
-    % This hook is needed because we only have the 1080 bathy in real*4.
-    if model.res == 1080
+    % This hook is needed because we only have the 1080, 2160 bathys in real*4.
+    if model.res == 1080 | model.res == 2160
         precision = 'real*4';
     else
         precision = 'real*8';
