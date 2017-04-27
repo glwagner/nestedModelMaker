@@ -1,0 +1,193 @@
+# Diagnostic Package Choices
+#
+# daily 2-D fields:
+# ====================
+# 
+# ETAN     Perturbation of Surface (pressure, height) (Pa,m)
+# PHIBOT   ocean bottom pressure / top. atmos geo-Potential
+# oceTAUX  zonal surface wind stress, >0 increases uVel (N/m^2)
+# oceTAUY  meridional surf. wind stress, >0 increases vVel (N/m^2)
+# oceFWflx net surface Fresh-Water flux into ocean, >0 decreases salinity (kg/m^2/s)
+# oceSflux net surface Salt flux into the ocean, >0 increases salinity (g/m^2/s)
+# oceQnet  net surface heat flux into the ocean, >0 increases theta (W/m^2)
+# oceQsw   net Short-Wave radiation (+=down), >0 increases theta (W/m^2)
+# SST      Sea Surface Temperature (degC,K)
+# SSS      Sea Surface Salinity (g/kg)
+# KPPhbl   KPP boundary layer depth, bulk Ri criterion
+# SIarea   SEAICE fractional ice-covered area [0 to 1]
+# SIheff   SEAICE effective ice thickness (m)
+# SIuice   SEAICE zonal ice velocity, >0 from West to East (m/s)
+# SIvice   SEAICE merid. ice velocity, >0 from South to North (m/s)
+# SIhsnow  SEAICE snow thickness (m)
+# SIhsalt  SEAICE effective salinity (g/m^2)
+# SIqneti  heat flux under ice, >0 decreases theta (W/m^2)
+# SIqneto  heat flux over ocean, >0 decreases theta (W/m^2)
+# oceSPflx net surface Salt flux rejected into the ocean during freezing (g/m^2/s), (+=down) 
+# oceSPDep Salt plume depth based on density criterion (>0) (m)
+# EXFhl    Latent heat flux into ocean, >0 increases theta (W/m^2)
+# EXFhs    Sensible heat flux into ocean, >0 increases theta (W/m^2)
+#
+# 3-daily 3-D fields:
+# ===================
+# 
+# SALTanom Salt anomaly (=SALT-35; g/kg)
+# THETA    Potential Temperature (degC,K)
+# UVELMASS Zonal Mass-Weighted Comp of Velocity (m/s)
+# VVELMASS Meridional Mass-Weighted Comp of Velocity (m/s)
+# WVELMASS Vertical Mass-Weighted Comp of Velocity (m/s)
+# THETASQ  [degC^2] Square of Potential Temperature
+# SALTSQan [(psu)^2] Square of Salt anomaly (=(SALT-35)^2 (g^2/kg^2)
+# UVELSQ   [m^2/s^2] Square of Zonal Comp of Velocity (m^2/s^2)
+# VVELSQ   [m^2/s^2] Square of Meridional Comp of Velocity (m^2/s^2)
+# WVELSQ   [m^2/s^2] Square of Vertical Comp of Velocity
+
+#
+# monthly 3-D fields:
+# ===================
+#
+# ADVr_TH  degC.m^3/s Vertical   Advective Flux of Pot.Temperature
+# WTHMASS  Vertical Mass-Weight Transp of Pot Temp (degC.m/s)
+#
+ &diagnostics_list
+
+  dumpatlast = .TRUE.,
+
+  frequency(1)  = 86400.,
+   fields(1,1)  = 'ETAN    ',
+   filename(1)  = 'ETAN',
+##  frequency(36) = 86400.,
+##   fields(1,36) = 'DETADT2 ',
+##   filename(36) = 'DETADT2',
+##  frequency(37) = 86400.,
+##   fields(1,37) = 'ETANSQ  ',
+##   filename(37) = 'ETANSQ',
+  frequency(2)  = 86400.,
+   fields(1,2)  = 'PHIBOT  ',
+   filename(2)  = 'PHIBOT',
+  frequency(3)  = 86400.,
+   fields(1,3)  = 'oceTAUX ',
+   filename(3)  = 'oceTAUX',
+  frequency(4)  = 86400.,
+   fields(1,4)  = 'oceTAUY ',
+   filename(4)  = 'oceTAUY',
+  frequency(5)  = 86400.,
+   fields(1,5)  = 'oceFWflx',
+   filename(5)  = 'oceFWflx',
+  frequency(6)  = 86400.,
+   fields(1,6)  = 'oceSflux',
+   filename(6)  = 'oceSflux',
+  frequency(7)  = 86400.,
+   fields(1,7)  = 'oceQnet ',
+   filename(7)  = 'oceQnet',
+  frequency(8)  = 86400.,
+   fields(1,8)  = 'oceQsw  ',
+   filename(8)  = 'oceQsw',
+  frequency(9)  = 86400.,
+   fields(1,9)  = 'SALT    ',
+   levels(1,9)  = 1.,
+   filename(9)  = 'SSS',
+  frequency(10) = 86400.,
+   fields(1,10) = 'THETA   ',
+   levels(1,10) = 1.,
+   filename(10) = 'SST',
+  frequency(11) = 86400.,
+   fields(1,11) = 'KPPhbl  ',
+   filename(11) = 'KPPhbl',
+  frequency(12) = 86400.,
+   fields(1,12) = 'SIarea  ',
+   filename(12) = 'SIarea',
+  frequency(13) = 86400.,
+   fields(1,13) = 'SIheff  ',
+   filename(13) = 'SIheff',
+  frequency(14) = 86400.,
+   fields(1,14) = 'SIuice  ',
+   filename(14) = 'SIuice',
+  frequency(15) = 86400.,
+   fields(1,15) = 'SIvice  ',
+   filename(15) = 'SIvice',
+  frequency(16) = 86400.,
+   fields(1,16) = 'SIhsnow ',
+   filename(16) = 'SIhsnow',
+  frequency(17) = 86400.,
+   fields(1,17) = 'SIhsalt ',
+   filename(17) = 'SIhsalt',
+##  frequency(18) = 86400.,
+##   fields(1,18) = 'SIqneti ',
+##   filename(18) = 'SIqneti',
+##  frequency(19) = 86400.,
+##   fields(1,19) = 'SIqneto ',
+##   filename(19) = 'SIqneto',
+##  frequency(20) = 86400.,
+##   fields(1,20) = 'oceSPflx',
+##   filename(20) = 'oceSPflx',
+##  frequency(21) = 86400.,
+##   fields(1,21) = 'oceSPDep',
+##   filename(21) = 'oceSPDep',
+  frequency(22) = 86400.,
+   fields(1,22) = 'EXFhl   ',
+   filename(22) = 'EXFhl',
+  frequency(23) = 86400.,
+   fields(1,23) = 'EXFhs   ',
+   filename(23) = 'EXFhs',
+  frequency(24) = 259200.,
+   fields(1,24) = 'SALTanom',
+   filename(24) = 'SALTanom',
+  frequency(25) = 259200.,
+   fields(1,25) = 'THETA   ',
+   filename(25) = 'THETA',
+  frequency(26) = 259200.,
+   fields(1,26) = 'UVELMASS',
+   filename(26) = 'UVELMASS',
+  frequency(27) = 259200.,
+   fields(1,27) = 'VVELMASS',
+   filename(27) = 'VVELMASS',
+  frequency(28) = 259200.,
+   fields(1,28) = 'WVELMASS',
+   filename(28) = 'WVELMASS',
+  frequency(29) = 259200.,
+   fields(1,29) = 'ADVr_TH ',
+   filename(29) = 'ADVr_TH',
+  frequency(30) = 259200.,
+   fields(1,30) = 'WTHMASS ',
+   filename(30) = 'WTHMASS',
+  frequency(31) = 259200.,
+   fields(1,31) = 'SALTSQan',
+   filename(31) = 'SALTSQan',
+  frequency(32) = 259200.,
+   fields(1,32) = 'THETASQ ',
+   filename(32) = 'THETASQ',
+  frequency(33) = 259200.,
+   fields(1,33) = 'UVELSQ  ',
+   filename(33) = 'UVELSQ',
+  frequency(34) = 259200.,
+   fields(1,34) = 'VVELSQ  ',
+   filename(34) = 'VVELSQ',
+  frequency(35) = 259200.,
+   fields(1,35) = 'WVELSQ  ',
+   filename(35) = 'WVELSQ',
+  frequency(38) = 259200.,
+   fields(1,38) = 'DRHODR  ',
+   filename(38) = 'DRHODR',
+ &
+
+# Parameter for Diagnostics of per level statistics:
+#-----------------
+# for each output-stream:
+#  stat_fname(n) : prefix of the output file name (only 8.c long) for
+#outp.stream n
+#  stat_freq(n):< 0 : write snap-shot output every |stat_freq| seconds
+#               > 0 : write time-average output every stat_freq seconds
+#  stat_phase(n)    : write at time = stat_phase + multiple of |stat_freq|
+#  stat_region(:,n) : list of "regions" (default: 1 region only=global)
+#  stat_fields(:,n) : list of diagnostics fields (8.c) (see
+#"available_diagnostics.log"
+#                 file for the list of all available diag. in this particular
+#config)
+#-----------------
+ &DIAG_STATIS_PARMS
+#- an example just to check the agreement with MONITOR output:
+#stat_fields(1,1)= 'ETAN    ','UVEL    ','VVEL    ','WVEL    ', 'THETA   ',
+#   stat_fname(1)= 'dynStDiag',
+#    stat_freq(1)= -864000.,
+#   stat_phase(1)= 0.,
+ &

@@ -1,8 +1,7 @@
 clear all
 
 % Define the names of both the parent model, and of child model to be built.
-%child.name = 'gulfStreamComparison';
-child.name = 'NA_2160';
+child.name = 'NA_1080';
 
 % Initialize the script by copying code to active directory and adding the path.
 if ~isdir('./active'), mkdir('./active'), end
