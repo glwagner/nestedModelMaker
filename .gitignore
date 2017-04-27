@@ -13,7 +13,5 @@ bathymetry/
 sandbox/*.avi
 sandbox/*.mat
 
-models/gulfStreamComparison/obcs/ob??_parent.mat
-
 # Exclude vim-generated swap files
 **/*.swp
