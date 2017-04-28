@@ -37,10 +37,11 @@ at least at this time).
 The user's work flow proceeds as follows:
 
 1. Create a new directory in the ``/models`` directory. 
-Example: in the main repo directoy type ``mkdir ./models/newTestModel``.
+Example: in a terminal navigated to the main repo directory, 
+type ``mkdir ./models/newTestModel``.
 
 2. Copy everything from ``/models/template`` into the new model directory.
-Example: in the main repo directory type 
+Example: in a terminal navigated to the main repo directory, type 
 ``cp -r ./models/template/* ./models/newTestModel``
 
 3. Edit the two scripts ``specifyChildProperties.m`` and ``specifyParentProperties.m`` 
