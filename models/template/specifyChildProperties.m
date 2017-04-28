@@ -37,7 +37,7 @@ child.tspan.months = [    1    1 ];
 child.nObcMonths = 2 + 12*(child.tspan.years(2)-child.tspan.years(1)) ...
     + (child.tspan.months(2)-child.tspan.months(1));            
 
-% Boundaries of the child model in global llc coordinates, at child-grid
+% Boundaries of the child model in global llc coordinates, at template-grid
 % resolution.
 child.parent.ii = [   1 135
                       0   0    
