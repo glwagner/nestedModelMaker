@@ -1,12 +1,15 @@
 clear all
 
 % Define the names of both the parent model, and of child model to be built.
-child.name = 'NA_1080';
+child.name = 'BrazilBasin_LLC1080';
 
 % Initialize the script by copying code to active directory and adding the path.
-if ~isdir('./active'), mkdir('./active'), end
+if exist('./active') == 7, eval('!rm ./active/*')
+else,                      mkdir('./active'),       end
+
 eval( '!cp ./src/*.m ./active/')
 eval(['!cp ./models/' child.name '/*.m ./active/'])
+
 addpath('./active/')
 
 % Directory to high-res bathymetry.
