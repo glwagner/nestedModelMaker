@@ -8,9 +8,14 @@ clear all
 zLevel = 1;
 nMonths = 36;
 
-% Hard-coded for now
-YLim = [ 200, 325 ];
-XLim = [ 120, 420 ];
+% Brazil Basin:
+%YLim = [  30, 120 ];
+%XLim = [ 230, 440 ];
+
+% North Atlantic:
+YLim = [ 200, 320 ];
+XLim = [ 100, 380 ];
+
 faceSize = 4320;
 sub = 16;
 
@@ -90,7 +95,7 @@ yshrink = 0.0;
 ax(1).Position(4) = ax(1).Position(4) - yshrink; 
 ax(2).Position(4) = ax(2).Position(4) - yshrink; 
 
-yText = 1.28;
+yText = 1.33;
 text(0, yText, 'Speed (m/s)', 'Parent', ax(1), ...
     'Units', 'Normalized')
 text(0, yText, '$T - \int T \mathrm{d} x$ (${}^\circ C$)', 'Parent', ax(2), ...
@@ -101,7 +106,7 @@ input('Press enter to plot temperature and speed.')
 
 % Make the movie
 vid = VideoWriter('NorthAtlanticASTE.avi');
-vid.FrameRate = 8;
+vid.FrameRate = 4;
 open(vid)
 
 for month = 1:nMonths
@@ -124,12 +129,20 @@ for month = 1:nMonths
     imagesc('CData', ones(n, m, 3), 'Parent', ax(1), 'AlphaData', isnan(sp))
     imagesc('CData', ones(n, m, 3), 'Parent', ax(1), 'AlphaData', isnan(sp))
 
+    if ~exist('htxt')
+        htxt = text(1, yText, sprintf('Monthly average ending %s', soln.date), ...
+            'Parent', ax(1), 'Units', 'Normalized', ...
+            'HorizontalAlignment', 'right');
+    else
+        htxt.String = sprintf('Monthly average ending %s', soln.date);
+    end
+
     ax(1).CLim = [0.01 0.6];
     ax(2).CLim = [-1 1]*4;
 
     drawnow, pause(0.1)
 
-    frame = getframe;
+    frame = getframe(hfig);
     writeVideo(vid, frame);
 
 end

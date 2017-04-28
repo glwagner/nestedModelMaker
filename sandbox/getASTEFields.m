@@ -132,3 +132,5 @@ soln.V = [ flipud(VVEL{5}(:, :, zLevel)),  UVEL{1}(:, :, zLevel)' ];
 
 soln.T = [ flipud(THETA{5}(:, :, zLevel)), THETA{1}(:, :, zLevel)' ];
 soln.S = [ flipud(SALT{5}(:, :, zLevel)),  SALT{1}(:, :, zLevel)'  ];
+
+soln.date = datestr([year month day 0 0 0]);
