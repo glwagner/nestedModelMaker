@@ -1,0 +1,50 @@
+# Diagnostic Package Choices
+#-----------------
+# for each output-stream:
+#  filename(n) : prefix of the output file name (only 8.c long) for outp.stream n
+#  frequency(n):< 0 : write snap-shot output every multiple of |frequency| (iter)
+#               > 0 : write time-average output every multiple of frequency (iter)
+#  levels(:,n) : list of levels to write to file (Notes: declared as REAL)
+#                 when this entry is missing, select all common levels of this list
+#  fields(:,n) : list of diagnostics fields (8.c) (see "available_diagnostics" file 
+#                 for the list of all available diag. in this particular config)
+#--------------------------------------------------------------------
+#
+ &diagnostics_list
+#
+   dumpatlast = .TRUE.,
+#
+  frequency(1) = 3600.0,
+   fields(1:3,1) = 'ETAN', 'ETANSQ', 'DETADT2 ',
+   filename(1) = 'diags/surface',
+#
+  frequency(2) = 3600.0,
+   fields(1:2,3) = 'THETA', 'SALT',
+   filename(3) = 'diags/tracers',
+   levels(1:56,3) =   1.,  2., 3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 13., 15.,
+                     17., 19., 21., 23., 25., 27., 29., 31., 33., 35., 37., 39., 41., 43., 45.,
+                     47., 49., 51., 53., 55., 57., 59., 61., 63., 65., 67., 69., 71., 73., 75.,
+                     77., 79., 81., 83., 85., 87., 89., 91., 93., 95., 97., 99., 101.,
+#
+  frequency(4) = 3600.0,
+   fields(1:2,5) = 'UVELMASS', 'VVELMASS',
+   filename(5) = 'diags/transport',
+   levels(1:56,5) =   1.,  2., 3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 13., 15.,
+                     17., 19., 21., 23., 25., 27., 29., 31., 33., 35., 37., 39., 41., 43., 45.,
+                     47., 49., 51., 53., 55., 57., 59., 61., 63., 65., 67., 69., 71., 73., 75.,
+                     77., 79., 81., 83., 85., 87., 89., 91., 93., 95., 97., 99., 101.,
+ /
+#
+#
+# Parameter for Diagnostics of per level statistics:
+#-----------------
+# for each output-stream:
+#  stat_fname(n) : prefix of the output file name (only 8.c long) for outp.stream n
+#  stat_freq(n):< 0 : write snap-shot output every |stat_freq| seconds
+#               > 0 : write time-average output every stat_freq seconds
+#  stat_phase(n)    : write at time = stat_phase + multiple of |stat_freq|
+#  stat_region(:,n) : list of "regions" (default: 1 region only=global)
+#  stat_fields(:,n) : list of diagnostics fields (8.c) (see "available_diagnostics.log"
+#                 file for the list of all available diag. in this particular config)
+#-----------------
+ &DIAG_STATIS_PARMS
