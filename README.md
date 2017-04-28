@@ -10,8 +10,10 @@ and coarser-resolution simulations and state estimates.
 Anything is subject to change without warning.*
 
 We are currently planning a major refactor of the code, so this may be bad time 
-to start using it.
+to start using it, and it is not a good time to start contributing. We are very
+interested in contributors in the future! 
 
+There are no examples at this time. Someday, hopefully, there will be.
 
 ## Ultimate goal
 
@@ -61,9 +63,9 @@ must be supplied.
 
 4. Open the script ``nestedModelMaker.m`` and rename ``child.name`` to the name 
 of your new directory in ``/models``. For example, if the new model directory you 
-created is ``/models/newTestModel``, then ensure that ``child.name = 'newTestModel'``.
+created is ``/models/newTestModel``, then ensure that ``child.name = 'newTestModel';``.
 
-5. Open MATLAB and run the script nestedModelMaker.m.  
+5. Open MATLAB and run the script ``nestedModelMaker.m``. Brace yourself. 
 
 # Developers
 
