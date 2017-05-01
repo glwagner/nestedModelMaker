@@ -17,9 +17,9 @@ There are no examples at this time. Someday, hopefully, there will be.
 
 ## Ultimate goal
 
-Ultimately the goal is to get as close to 'one-click' as possible, in the sense 
-that all the user should have to do is to specify a latitude/longitude box, 
-press enter, and let the code do the rest. 
+Ultimately the goal is to get as close to 'one-click' model generation' as possible, 
+in the sense that all the user should have to do is to specify a 
+latitude/longitude box, press enter, and let the code do the rest. 
 
 The user will still have to do some work to compile and run the MITgcm simulation
 itself, but will be relieved the tedious work of generating open boundary 
@@ -50,13 +50,14 @@ potentially specified at this time and there is no documentation except in the
 scripts themselves. The user must specify, for example:
     * Information about the parent model including the location of the data, 
 the duration and time-stamps of the data, the horizontal and vertical grids, 
-the coordinates, the resolution, and the bathymetry.
+the coordinates, the resolution, and the bathymetry. We hope to simplify this aspect
+of the work flow soon.
     * The location of the child model within the parent model.
     * Files that contain the vertical and horizontal grid information about the 
 child model.
-    * The nature of the boundaries of the child model
-    * Bathymetry files at child-grid resolution., 
-    * Parameters imporant to MITgcm's numerical set-up
+    * The nature of the boundaries of the child model.
+    * Bathymetry files at child-grid resolution. 
+    * Parameters imporant to MITgcm's numerical set-up.
 
 Note that it should become simpler to specify the properties of the parent model
 once a standard NetCDF format is decided upon in which the parent model data
@@ -64,7 +65,8 @@ must be supplied.
 
 4. Open the script ``nestedModelMaker.m`` and rename ``child.name`` to the name 
 of your new directory in ``/models``. For example, if the new model directory you 
-created is ``/models/newTestModel``, then ensure that ``child.name = 'newTestModel';``.
+created is ``/models/newTestModel``, then ensure that ``nestedModelMaker.m 
+contains the line ``child.name = 'newTestModel';``.
 
 5. Open MATLAB and run the script ``nestedModelMaker.m``. Brace yourself. 
 
