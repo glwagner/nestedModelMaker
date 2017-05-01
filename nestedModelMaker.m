@@ -1,7 +1,9 @@
 clear all
 
-% Define the names of both the parent model, and of child model to be built.
+
+% Define the name of the model.
 child.name = 'BrazilBasin_LLC1080';
+
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 % Initialize the script by copying code to active directory and adding the path.
@@ -13,17 +15,20 @@ eval(['!cp ./models/' child.name '/*.m ./active/'])
 
 addpath('./active/')
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-% Initialization
+
+% Initialization  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 [dirz, parent] = specifyParentProperties();
 [dirz, child] = specifyChildProperties(dirz, child);
 [dirz, parent, child] = checkAndProcessInput(dirz, parent, child);
 
 % Get open boundary conditions and grid info  - - - - - - - - - - - - - - - - - 
+
 % Parse parent data structure for open boundary information.
 parentObij = parseOpenBoundaries(child);
-parentObij = getOpenBoundaryHorizontalGrid(dirz.parentGlobalGrids, parent, parentObij);
-parentObij = getOpenBoundaryVerticalGrid_aste(dirz.parentGlobalGrids, parent, parentObij);
+parentObij = getOpenBoundaryHorizontalGrid(dirz.parentGlobalGrids, parent, ...
+    parentObij);
+parentObij = getOpenBoundaryVerticalGrid_aste(dirz.parentGlobalGrids, parent, ...
+    parentObij);
 parentObuv = getParentOpenBoundaryConditions(dirz, parent, child, parentObij);
 
 % Get boundary indices for child grid.
@@ -37,12 +42,8 @@ childObij = getOpenBoundaryVerticalGrid_child(dirz.childBathy, child, ...
 
 childObuv = getChildOpenBoundaryConditions(childObij, parentObij, parentObuv);
 
-% Extract tidal amplitudes and phases at open boundaries (using parent model
-% date information -- make sure the child model is started at that time!).
-childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
-    child.tspan.months(1), 1));
-
 % Generate the child domain - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
 child = initializeDomain(child);
 child = snapDomainToSuperGrid(child, child.nSuperGrid);
 child = getDomainBathymetry(dirz.childBathy, child);
@@ -62,8 +63,14 @@ child.nz = length(child.zGrid.zC);
 parent.zGrid = getfield(load(dirz.parentZGrid, 'zGrid'), 'zGrid');
 parent.nz = length(parent.zGrid.zC);
 
+% Extract tidal amplitudes and phases at open boundaries (using parent model
+% date information -- make sure the child model is started at that time!).
+childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
+    child.tspan.months(1), 1));
+
 % Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
-extractAndSaveInitialConditions(dirz, parent, child);
+
+%extractAndSaveInitialConditions(dirz, parent, child);
 
 % Save things to file
 saveGrid(dirz, child);
