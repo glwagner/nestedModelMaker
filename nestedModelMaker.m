@@ -70,7 +70,7 @@ childObTides = getTidalData(childObij, datenum(child.tspan.years(1), ...
 
 % Generate initial conditions - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-%extractAndSaveInitialConditions(dirz, parent, child);
+extractAndSaveInitialConditions(dirz, parent, child);
 
 % Save things to file
 saveGrid(dirz, child);
