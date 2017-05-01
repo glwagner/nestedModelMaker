@@ -116,7 +116,7 @@ for cellName = names
     icFileName.(name) = sprintf('%s0_%dx%dx%d.bin', ...
         name, child.nEast, child.nNorth, child.nz);
 
-    icFile.(name) = fopen(['out/' icFileName.(name)], 'w', 'ieee-be') ;
+    icFile.(name) = fopen([dirz.childInput icFileName.(name)], 'w', 'ieee-be') ;
 
     fprintf('%s initial condition file: %s\n', name, icFileName.(name))
 
