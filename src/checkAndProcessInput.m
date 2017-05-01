@@ -8,8 +8,9 @@ dirz.childGrid = [ dirz.home 'grids/' ];
 dirz.childInput = [ dirz.home 'input/' ];
 
 if exist(dirz.home) == 0
-	mkdir(dirz.home);
-	fprintf('Making directory %s\n', dirz.home);
+    error(fprintf(['%s is not a directory. Check to see that the' ...
+        'parameter "child.name" is specified correctly in "nestedModelMaker.m"'], ...
+    dirz.home))
 end
 
 if exist(dirz.childGrid) == 0
@@ -41,16 +42,19 @@ child.nObcMonths = 2 + 12*(child.tspan.years(2)-child.tspan.years(1)) ...
 
 % Count open boundaries.
 child.nOb = 0;
-for face = 1:5, for side = 1:2, 
-    if strcmp(child.bcs.ii{face}{side}, 'open')
-        child.nOb = child.nOb+1; 
-    elseif strcmp(child.bcs.jj{face}{side}, 'open')
-        child.nOb = child.nOb+1; 
+for face = 1:5, 
+    for side = 1:2, 
+        if strcmp(child.bcs.ii{face}{side}, 'open')
+            child.nOb = child.nOb+1; 
+        elseif strcmp(child.bcs.jj{face}{side}, 'open')
+            child.nOb = child.nOb+1; 
+        end
     end
-end, end
+end
 
 
 % Parent grid
+
 parent.llc.nii = [ parent.res([1 1 1]) 3*parent.res([1 1]) ];
 parent.llc.njj = [ 3*parent.res([1 1]) parent.res([1 1 1]) ];
 
