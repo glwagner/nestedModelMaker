@@ -112,7 +112,7 @@ open(vid)
 for month = 1:nMonths
 
     % Load 2D solution at level 'zLevel'
-    soln = getASTEFields(dirz, parent, month, zLevel);
+    soln = getAsteAtlanticSlice(dirz, parent, month, zLevel);
 
     % Speed
     sp = sqrt(soln.U.^2 + soln.V.^2);

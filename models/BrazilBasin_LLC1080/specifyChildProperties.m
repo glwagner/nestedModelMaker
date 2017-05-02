@@ -21,7 +21,7 @@ child.res  = 1080;
 % Time span of the forward simulation.  The forward simulation will 
 % extend from the month parent.tspan.months(1) in year parent.tspan.years(1) to
 % month parent.tspan.months(2) in year parent.tspan.years(2).
-child.tspan.years =  [ 2003 2013 ];
+child.tspan.years =  [ 2003 2004 ];
 child.tspan.months = [    1    1 ];
 
 % Boundaries of the child model in global llc coordinates, at parent-grid

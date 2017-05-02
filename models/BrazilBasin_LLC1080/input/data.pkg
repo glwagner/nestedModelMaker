@@ -1,8 +1,0 @@
-# Packages
- &PACKAGES
- useEXF         = .TRUE.,
- useKPP         = .TRUE.,
- useDiagnostics = .TRUE.,
- useOBCS        = .TRUE.,
-# useProfiles   = .TRUE.,
- /
