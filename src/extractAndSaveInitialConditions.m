@@ -118,7 +118,7 @@ for cellName = names
 
     disp(icFileName.(name) )
 
-    icFile.(name) = fopen(['out/' icFileName.(name)], 'w', 'ieee-be') ;
+    icFile.(name) = fopen([dirz.childInput icFileName.(name)], 'w', 'ieee-be') ;
 end
 
 % Interpolate in x and y and save the result

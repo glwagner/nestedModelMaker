@@ -11,7 +11,7 @@ eval(['!cp ./models/' child.name '/*.m ./active/'])
 addpath('./active/')
 
 % Directory to high-res bathymetry.
-bathyName  = 'SandS14p1_ibcao_4320x56160.bin';
+bathyName  = 'bathy_LLC4320_real8.bin';
 dirz.plotBathy = ['/data5/glwagner/Numerics/nestedModelMaker/bathymetry/' bathyName ];
 
 % Call user-defined functions - - - - - - - - - - - - - - - - - - - - - - - - - 
